@@ -8,20 +8,20 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "Swift Student Challenge",
+    name: "Home Gym",
     platforms: [
         .iOS("16.0")
     ],
     products: [
         .iOSApplication(
-            name: "Swift Student Challenge",
+            name: "Home Gym",
             targets: ["AppModule"],
             bundleIdentifier: "JamesKong.Swift-Student-Challenge",
             teamIdentifier: "H848CWSF25",
             displayVersion: "1.0",
             bundleVersion: "1",
-            appIcon: .placeholder(icon: .pencil),
-            accentColor: .presetColor(.yellow),
+            appIcon: .placeholder(icon: .weights),
+            accentColor: .presetColor(.blue),
             supportedDeviceFamilies: [
                 .pad,
                 .phone
@@ -31,7 +31,8 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
-            ]
+            ],
+            appCategory: .healthcareFitness
         )
     ],
     targets: [
@@ -40,5 +41,5 @@ let package = Package(
             path: "."
         )
     ],
-    swiftLanguageVersions: [.v6]
+    swiftLanguageVersions: [.version("6")]
 )
