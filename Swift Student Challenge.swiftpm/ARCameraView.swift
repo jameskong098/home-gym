@@ -7,7 +7,6 @@ struct ARCameraView: UIViewControllerRepresentable {
     let exerciseName: String
 
     func makeUIViewController(context: Context) -> ARCameraViewController {
-        print("RUNNING")
         return ARCameraViewController(exerciseName: exerciseName)
     }
 

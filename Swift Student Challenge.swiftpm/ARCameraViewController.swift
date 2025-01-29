@@ -3,9 +3,11 @@ import ARKit
 import Vision
 import AVFoundation
 
-class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
+class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, ARSessionDelegate {
     let exerciseName: String
     var cameraSession: AVCaptureSession?
+    var previewLayer: AVCaptureVideoPreviewLayer!
+    var overlayLayer: CALayer!
     
     init(exerciseName: String) {
         self.exerciseName = exerciseName
@@ -19,10 +21,22 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCamera()
+        setupOverlay()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Disable the idle timer to prevent the screen from sleeping
+        UIApplication.shared.isIdleTimerDisabled = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Re-enable the idle timer when the view is no longer visible
+        UIApplication.shared.isIdleTimerDisabled = false
     }
     
     private func setupCamera() {
-        
         let captureSession = AVCaptureSession()
         guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else {
             print("No front camera found")
@@ -44,7 +58,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
             captureSession.startRunning()
             self.cameraSession = captureSession
             
-            let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
             previewLayer.frame = self.view.bounds
             previewLayer.videoGravity = .resizeAspectFill
             self.view.layer.addSublayer(previewLayer)
@@ -53,45 +67,112 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         }
     }
     
-    // Mark the method as nonisolated to conform to the protocol's requirement
+    private func setupOverlay() {
+        overlayLayer = CALayer()
+        overlayLayer.frame = self.view.bounds
+        self.view.layer.addSublayer(overlayLayer)
+    }
+    
     nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-            guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-            
-            let request = VNDetectHumanBodyPoseRequest { [weak self] request, error in
-                if let error = error {
-                    print("Error detecting body pose: \(error)")
-                    return
-                }
-                
-                guard let results = request.results as? [VNHumanBodyPoseObservation] else { return }
-                
-                for result in results {
-                    do {
-                        // 1. Convert to simple value types first
-                        let safePoints = try result.recognizedPoints(.all).mapValues { point in
-                            return (location: point.location, confidence: point.confidence)
-                        }
-                        
-                        // 2. Pass the simple tuple instead of VNRecognizedPoint
-                        DispatchQueue.main.async { [weak self] in
-                            self?.processPoseData(safePoints)
-                        }
-                    } catch {
-                        print("Error extracting points: \(error)")
-                    }
-                }
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
+        let request = VNDetectHumanBodyPoseRequest { [weak self] request, error in
+            if let error = error {
+                print("Error detecting body pose: \(error)")
+                return
             }
             
-            let handler = VNImageRequestHandler(ciImage: CIImage(cvPixelBuffer: pixelBuffer), options: [:])
-            try? handler.perform([request])
-        }
-
-        @MainActor
-        private func processPoseData(_ points: [VNHumanBodyPoseObservation.JointName: (location: CGPoint, confidence: VNConfidence)]) {
-            for (key, point) in points {
-                if point.confidence > 0 {
-                    print("\(key.rawValue): \(point.location) with confidence \(point.confidence)")
+            guard let results = request.results as? [VNHumanBodyPoseObservation] else { return }
+            
+            for result in results {
+                do {
+                    let safePoints = try result.recognizedPoints(.all).mapValues { point in
+                        return (location: point.location, confidence: point.confidence)
+                    }
+                    
+                    DispatchQueue.main.async { [weak self] in
+                        self?.processPoseData(safePoints)
+                    }
+                } catch {
+                    print("Error extracting points: \(error)")
                 }
+            }
+        }
+        
+        let handler = VNImageRequestHandler(ciImage: CIImage(cvPixelBuffer: pixelBuffer), options: [:])
+        try? handler.perform([request])
+    }
+    
+    @MainActor
+    private func processPoseData(_ points: [VNHumanBodyPoseObservation.JointName: (location: CGPoint, confidence: VNConfidence)]) {
+        overlayLayer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        
+        for (key, point) in points {
+            if point.confidence > 0 {
+                let normalizedPoint = point.location
+                let screenPoint = previewLayer.layerPointConverted(fromCaptureDevicePoint: normalizedPoint)
+                
+                // Draw a circle at the joint location
+                let circleLayer = CAShapeLayer()
+                let circlePath = UIBezierPath(arcCenter: screenPoint, radius: 5, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+                circleLayer.path = circlePath.cgPath
+                circleLayer.fillColor = UIColor.red.cgColor
+                overlayLayer.addSublayer(circleLayer)
+                
+                // Draw a label for the joint
+                let textLayer = CATextLayer()
+                textLayer.string = "\(bodyPartName(for: key))" // Use the body part name
+                textLayer.fontSize = 12
+                textLayer.foregroundColor = UIColor.white.cgColor
+                textLayer.backgroundColor = UIColor.black.cgColor
+                textLayer.frame = CGRect(x: screenPoint.x + 10, y: screenPoint.y - 10, width: 100, height: 20)
+                overlayLayer.addSublayer(textLayer)
             }
         }
     }
+    
+    private func bodyPartName(for jointName: VNHumanBodyPoseObservation.JointName) -> String {
+        switch jointName {
+        case .nose:
+            return "Nose"
+        case .leftEye:
+            return "Left Eye"
+        case .rightEye:
+            return "Right Eye"
+        case .leftEar:
+            return "Left Ear"
+        case .rightEar:
+            return "Right Ear"
+        case .leftShoulder:
+            return "Left Shoulder"
+        case .rightShoulder:
+            return "Right Shoulder"
+        case .leftElbow:
+            return "Left Elbow"
+        case .rightElbow:
+            return "Right Elbow"
+        case .leftWrist:
+            return "Left Wrist"
+        case .rightWrist:
+            return "Right Wrist"
+        case .leftHip:
+            return "Left Hip"
+        case .rightHip:
+            return "Right Hip"
+        case .leftKnee:
+            return "Left Knee"
+        case .rightKnee:
+            return "Right Knee"
+        case .leftAnkle:
+            return "Left Ankle"
+        case .rightAnkle:
+            return "Right Ankle"
+        case .neck:
+            return "Neck"
+        case .root:
+            return "Root"
+        default:
+            return "Unknown"
+        }
+    }
+}

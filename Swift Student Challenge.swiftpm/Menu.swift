@@ -13,6 +13,7 @@ struct ExerciseMenu: View {
             ExerciseButton(name: "Sit-ups", icon: "figure.arms.open")
             ExerciseButton(name: "Planks", icon: "figure.arms.open")
             ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open")
+            ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open")
             
             Spacer()
         }
