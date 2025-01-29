@@ -8,9 +8,10 @@ struct ExerciseMenu: View {
                 .fontWeight(.bold)
                 .padding()
 
-            ExerciseButton(name: "Push-ups", icon: "figure.pushup")
-            ExerciseButton(name: "Sit-ups", icon: "figure.situp")
-            ExerciseButton(name: "Planks", icon: "figure.plank")
+            // Pass the exercise name to ARExerciseView on button tap
+            ExerciseButton(name: "Push-up", icon: "figure.arms.open")
+            ExerciseButton(name: "Sit-ups", icon: "figure.arms.open")
+            ExerciseButton(name: "Planks", icon: "figure.arms.open")
             ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open")
             
             Spacer()
@@ -24,9 +25,7 @@ struct ExerciseButton: View {
     let icon: String
     
     var body: some View {
-        Button(action: {
-            // Navigate to exercise detail screen (to be implemented)
-        }) {
+        NavigationLink(destination: ARExerciseView(exerciseName: name)) {
             HStack {
                 Image(systemName: icon)
                     .font(.title)

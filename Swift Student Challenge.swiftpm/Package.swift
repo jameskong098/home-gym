@@ -32,6 +32,9 @@ let package = Package(
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
+            capabilities: [
+                .camera(purposeString: "Camera usage is required for body tracking!")
+            ],
             appCategory: .healthcareFitness
         )
     ],
