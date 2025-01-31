@@ -8,6 +8,9 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     var cameraSession: AVCaptureSession?
     var previewLayer: AVCaptureVideoPreviewLayer!
     var overlayLayer: CALayer!
+    var repCounter: Int = 0
+    var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
+    var isGoingDown: Bool = false
     
     init(exerciseName: String) {
         self.exerciseName = exerciseName
@@ -168,8 +171,61 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 }
             }
         }
+        
+        countReps(jointPoints)
+        
+        displayRepCount()
     }
-
+    
+    private func countReps(_ jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]) {
+        switch exerciseName {
+        case "Push-Ups":
+            if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist] {
+                let leftElbowAngle = angleBetweenPoints(leftShoulder, leftElbow, leftWrist)
+                let rightElbowAngle = angleBetweenPoints(rightShoulder, rightElbow, rightWrist)
+                
+                if leftElbowAngle < 100 && rightElbowAngle < 100 {
+                    isGoingDown = true
+                } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
+                    repCounter += 1
+                    isGoingDown = false
+                }
+            }
+        case "Sit-Ups":
+            break
+            // Implement Sit-Ups Logic
+        case "Planks":
+            break
+            // Implement Planks Logic
+        case "Bicep Curls":
+            break
+            // Implement Bicep Curl Logic
+        case "Jumping Jacks":
+            break
+            // Implement Jumping Jack Logic
+        default:
+            break
+        }
+        
+        lastPose = jointPoints
+    }
+    
+    private func angleBetweenPoints(_ p1: CGPoint, _ p2: CGPoint, _ p3: CGPoint) -> CGFloat {
+        let a = pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2)
+        let b = pow(p2.x - p3.x, 2) + pow(p2.y - p3.y, 2)
+        let c = pow(p3.x - p1.x, 2) + pow(p3.y - p1.y, 2)
+        return acos((a + b - c) / sqrt(4 * a * b)) * 180 / .pi
+    }
+    
+    private func displayRepCount() {
+        let repCountLayer = CATextLayer()
+        repCountLayer.string = "Reps: \(repCounter)"
+        repCountLayer.fontSize = 24
+        repCountLayer.foregroundColor = UIColor.white.cgColor
+        repCountLayer.backgroundColor = UIColor.black.cgColor
+        repCountLayer.frame = CGRect(x: 20, y: 40, width: 200, height: 40)
+        overlayLayer.addSublayer(repCountLayer)
+    }
     
     private func bodyPartName(for jointName: VNHumanBodyPoseObservation.JointName) -> String {
         switch jointName {
