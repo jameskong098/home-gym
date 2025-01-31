@@ -9,8 +9,8 @@ struct ExerciseMenu: View {
                 .padding()
 
             // Pass the exercise name to ARExerciseView on button tap
-            ExerciseButton(name: "Push-up", icon: "figure.arms.open")
-            ExerciseButton(name: "Sit-ups", icon: "figure.arms.open")
+            ExerciseButton(name: "Push-Ups", icon: "figure.arms.open")
+            ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open")
             ExerciseButton(name: "Planks", icon: "figure.arms.open")
             ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open")
             ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open")

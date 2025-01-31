@@ -26,13 +26,11 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        // Disable the idle timer to prevent the screen from sleeping
         UIApplication.shared.isIdleTimerDisabled = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        // Re-enable the idle timer when the view is no longer visible
         UIApplication.shared.isIdleTimerDisabled = false
     }
     
@@ -107,26 +105,31 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     private func processPoseData(_ points: [VNHumanBodyPoseObservation.JointName: (location: CGPoint, confidence: VNConfidence)]) {
         overlayLayer.sublayers?.forEach { $0.removeFromSuperlayer() }
         
+        let showPoints = UserDefaults.standard.bool(forKey: "showBodyTrackingPoints")
+        let showLabels = UserDefaults.standard.bool(forKey: "showBodyTrackingLabels")
+        
         for (key, point) in points {
             if point.confidence > 0 {
-                let normalizedPoint = point.location
+                let normalizedPoint = CGPoint(x: point.location.x, y: 1 - point.location.y)
                 let screenPoint = previewLayer.layerPointConverted(fromCaptureDevicePoint: normalizedPoint)
                 
-                // Draw a circle at the joint location
-                let circleLayer = CAShapeLayer()
-                let circlePath = UIBezierPath(arcCenter: screenPoint, radius: 5, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
-                circleLayer.path = circlePath.cgPath
-                circleLayer.fillColor = UIColor.red.cgColor
-                overlayLayer.addSublayer(circleLayer)
+                if showPoints {
+                    let circleLayer = CAShapeLayer()
+                    let circlePath = UIBezierPath(arcCenter: screenPoint, radius: 5, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+                    circleLayer.path = circlePath.cgPath
+                    circleLayer.fillColor = UIColor.red.cgColor
+                    overlayLayer.addSublayer(circleLayer)
+                }
                 
-                // Draw a label for the joint
-                let textLayer = CATextLayer()
-                textLayer.string = "\(bodyPartName(for: key))" // Use the body part name
-                textLayer.fontSize = 12
-                textLayer.foregroundColor = UIColor.white.cgColor
-                textLayer.backgroundColor = UIColor.black.cgColor
-                textLayer.frame = CGRect(x: screenPoint.x + 10, y: screenPoint.y - 10, width: 100, height: 20)
-                overlayLayer.addSublayer(textLayer)
+                if showLabels {
+                    let textLayer = CATextLayer()
+                    textLayer.string = "\(bodyPartName(for: key))"
+                    textLayer.fontSize = 12
+                    textLayer.foregroundColor = UIColor.white.cgColor
+                    textLayer.backgroundColor = UIColor.black.cgColor
+                    textLayer.frame = CGRect(x: screenPoint.x + 10, y: screenPoint.y - 10, width: 100, height: 20)
+                    overlayLayer.addSublayer(textLayer)
+                }
             }
         }
     }

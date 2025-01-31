@@ -1,6 +1,11 @@
 import SwiftUI
 
 struct SettingsScreen: View {
+    @AppStorage("enableSoundCues") private var enableSoundCues = true
+    @AppStorage("enableVoice") private var enableVoice = true
+    @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
+    @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
+
     var body: some View {
         VStack {
             Text("Settings")
@@ -8,12 +13,14 @@ struct SettingsScreen: View {
                 .fontWeight(.bold)
                 .padding()
 
-            Toggle("Enable Sound Cues", isOn: .constant(true))
-                .padding()
+            Toggle("Enable Sound Cues", isOn: $enableSoundCues).padding()
             
-            Toggle("Show Achievement Alerts", isOn: .constant(true))
-                .padding()
+            Toggle("Enable Voice", isOn: $enableVoice).padding()
             
+            Toggle("Show Body Tracking Points", isOn: $showBodyTrackingPoints).padding()
+            
+            Toggle("Show Body Tracking Labels", isOn: $showBodyTrackingLabels).padding()
+
             Spacer()
         }
         .padding()
