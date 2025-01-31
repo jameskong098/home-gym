@@ -107,11 +107,15 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         
         let showPoints = UserDefaults.standard.bool(forKey: "showBodyTrackingPoints")
         let showLabels = UserDefaults.standard.bool(forKey: "showBodyTrackingLabels")
+        let showLines = UserDefaults.standard.bool(forKey: "showBodyTrackingLines")
+        
+        var jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
         
         for (key, point) in points {
             if point.confidence > 0 {
                 let normalizedPoint = CGPoint(x: point.location.x, y: 1 - point.location.y)
                 let screenPoint = previewLayer.layerPointConverted(fromCaptureDevicePoint: normalizedPoint)
+                jointPoints[key] = screenPoint
                 
                 if showPoints {
                     let circleLayer = CAShapeLayer()
@@ -132,7 +136,40 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 }
             }
         }
+        
+        if showLines {
+            let connections: [(VNHumanBodyPoseObservation.JointName, VNHumanBodyPoseObservation.JointName)] = [
+                (.leftShoulder, .leftElbow),
+                (.leftElbow, .leftWrist),
+                (.rightShoulder, .rightElbow),
+                (.rightElbow, .rightWrist),
+                (.leftShoulder, .rightShoulder),
+                (.leftHip, .leftKnee),
+                (.leftKnee, .leftAnkle),
+                (.rightHip, .rightKnee),
+                (.rightKnee, .rightAnkle),
+                (.leftShoulder, .leftHip),
+                (.rightShoulder, .rightHip),
+                (.neck, .leftShoulder),
+                (.neck, .rightShoulder),
+                (.nose, .neck)
+            ]
+            
+            for connection in connections {
+                if let startPoint = jointPoints[connection.0], let endPoint = jointPoints[connection.1] {
+                    let lineLayer = CAShapeLayer()
+                    let linePath = UIBezierPath()
+                    linePath.move(to: startPoint)
+                    linePath.addLine(to: endPoint)
+                    lineLayer.path = linePath.cgPath
+                    lineLayer.strokeColor = UIColor.green.cgColor
+                    lineLayer.lineWidth = 2
+                    overlayLayer.addSublayer(lineLayer)
+                }
+            }
+        }
     }
+
     
     private func bodyPartName(for jointName: VNHumanBodyPoseObservation.JointName) -> String {
         switch jointName {
