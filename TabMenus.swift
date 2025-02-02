@@ -42,7 +42,7 @@ struct TabMenus: View {
                     .fontWeight(.bold)
                     .padding(.vertical, 15)
                     .padding(.horizontal)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .background(Color(UIColor { traitCollection in
                         if traitCollection.userInterfaceStyle == .dark {
                             return Theme.headerColorDark

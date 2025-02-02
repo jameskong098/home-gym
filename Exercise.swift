@@ -61,7 +61,7 @@ struct ExerciseButton: View {
                     return Theme.exerciseListBackgroundColorLight
                 }
             }))
-            .cornerRadius(10)
+            .cornerRadius(40)
         }
     }
 }

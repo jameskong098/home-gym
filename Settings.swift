@@ -10,11 +10,11 @@ struct Settings: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Audio")
-                        .font(.headline)
-                        .padding(.top)
+                Text("Audio")
+                    .font(.headline)
+                    .padding(.top)
 
+                VStack(alignment: .center, spacing: 10) {
                     Toggle("Enable Sound Cues", isOn: $enableSoundCues).padding(.horizontal)
                     Toggle("Enable Voice", isOn: $enableVoice).padding(.horizontal)
                 }
@@ -26,14 +26,13 @@ struct Settings: View {
                         return Theme.settingsSectionBackgroundColorLight
                     }
                 }))
-                .cornerRadius(10)
-                .shadow(radius: 5)
+                .cornerRadius(25)
 
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Body Tracking")
-                        .font(.headline)
-                        .padding(.top)
+                Text("Body Tracking")
+                    .font(.headline)
+                    .padding(.top)
 
+                VStack(alignment: .center, spacing: 10) {
                     Toggle("Show Body Tracking Points", isOn: $showBodyTrackingPoints).padding(.horizontal)
                     Toggle("Show Body Tracking Labels", isOn: $showBodyTrackingLabels).padding(.horizontal)
                     Toggle("Show Body Tracking Lines", isOn: $showBodyTrackingLines).padding(.horizontal)
@@ -46,8 +45,7 @@ struct Settings: View {
                         return Theme.settingsSectionBackgroundColorLight
                     }
                 }))
-                .cornerRadius(10)
-                .shadow(radius: 5)
+                .cornerRadius(25)
 
                 Spacer()
             }
