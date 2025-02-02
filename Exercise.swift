@@ -1,20 +1,13 @@
 import SwiftUI
 
-struct ExerciseMenu: View {
+struct Exercise: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text("Choose Your Exercise")
-                .font(.title)
-                .fontWeight(.bold)
-                .padding()
-
-            // Pass the exercise name to ARExerciseView on button tap
             ExerciseButton(name: "Push-Ups", icon: "figure.arms.open")
             ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open")
             ExerciseButton(name: "Planks", icon: "figure.arms.open")
             ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open")
             ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open")
-            
             Spacer()
         }
         .padding()

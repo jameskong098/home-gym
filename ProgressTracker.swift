@@ -3,11 +3,6 @@ import SwiftUI
 struct ProgressTracker: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text("Your Progress")
-                .font(.title)
-                .fontWeight(.bold)
-                .padding()
-
             ProgressBar(progress: 0.7, title: "Weekly Goal")
             ProgressBar(progress: 0.5, title: "Daily Goal")
             

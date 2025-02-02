@@ -4,7 +4,7 @@ import SwiftUI
 struct HomeGymApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeScreen()
+            TabMenus()
         }
     }
 }

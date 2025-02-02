@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SettingsScreen: View {
+struct Settings: View {
     @AppStorage("enableSoundCues") private var enableSoundCues = true
     @AppStorage("enableVoice") private var enableVoice = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
@@ -10,11 +10,6 @@ struct SettingsScreen: View {
 
     var body: some View {
         VStack {
-            Text("Settings")
-                .font(.title)
-                .fontWeight(.bold)
-                .padding()
-
             Toggle("Enable Sound Cues", isOn: $enableSoundCues).padding()
             
             Toggle("Enable Voice", isOn: $enableVoice).padding()
