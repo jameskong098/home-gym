@@ -2,7 +2,8 @@ import SwiftUI
 
 struct TabMenus: View {
     @State private var selectedTab = 1
-
+    @AppStorage("themePreference") private var themePreference = "system"
+    
     init() {
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground()
@@ -100,6 +101,10 @@ struct TabMenus: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .preferredColorScheme(
+                    themePreference == "system" ? nil :
+                    (themePreference == "light" ? .light : .dark)
+                )
     }
     
     private var currentTabName: String {

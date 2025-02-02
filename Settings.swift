@@ -6,6 +6,7 @@ struct Settings: View {
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
+    @AppStorage("themePreference") private var themePreference = "system"
 
     var body: some View {
         ScrollView {
@@ -16,6 +17,7 @@ struct Settings: View {
 
                 VStack(alignment: .center, spacing: 10) {
                     Toggle("Enable Sound Cues", isOn: $enableSoundCues).padding(.horizontal)
+                    Divider()
                     Toggle("Enable Voice", isOn: $enableVoice).padding(.horizontal)
                 }
                 .padding()
@@ -34,7 +36,9 @@ struct Settings: View {
 
                 VStack(alignment: .center, spacing: 10) {
                     Toggle("Show Body Tracking Points", isOn: $showBodyTrackingPoints).padding(.horizontal)
+                    Divider()
                     Toggle("Show Body Tracking Labels", isOn: $showBodyTrackingLabels).padding(.horizontal)
+                    Divider()
                     Toggle("Show Body Tracking Lines", isOn: $showBodyTrackingLines).padding(.horizontal)
                 }
                 .padding()
@@ -47,6 +51,87 @@ struct Settings: View {
                 }))
                 .cornerRadius(25)
 
+                Text("Theme")
+                    .font(.headline)
+                    .padding(.top)
+                
+                VStack(alignment: .center, spacing: 10) {
+                    Button(action: {
+                        themePreference = "system"
+                    }) {
+                        HStack {
+                            Text("System")
+                            .foregroundColor(Color(UIColor { traitCollection in
+                                if traitCollection.userInterfaceStyle == .dark {
+                                    return Theme.settingsThemeTextColorDark
+                                } else {
+                                    return Theme.settingsThemeTextColorLight
+                                }
+                            }))
+                            Spacer()
+                            if themePreference == "system" {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                    .padding()
+                    .cornerRadius(10)
+                    Divider()
+                    Button(action: {
+                        themePreference = "dark"
+                    }) {
+                        HStack {
+                            Text("Dark")
+                            .foregroundColor(Color(UIColor { traitCollection in
+                                if traitCollection.userInterfaceStyle == .dark {
+                                    return Theme.settingsThemeTextColorDark
+                                } else {
+                                    return Theme.settingsThemeTextColorLight
+                                }
+                            }))
+                            Spacer()
+                            if themePreference == "dark" {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                    .padding()
+                    .cornerRadius(10)
+                    Divider()
+                    Button(action: {
+                        themePreference = "light"
+                    }) {
+                        HStack {
+                            Text("Light")
+                            .foregroundColor(Color(UIColor { traitCollection in
+                                if traitCollection.userInterfaceStyle == .dark {
+                                    return Theme.settingsThemeTextColorDark
+                                } else {
+                                    return Theme.settingsThemeTextColorLight
+                                }
+                            }))
+                            Spacer()
+                            if themePreference == "light" {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                    .padding()
+                    .cornerRadius(10)
+                }
+                .padding()
+                .background(Color(UIColor { traitCollection in
+                    if traitCollection.userInterfaceStyle == .dark {
+                        return Theme.settingsSectionBackgroundColorDark
+                    } else {
+                        return Theme.settingsSectionBackgroundColorLight
+                    }
+                }))
+                .cornerRadius(25)
+                Text("Selecting system will use your device's system settings.")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
                 Spacer()
             }
             .padding()
