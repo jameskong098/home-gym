@@ -23,20 +23,44 @@ struct ExerciseButton: View {
             HStack {
                 Image(systemName: icon)
                     .font(.title)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.exerciseListItemIconColorDark
+                        } else {
+                            return Theme.exerciseListItemIconColorLight
+                        }
+                    }))
                     .frame(width: 40, height: 40)
-                    .background(Color.blue)
+                    .background(Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.exerciseListItemBackgroundColorDark
+                        } else {
+                            return Theme.exerciseListItemBackgroundColorLight
+                        }
+                    }))
                     .clipShape(Circle())
                 
                 Text(name)
                     .font(.headline)
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.exerciseListItemTextColorDark
+                        } else {
+                            return Theme.exerciseListItemTextColorLight
+                        }
+                    }))
                 
                 Spacer()
             }
             .padding()
             .frame(maxWidth: .infinity)
-            .background(Color.blue.opacity(0.1))
+            .background(Color(UIColor { traitCollection in
+                if traitCollection.userInterfaceStyle == .dark {
+                    return Theme.exerciseListBackgroundColorDark
+                } else {
+                    return Theme.exerciseListBackgroundColorLight
+                }
+            }))
             .cornerRadius(10)
         }
     }
