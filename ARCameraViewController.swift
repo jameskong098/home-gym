@@ -1,4 +1,4 @@
-import UIKit
+import SwiftUI
 import ARKit
 import Vision
 import AVFoundation
@@ -11,10 +11,13 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     var repCounter: Int = 0
     var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
     var isGoingDown: Bool = false
+    let speechSynthesizer = AVSpeechSynthesizer()
+    @AppStorage("enableVoice") private var enableVoice: Bool = true
     
     init(exerciseName: String) {
         self.exerciseName = exerciseName
         super.init(nibName: nil, bundle: nil)
+        configureAudioSession()
     }
     
     required init?(coder: NSCoder) {
@@ -35,6 +38,15 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         UIApplication.shared.isIdleTimerDisabled = false
+    }
+    
+    private func configureAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to set audio session category: \(error)")
+        }
     }
     
     private func setupCamera() {
@@ -189,6 +201,9 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
+                    if enableVoice {
+                        speakRepCount()
+                    }
                 }
             }
         case "Sit-Ups":
@@ -220,11 +235,18 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     private func displayRepCount() {
         let repCountLayer = CATextLayer()
         repCountLayer.string = "Reps: \(repCounter)"
-        repCountLayer.fontSize = 24
+        repCountLayer.fontSize = 30
         repCountLayer.foregroundColor = UIColor.white.cgColor
         repCountLayer.backgroundColor = UIColor.black.cgColor
-        repCountLayer.frame = CGRect(x: 20, y: 40, width: 200, height: 40)
+        repCountLayer.frame = CGRect(x: self.view.bounds.width - 220, y: 40, width: 200, height: 40)
+        repCountLayer.alignmentMode = .right
         overlayLayer.addSublayer(repCountLayer)
+    }
+    
+    private func speakRepCount() {
+        let utterance = AVSpeechUtterance(string: "\(repCounter)")
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        speechSynthesizer.speak(utterance)
     }
     
     private func bodyPartName(for jointName: VNHumanBodyPoseObservation.JointName) -> String {

@@ -55,83 +55,14 @@ struct Settings: View {
                     .font(.headline)
                     .padding(.top)
                 
-                VStack(alignment: .center, spacing: 10) {
-                    Button(action: {
-                        themePreference = "system"
-                    }) {
-                        HStack {
-                            Text("System")
-                            .foregroundColor(Color(UIColor { traitCollection in
-                                if traitCollection.userInterfaceStyle == .dark {
-                                    return Theme.settingsThemeTextColorDark
-                                } else {
-                                    return Theme.settingsThemeTextColorLight
-                                }
-                            }))
-                            Spacer()
-                            if themePreference == "system" {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                    .padding()
-                    .cornerRadius(10)
-                    Divider()
-                    Button(action: {
-                        themePreference = "dark"
-                    }) {
-                        HStack {
-                            Text("Dark")
-                            .foregroundColor(Color(UIColor { traitCollection in
-                                if traitCollection.userInterfaceStyle == .dark {
-                                    return Theme.settingsThemeTextColorDark
-                                } else {
-                                    return Theme.settingsThemeTextColorLight
-                                }
-                            }))
-                            Spacer()
-                            if themePreference == "dark" {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                    .padding()
-                    .cornerRadius(10)
-                    Divider()
-                    Button(action: {
-                        themePreference = "light"
-                    }) {
-                        HStack {
-                            Text("Light")
-                            .foregroundColor(Color(UIColor { traitCollection in
-                                if traitCollection.userInterfaceStyle == .dark {
-                                    return Theme.settingsThemeTextColorDark
-                                } else {
-                                    return Theme.settingsThemeTextColorLight
-                                }
-                            }))
-                            Spacer()
-                            if themePreference == "light" {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                    .padding()
-                    .cornerRadius(10)
-                }
-                .padding()
-                .background(Color(UIColor { traitCollection in
-                    if traitCollection.userInterfaceStyle == .dark {
-                        return Theme.settingsSectionBackgroundColorDark
-                    } else {
-                        return Theme.settingsSectionBackgroundColorLight
-                    }
-                }))
-                .cornerRadius(25)
+                ThemeSelectionButton()
+                    .padding(.horizontal)
+                
                 Text("Selecting system will use your device's system settings.")
-                            .font(.footnote)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal)
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+                
                 Spacer()
             }
             .padding()
