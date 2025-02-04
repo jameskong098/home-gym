@@ -45,6 +45,19 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         UIApplication.shared.isIdleTimerDisabled = false
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition: { _ in
+            self.previewLayer.frame = self.view.bounds
+            
+            if let connection = self.previewLayer.connection,
+               connection.isVideoOrientationSupported {
+                connection.videoOrientation = AVCaptureVideoOrientation(deviceOrientation: UIDevice.current.orientation)
+            }
+        })
+    }
+    
     private func configureAudioSession() {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
@@ -79,6 +92,13 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
             previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
             previewLayer.frame = self.view.bounds
             previewLayer.videoGravity = .resizeAspectFill
+            
+            // Set the initial video orientation
+            if let connection = previewLayer.connection,
+               connection.isVideoOrientationSupported {
+                connection.videoOrientation = AVCaptureVideoOrientation(deviceOrientation: UIDevice.current.orientation)
+            }
+            
             self.view.layer.addSublayer(previewLayer)
         } catch {
             print("Error setting up camera: \(error)")
@@ -283,6 +303,21 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
             return "Root"
         default:
             return "Unknown"
+        }
+    }
+}
+
+extension AVCaptureVideoOrientation {
+    init(deviceOrientation: UIDeviceOrientation) {
+        switch deviceOrientation {
+        case .landscapeLeft:
+            self = .landscapeRight
+        case .landscapeRight:
+            self = .landscapeLeft
+        case .portraitUpsideDown:
+            self = .portraitUpsideDown
+        default:
+            self = .portrait
         }
     }
 }

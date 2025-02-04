@@ -13,44 +13,93 @@ struct ARExerciseView: View {
             ARCameraView(exerciseName: exerciseName, repCount: $repCount)
                 .edgesIgnoringSafeArea(.all)
             
-            VStack {
-                HStack {
-                    Text(exerciseName)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                    Spacer()
-                    
-                    Text(timeString(from: elapsedTime))
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding()
-                }
-                .background(Color.blue.opacity(0.8))
-                .cornerRadius(20)
-                .padding(.horizontal, 25)
-                .padding(.vertical, 10)
-                .shadow(radius: 10)
-                
-                Spacer()
-                
-                HStack {
-                    Spacer()
-                    VStack {
-                        Text("\(repCount)")
-                            .font(.system(size: 72, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                VStack {
+                    HStack {
+                        HStack {
+                            Text(exerciseName)
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding()
+                        }
+                        .background(Color.blue.opacity(0.8))
+                        .cornerRadius(20)
+                        .shadow(radius: 10)
+                        
+                        Spacer()
+                        
+                        HStack {
+                            Text(timeString(from: elapsedTime))
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding()
+                        }
+                        .background(Color.blue.opacity(0.8))
+                        .cornerRadius(20)
+                        .shadow(radius: 10)
                     }
-                    .padding()
-                    .background(Color.blue.opacity(0.8))
-                    .cornerRadius(15)
-                    .shadow(radius: 10)
+                    .padding(.horizontal, 25)
+                    .padding(.vertical, 10)
+                    
                     Spacer()
+                    
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text("\(repCount)")
+                                .font(.system(size: 72, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                        }
+                        .padding()
+                        .background(Color.blue.opacity(0.8))
+                        .cornerRadius(15)
+                        .shadow(radius: 10)
+                        Spacer()
+                    }
+                    .padding(.bottom, 30)
                 }
-                .padding(.bottom, 30)
+            } else {
+                VStack {
+                    HStack {
+                        Text(exerciseName)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                        
+                        Spacer()
+                        
+                        Text(timeString(from: elapsedTime))
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                    }
+                    .background(Color.blue.opacity(0.8))
+                    .cornerRadius(20)
+                    .padding(.horizontal, 25)
+                    .padding(.vertical, 10)
+                    .shadow(radius: 10)
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text("\(repCount)")
+                                .font(.system(size: 72, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                        }
+                        .padding()
+                        .background(Color.blue.opacity(0.8))
+                        .cornerRadius(15)
+                        .shadow(radius: 10)
+                        Spacer()
+                    }
+                    .padding(.bottom, 30)
+                }
             }
         }
         .onAppear {
