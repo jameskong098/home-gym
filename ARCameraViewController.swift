@@ -8,12 +8,17 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     var cameraSession: AVCaptureSession?
     var previewLayer: AVCaptureVideoPreviewLayer!
     var overlayLayer: CALayer!
-    var repCounter: Int = 0
-    var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
-    var isGoingDown: Bool = false
     let speechSynthesizer = AVSpeechSynthesizer()
     @AppStorage("enableVoice") private var enableVoice: Bool = true
-    
+    var repCounter: Int = 0 {
+        didSet {
+            repCountBinding?.wrappedValue = repCounter
+        }
+    }
+    var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
+    var isGoingDown: Bool = false
+    var repCountBinding: Binding<Int>?
+
     init(exerciseName: String) {
         self.exerciseName = exerciseName
         super.init(nibName: nil, bundle: nil)
@@ -136,7 +141,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                     let circleLayer = CAShapeLayer()
                     let circlePath = UIBezierPath(arcCenter: screenPoint, radius: 5, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
                     circleLayer.path = circlePath.cgPath
-                    circleLayer.fillColor = UIColor.red.cgColor
+                    circleLayer.fillColor = UIColor.white.cgColor 
                     overlayLayer.addSublayer(circleLayer)
                 }
                 
@@ -177,7 +182,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                     linePath.move(to: startPoint)
                     linePath.addLine(to: endPoint)
                     lineLayer.path = linePath.cgPath
-                    lineLayer.strokeColor = UIColor.green.cgColor
+                    lineLayer.strokeColor = UIColor.blue.cgColor
                     lineLayer.lineWidth = 2
                     overlayLayer.addSublayer(lineLayer)
                 }
@@ -185,8 +190,6 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         }
         
         countReps(jointPoints)
-        
-        displayRepCount()
     }
     
     private func countReps(_ jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]) {
@@ -232,20 +235,9 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         return acos((a + b - c) / sqrt(4 * a * b)) * 180 / .pi
     }
     
-    private func displayRepCount() {
-        let repCountLayer = CATextLayer()
-        repCountLayer.string = "Reps: \(repCounter)"
-        repCountLayer.fontSize = 30
-        repCountLayer.foregroundColor = UIColor.white.cgColor
-        repCountLayer.backgroundColor = UIColor.black.cgColor
-        repCountLayer.frame = CGRect(x: self.view.bounds.width - 220, y: 40, width: 200, height: 40)
-        repCountLayer.alignmentMode = .right
-        overlayLayer.addSublayer(repCountLayer)
-    }
-    
     private func speakRepCount() {
         let utterance = AVSpeechUtterance(string: "\(repCounter)")
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.siri_male_en-US_compact")
         speechSynthesizer.speak(utterance)
     }
     
