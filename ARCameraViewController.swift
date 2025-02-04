@@ -18,6 +18,8 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
     var isGoingDown: Bool = false
     var repCountBinding: Binding<Int>?
+    private var isBusy = false
+    private var lastRequestTime = Date()
 
     init(exerciseName: String) {
         self.exerciseName = exerciseName
@@ -112,6 +114,13 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     }
     
     nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            guard !self.isBusy, Date().timeIntervalSince(self.lastRequestTime) > (1.0 / 30.0) else { return }
+            self.isBusy = true
+            self.lastRequestTime = Date()
+        }
+
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
         let request = VNDetectHumanBodyPoseRequest { [weak self] request, error in
@@ -134,6 +143,10 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 } catch {
                     print("Error extracting points: \(error)")
                 }
+            }
+
+            Task { @MainActor [weak self] in
+                self?.isBusy = false
             }
         }
         
