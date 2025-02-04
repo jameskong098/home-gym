@@ -17,6 +17,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     }
     var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
     var isGoingDown: Bool = false
+    private var hasSpokenTuckInMessage = false
     var repCountBinding: Binding<Int>?
     private var isBusy = false
     private var lastRequestTime = Date()
@@ -228,17 +229,28 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     private func countReps(_ jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]) {
         switch exerciseName {
         case "Push-Ups":
-            if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist] {
+            if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist], let neck = jointPoints[.neck] {
                 let leftElbowAngle = angleBetweenPoints(leftShoulder, leftElbow, leftWrist)
                 let rightElbowAngle = angleBetweenPoints(rightShoulder, rightElbow, rightWrist)
+                let leftShoulderNeckAngle = angleBetweenPoints(leftElbow, leftShoulder, neck)
+                let rightShoulderNeckAngle = angleBetweenPoints(rightElbow, rightShoulder, neck)
                 
                 if leftElbowAngle < 100 && rightElbowAngle < 100 {
                     isGoingDown = true
+
+                    // Check if elbows are tucked in when going down
+                    if (leftShoulderNeckAngle > 130 || rightShoulderNeckAngle > 130) && !hasSpokenTuckInMessage {
+                        if enableVoice {
+                            speak("Tuck in your elbows!")
+                        }
+                        hasSpokenTuckInMessage = true
+                    }
                 } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
+                    hasSpokenTuckInMessage = false
                     if enableVoice {
-                        speakRepCount()
+                        speak("\(repCounter)")
                     }
                 }
             }
@@ -268,8 +280,8 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         return acos((a + b - c) / sqrt(4 * a * b)) * 180 / .pi
     }
     
-    private func speakRepCount() {
-        let utterance = AVSpeechUtterance(string: "\(repCounter)")
+    private func speak(_ message: String) {
+        let utterance = AVSpeechUtterance(string: message)
         utterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.siri_male_en-US_compact")
         speechSynthesizer.speak(utterance)
     }
