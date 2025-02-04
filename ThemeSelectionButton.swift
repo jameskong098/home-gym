@@ -57,6 +57,7 @@ struct ThemeSelectionButton: View {
         Button(action: {
             withAnimation(.easeInOut) {
                 themePreference = title.lowercased()
+                triggerHapticFeedback()
             }
         }) {
             HStack {
@@ -72,5 +73,10 @@ struct ThemeSelectionButton: View {
             .padding(.horizontal)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+    
+    private func triggerHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
     }
 }

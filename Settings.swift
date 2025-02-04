@@ -16,13 +16,23 @@ struct Settings: View {
                     .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
-                    Toggle("Enable Sound Cues", isOn: $enableSoundCues).padding(.horizontal)
+                    Toggle("Enable Sound Cues", isOn: $enableSoundCues)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: enableSoundCues) { _ in
+                            triggerHapticFeedback()
+                        }
                     Divider()
-                    Toggle("Enable Voice", isOn: $enableVoice).padding(.horizontal)
+                    Toggle("Enable Voice", isOn: $enableVoice)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: enableVoice) { _ in
+                            triggerHapticFeedback()
+                        }
                 }
                 .padding()
                 .background(Color(UIColor { traitCollection in
-                    if traitCollection.userInterfaceStyle == .dark {
+                    if (traitCollection.userInterfaceStyle == .dark) {
                         return Theme.settingsSectionBackgroundColorDark
                     } else {
                         return Theme.settingsSectionBackgroundColorLight
@@ -35,15 +45,30 @@ struct Settings: View {
                     .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
-                    Toggle("Show Body Tracking Points", isOn: $showBodyTrackingPoints).padding(.horizontal)
+                    Toggle("Show Body Tracking Points", isOn: $showBodyTrackingPoints)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: showBodyTrackingPoints) { _ in
+                            triggerHapticFeedback()
+                        }
                     Divider()
-                    Toggle("Show Body Tracking Labels", isOn: $showBodyTrackingLabels).padding(.horizontal)
+                    Toggle("Show Body Tracking Labels", isOn: $showBodyTrackingLabels)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: showBodyTrackingLabels) { _ in
+                            triggerHapticFeedback()
+                        }
                     Divider()
-                    Toggle("Show Body Tracking Lines", isOn: $showBodyTrackingLines).padding(.horizontal)
+                    Toggle("Show Body Tracking Lines", isOn: $showBodyTrackingLines)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: showBodyTrackingLines) { _ in
+                            triggerHapticFeedback()
+                        }
                 }
                 .padding()
                 .background(Color(UIColor { traitCollection in
-                    if traitCollection.userInterfaceStyle == .dark {
+                    if (traitCollection.userInterfaceStyle == .dark) {
                         return Theme.settingsSectionBackgroundColorDark
                     } else {
                         return Theme.settingsSectionBackgroundColorLight
@@ -67,5 +92,10 @@ struct Settings: View {
             }
             .padding()
         }
+    }
+
+    private func triggerHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
     }
 }
