@@ -29,7 +29,6 @@ struct TabMenus: View {
             }
         }]
                 
-        // For iOS 15 and later, update the scrollEdgeAppearance as well
         if #available(iOS 15.0, *) {
             UITabBar.appearance().scrollEdgeAppearance = appearance
         }
@@ -44,13 +43,15 @@ struct TabMenus: View {
                     .padding(.vertical, 15)
                     .padding(.horizontal)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .background(Color(UIColor { traitCollection in
-                        if traitCollection.userInterfaceStyle == .dark {
-                            return Theme.headerColorDark
-                        } else {
-                            return Theme.headerColorLight
-                        }
-                    }))
+                    .background(
+                        UIDevice.current.userInterfaceIdiom == .pad ? Color.clear : Color(UIColor { traitCollection in
+                            if traitCollection.userInterfaceStyle == .dark {
+                                return Theme.headerColorDark
+                            } else {
+                                return Theme.headerColorLight
+                            }
+                        })
+                    )
                 TabView(selection: $selectedTab) {
                     ZStack {
                         Color(UIColor { traitCollection in
@@ -112,7 +113,7 @@ struct TabMenus: View {
         case 0:
             return "Progress"
         case 1:
-            return "Workout"
+            return "Home Gym"
         case 2:
             return "Settings"
         default:
