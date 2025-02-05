@@ -3,6 +3,7 @@ import SwiftUI
 struct Settings: View {
     @AppStorage("enableSoundCues") private var enableSoundCues = true
     @AppStorage("enableVoice") private var enableVoice = true
+    @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
@@ -11,6 +12,28 @@ struct Settings: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                Text("General")
+                    .font(.headline)
+                    .padding(.top)
+
+                VStack(alignment: .center, spacing: 10) {
+                    Toggle("Show Tutorials", isOn: $enableTutorials)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: enableTutorials) { _ in
+                            triggerHapticFeedback()
+                        }
+                }
+                .padding()
+                .background(Color(UIColor { traitCollection in
+                    if (traitCollection.userInterfaceStyle == .dark) {
+                        return Theme.settingsSectionBackgroundColorDark
+                    } else {
+                        return Theme.settingsSectionBackgroundColorLight
+                    }
+                }))
+                .cornerRadius(25)
+
                 Text("Audio")
                     .font(.headline)
                     .padding(.top)

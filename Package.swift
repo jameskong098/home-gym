@@ -33,7 +33,7 @@ let package = Package(
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
             capabilities: [
-                .camera(purposeString: "Camera usage is required for body tracking!")
+                .camera(purposeString: "Camera usage is required for body tracking.")
             ],
             appCategory: .healthcareFitness
         )
@@ -44,5 +44,5 @@ let package = Package(
             path: "."
         )
     ],
-    swiftLanguageModes: [.version("6")]
+    swiftLanguageVersions: [.version("6")]
 )
