@@ -13,7 +13,7 @@ struct ARExerciseView: View {
 
     var body: some View {
         ZStack {
-            ARCameraView(exerciseName: exerciseName, repCount: $repCount)
+            ARCameraView(exerciseName: exerciseName, repCount: $repCount, showTutorial: $showTutorial)
                 .edgesIgnoringSafeArea(.all)
             
             if enableTutorials && showTutorial {
@@ -188,7 +188,7 @@ struct ARExerciseView: View {
             }
         }
         .onChange(of: repCount) { newValue in
-            if newValue > 0 {
+            if newValue > 0 && timer == nil {
                 startTimer()
             }
         }

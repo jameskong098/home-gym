@@ -15,10 +15,11 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
             repCountBinding?.wrappedValue = repCounter
         }
     }
+    var repCountBinding: Binding<Int>?
+    var showTutorialBinding: Binding<Bool>?
     var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
     var isGoingDown: Bool = false
     private var hasSpokenTuckInMessage = false
-    var repCountBinding: Binding<Int>?
     private var isBusy = false
     private var lastRequestTime = Date()
 
@@ -227,6 +228,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     }
     
     private func countReps(_ jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]) {
+        guard showTutorialBinding?.wrappedValue == false || !UserDefaults.standard.bool(forKey: "enableTutorials") else { return }
         switch exerciseName {
         case "Push-Ups":
             if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist], let neck = jointPoints[.neck] {
