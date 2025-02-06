@@ -199,8 +199,9 @@ struct ARExerciseView: View {
                                         .font(.system(size: 30))
                                         .foregroundColor(.white)
                                         .padding()
-                                        .background(Color.black.opacity(0.5))
-                                        .clipShape(Circle())
+                                        .background(Color.blue.opacity(0.8))
+                                        .cornerRadius(15)
+                                        .shadow(radius: 10)
                                 }
                             }
                             .padding(.horizontal, 25)
