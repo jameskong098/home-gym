@@ -2,15 +2,17 @@ import SwiftUI
 
 struct Exercise: View {
     var body: some View {
-        VStack(spacing: 20) {
-            ExerciseButton(name: "Push-Ups", icon: "figure.arms.open")
-            ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open")
-            ExerciseButton(name: "Planks", icon: "figure.arms.open")
-            ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open")
-            ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open")
-            Spacer()
+        ScrollView {
+            VStack(spacing: 20) {
+                ExerciseButton(name: "Push-Ups", icon: "figure.arms.open")
+                ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open")
+                ExerciseButton(name: "Planks", icon: "figure.arms.open")
+                ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open")
+                ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open")
+                Spacer()
+            }
+            .padding()
         }
-        .padding()
     }
 }
 

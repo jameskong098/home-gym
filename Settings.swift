@@ -3,6 +3,7 @@ import SwiftUI
 struct Settings: View {
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableAutomaticTimer") private var enableAutomaticTimer = true
+    @AppStorage("useWideAngleCamera") private var useWideAngleCamera = false
     @AppStorage("enableSoundCues") private var enableSoundCues = true
     @AppStorage("enableVoice") private var enableVoice = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
@@ -31,6 +32,15 @@ struct Settings: View {
                         .onChange(of: enableAutomaticTimer) { _ in
                             triggerHapticFeedback()
                         }
+                    if ARCameraViewController.deviceSupportsUltraWide() {
+                        Divider()
+                        Toggle("Use Ultra Wide Camera", isOn: $useWideAngleCamera)
+                            .padding(.horizontal)
+                            .tint(Theme.toggleSwitchColor)
+                            .onChange(of: enableTutorials) { _ in
+                                triggerHapticFeedback()
+                            }
+                    }
                 }
                 .padding()
                 .background(Color(UIColor { traitCollection in

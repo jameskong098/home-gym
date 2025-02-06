@@ -11,6 +11,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     let speechSynthesizer = AVSpeechSynthesizer()
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableVoice") private var enableVoice: Bool = true
+    @AppStorage("useWideAngleCamera") private var useWideAngleCamera = false
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
@@ -75,9 +76,21 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         }
     }
     
+    static func deviceSupportsUltraWide() -> Bool {
+        return AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .front) != nil
+    }
+    
     private func setupCamera() {
         let captureSession = AVCaptureSession()
-        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else {
+       
+        let videoDevice: AVCaptureDevice? = {
+                if useWideAngleCamera && Self.deviceSupportsUltraWide() {
+                    return AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .front)
+                }
+                return AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+        }()
+        
+        guard let videoDevice = videoDevice else {
             print("No front camera found")
             return
         }
@@ -129,6 +142,12 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
 
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
+        var currentOrientation: UIDeviceOrientation = .portrait
+        DispatchQueue.main.sync {
+            currentOrientation = UIDevice.current.orientation
+        }
+        let cgOrientation = CGImagePropertyOrientation(deviceOrientation: currentOrientation)
+        
         let request = VNDetectHumanBodyPoseRequest { [weak self] request, error in
             if let error = error {
                 print("Error detecting body pose: \(error)")
@@ -156,7 +175,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
             }
         }
         
-        let handler = VNImageRequestHandler(ciImage: CIImage(cvPixelBuffer: pixelBuffer), options: [:])
+        let handler = VNImageRequestHandler(ciImage: CIImage(cvPixelBuffer: pixelBuffer), orientation: cgOrientation, options: [:])
         do {
             try handler.perform([request])
         } catch {
@@ -172,7 +191,12 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         
         for (key, point) in points {
             if point.confidence > 0 {
-                let normalizedPoint = CGPoint(x: point.location.x, y: 1 - point.location.y)
+                var normalizedPoint = CGPoint(x: point.location.x, y: 1 - point.location.y)
+                
+                if UIDevice.current.orientation == .landscapeLeft {
+                    normalizedPoint = CGPoint(x: 1 - point.location.x, y: point.location.y)
+                }
+                
                 let screenPoint = previewLayer.layerPointConverted(fromCaptureDevicePoint: normalizedPoint)
                 jointPoints[key] = screenPoint
                 
@@ -352,3 +376,21 @@ extension AVCaptureVideoOrientation {
         }
     }
 }
+
+extension CGImagePropertyOrientation {
+    init(deviceOrientation: UIDeviceOrientation) {
+        switch deviceOrientation {
+        case .portrait:
+            self = .up
+        case .portraitUpsideDown:
+            self = .up
+        case .landscapeLeft:
+            self = .down
+        case .landscapeRight:
+            self = .up
+        default:
+            self = .up
+        }
+    }
+}
+

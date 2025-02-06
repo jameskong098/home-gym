@@ -2,13 +2,15 @@ import SwiftUI
 
 struct ProgressTracker: View {
     var body: some View {
-        VStack(spacing: 20) {
-            ProgressBar(progress: 0.7, title: "Weekly Goal")
-            ProgressBar(progress: 0.5, title: "Daily Goal")
-            
-            Spacer()
+        ScrollView {
+            VStack(spacing: 20) {
+                ProgressBar(progress: 0.7, title: "Weekly Goal")
+                ProgressBar(progress: 0.5, title: "Daily Goal")
+                
+                Spacer()
+            }
+            .padding()
         }
-        .padding()
     }
 }
 
