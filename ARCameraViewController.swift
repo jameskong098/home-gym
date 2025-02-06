@@ -153,7 +153,11 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         }
         
         let handler = VNImageRequestHandler(ciImage: CIImage(cvPixelBuffer: pixelBuffer), options: [:])
-        try? handler.perform([request])
+        do {
+            try handler.perform([request])
+        } catch {
+            print("Vision request failed: \(error.localizedDescription)")
+        }
     }
     
     @MainActor

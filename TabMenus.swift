@@ -92,12 +92,27 @@ struct TabMenus: View {
                             }
                         })
                             .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                        ActivityView()
+                    }
+                        .tabItem {
+                            Label("Activity", systemImage: "list.bullet")
+                        }
+                        .tag(2)
+                    ZStack {
+                        Color(UIColor { traitCollection in
+                            if traitCollection.userInterfaceStyle == .dark {
+                                return Theme.mainContentBackgroundColorDark
+                            } else {
+                                return Theme.mainContentBackgroundColorLight
+                            }
+                        })
+                            .ignoresSafeArea(edges: [.top, .leading, .trailing])
                         Settings()
                     }
                         .tabItem {
                             Label("Settings", systemImage: "gearshape")
                         }
-                        .tag(2)
+                        .tag(3)
                 }.accentColor(Theme.footerAccentColor)
             }
         }
@@ -115,6 +130,8 @@ struct TabMenus: View {
         case 1:
             return "Home Gym"
         case 2:
+            return "Activity"
+        case 3:
             return "Settings"
         default:
             return ""
