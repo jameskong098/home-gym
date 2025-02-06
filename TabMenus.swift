@@ -44,7 +44,13 @@ struct TabMenus: View {
                     .padding(.horizontal)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .background(
-                        UIDevice.current.userInterfaceIdiom == .pad ? Color.clear : Color(UIColor { traitCollection in
+                        UIDevice.current.userInterfaceIdiom == .pad ? Color(UIColor { traitCollection in
+                            if traitCollection.userInterfaceStyle == .dark {
+                                return Theme.mainContentBackgroundColorDark
+                            } else {
+                                return Theme.mainContentBackgroundColorLight
+                            }
+                        }) : Color(UIColor { traitCollection in
                             if traitCollection.userInterfaceStyle == .dark {
                                 return Theme.headerColorDark
                             } else {

@@ -9,7 +9,11 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     var previewLayer: AVCaptureVideoPreviewLayer!
     var overlayLayer: CALayer!
     let speechSynthesizer = AVSpeechSynthesizer()
+    @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableVoice") private var enableVoice: Bool = true
+    @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
+    @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
+    @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
     var repCounter: Int = 0 {
         didSet {
             repCountBinding?.wrappedValue = repCounter
@@ -164,10 +168,6 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     private func processPoseData(_ points: [VNHumanBodyPoseObservation.JointName: (location: CGPoint, confidence: VNConfidence)]) {
         overlayLayer.sublayers?.forEach { $0.removeFromSuperlayer() }
         
-        let showPoints = UserDefaults.standard.bool(forKey: "showBodyTrackingPoints")
-        let showLabels = UserDefaults.standard.bool(forKey: "showBodyTrackingLabels")
-        let showLines = UserDefaults.standard.bool(forKey: "showBodyTrackingLines")
-        
         var jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
         
         for (key, point) in points {
@@ -176,7 +176,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 let screenPoint = previewLayer.layerPointConverted(fromCaptureDevicePoint: normalizedPoint)
                 jointPoints[key] = screenPoint
                 
-                if showPoints {
+                if showBodyTrackingPoints {
                     let circleLayer = CAShapeLayer()
                     let circlePath = UIBezierPath(arcCenter: screenPoint, radius: 5, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
                     circleLayer.path = circlePath.cgPath
@@ -184,7 +184,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                     overlayLayer.addSublayer(circleLayer)
                 }
                 
-                if showLabels {
+                if showBodyTrackingLabels {
                     let textLayer = CATextLayer()
                     textLayer.string = "\(bodyPartName(for: key))"
                     textLayer.fontSize = 12
@@ -196,7 +196,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
             }
         }
         
-        if showLines {
+        if showBodyTrackingLines {
             let connections: [(VNHumanBodyPoseObservation.JointName, VNHumanBodyPoseObservation.JointName)] = [
                 (.leftShoulder, .leftElbow),
                 (.leftElbow, .leftWrist),
@@ -232,7 +232,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     }
     
     private func countReps(_ jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]) {
-        guard showTutorialBinding?.wrappedValue == false || !UserDefaults.standard.bool(forKey: "enableTutorials") else { return }
+        guard showTutorialBinding?.wrappedValue == false || !enableTutorials else { return }
         switch exerciseName {
         case "Push-Ups":
             if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist], let neck = jointPoints[.neck] {
