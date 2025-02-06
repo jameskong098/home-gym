@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct Settings: View {
+    @AppStorage("enableTutorials") private var enableTutorials = true
+    @AppStorage("enableAutomaticTimer") private var enableAutomaticTimer = true
     @AppStorage("enableSoundCues") private var enableSoundCues = true
     @AppStorage("enableVoice") private var enableVoice = true
-    @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
@@ -21,6 +22,13 @@ struct Settings: View {
                         .padding(.horizontal)
                         .tint(Theme.toggleSwitchColor)
                         .onChange(of: enableTutorials) { _ in
+                            triggerHapticFeedback()
+                        }
+                    Divider()
+                    Toggle("Automatic Timer", isOn: $enableAutomaticTimer)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: enableAutomaticTimer) { _ in
                             triggerHapticFeedback()
                         }
                 }
