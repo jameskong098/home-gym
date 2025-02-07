@@ -178,7 +178,8 @@ struct ARExerciseView: View {
                                 Spacer()
                                 
                                 Button(action: {
-                                    navPath.removeAll()
+                                   let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)"
+                                   navPath.append("ExerciseSummaryView|\(encodedString)")
                                 }) {
                                     Image(systemName: "stop.circle")
                                         .font(.system(size: 30))
