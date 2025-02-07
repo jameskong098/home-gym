@@ -4,7 +4,6 @@ import Vision
 import AVFoundation
 
 struct ARExerciseView: View {
-    @Environment(\.presentationMode) var presentationMode
     @State private var elapsedTime: TimeInterval = 0
     @State private var timer: Timer?
     @State private var repCount: Int = 0
@@ -136,44 +135,32 @@ struct ARExerciseView: View {
                         VStack {
                             Spacer()
                             
-                            Button(action: {
-                                if !enableAutomaticTimer || repCount > 0 {
-                                    isPaused.toggle()
-                                    if isPaused {
-                                        stopTimer()
-                                    } else {
-                                        startTimer()
-                                    }
-                                } else {
-                                    showPauseMessage = true
-                                }
-                            }) {
-                                Image(systemName: isPaused ? "play.circle.fill" : "pause.circle.fill")
-                                    .font(.system(size: 24))
-                                    .foregroundColor(!enableAutomaticTimer || repCount > 0 ? .white : .white.opacity(0.5))
-                                    .padding(8)
-                                    .background(Color.blue.opacity(0.8))
-                                    .cornerRadius(15)
-                                    .shadow(radius: 10)
-                            }
-                            .padding(.bottom, 10)
-                            .alert("Start your exercise!", isPresented: $showPauseMessage) {
-                                Button("OK", role: .cancel) { }
-                            } message: {
-                                Text("The timer will automatically start when your first rep is tracked.")
-                            }
-                            
                             HStack {
                                 Button(action: {
-                                    presentationMode.wrappedValue.dismiss()
+                                    if !enableAutomaticTimer || repCount > 0 {
+                                        isPaused.toggle()
+                                        if isPaused {
+                                            stopTimer()
+                                        } else {
+                                            startTimer()
+                                        }
+                                    } else {
+                                        showPauseMessage = true
+                                    }
                                 }) {
-                                    Image(systemName: "xmark.circle.fill")
+                                    Image(systemName: isPaused ? "play.circle.fill" : "pause.circle.fill")
                                         .font(.system(size: 30))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(!enableAutomaticTimer || repCount > 0 ? .white : .white.opacity(0.5))
                                         .padding()
                                         .background(Color.blue.opacity(0.8))
                                         .cornerRadius(15)
                                         .shadow(radius: 10)
+                                }
+            
+                                .alert("Start your exercise!", isPresented: $showPauseMessage) {
+                                    Button("OK", role: .cancel) { }
+                                } message: {
+                                    Text("The timer will automatically start when your first rep is tracked.")
                                 }
                                 
                                 Spacer()
@@ -195,7 +182,7 @@ struct ARExerciseView: View {
                                         elapsedTime: elapsedTime
                                     )
                                 ) {
-                                    Image(systemName: "flag.circle.fill")
+                                    Image(systemName: "stop.circle")
                                         .font(.system(size: 30))
                                         .foregroundColor(.white)
                                         .padding()
@@ -233,9 +220,7 @@ struct ARExerciseView: View {
                         
                         Spacer()
                         
-                        VStack {
-                            Spacer()
-                            
+                        HStack {
                             Button(action: {
                                 if !enableAutomaticTimer || repCount > 0 {
                                     isPaused.toggle()
@@ -249,64 +234,50 @@ struct ARExerciseView: View {
                                 }
                             }) {
                                 Image(systemName: isPaused ? "play.circle.fill" : "pause.circle.fill")
-                                    .font(.system(size: 24))
+                                    .font(.system(size: 30))
                                     .foregroundColor(!enableAutomaticTimer || repCount > 0 ? .white : .white.opacity(0.5))
-                                    .padding(8)
+                                    .padding()
                                     .background(Color.blue.opacity(0.8))
                                     .cornerRadius(15)
                                     .shadow(radius: 10)
                             }
-                            .padding(.bottom, 10)
+        
                             .alert("Start your exercise!", isPresented: $showPauseMessage) {
                                 Button("OK", role: .cancel) { }
                             } message: {
                                 Text("The timer will automatically start when your first rep is tracked.")
                             }
                             
-                            HStack {
-                                Button(action: {
-                                    presentationMode.wrappedValue.dismiss()
-                                }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .background(Color.blue.opacity(0.8))
-                                        .cornerRadius(15)
-                                        .shadow(radius: 10)
-                                }
-                                
-                                Spacer()
-                                
-                                Text("\(repCount)")
-                                    .font(.system(size: 72, weight: .bold, design: .rounded))
+                            Spacer()
+                            
+                            Text("\(repCount)")
+                                .font(.system(size: 72, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.blue.opacity(0.8))
+                                .cornerRadius(15)
+                                .shadow(radius: 10)
+                            
+                            Spacer()
+                            
+                            NavigationLink(
+                                destination: ExerciseSummaryView(
+                                    exerciseName: exerciseName,
+                                    repCount: repCount,
+                                    elapsedTime: elapsedTime
+                                )
+                            ) {
+                                Image(systemName: "stop.circle")
+                                    .font(.system(size: 30))
                                     .foregroundColor(.white)
                                     .padding()
                                     .background(Color.blue.opacity(0.8))
                                     .cornerRadius(15)
                                     .shadow(radius: 10)
-                                
-                                Spacer()
-                                
-                                NavigationLink(
-                                    destination: ExerciseSummaryView(
-                                        exerciseName: exerciseName,
-                                        repCount: repCount,
-                                        elapsedTime: elapsedTime
-                                    )
-                                ) {
-                                    Image(systemName: "flag.circle.fill")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .background(Color.blue.opacity(0.8))
-                                        .cornerRadius(15)
-                                        .shadow(radius: 10)
-                                }
                             }
-                            .padding(.horizontal, 25)
-                            .padding(.bottom, 30)
                         }
+                        .padding(.horizontal, 25)
+                        .padding(.bottom, 30)
                     }
                 }
             }
