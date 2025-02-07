@@ -1,14 +1,17 @@
 import SwiftUI
 
 struct Exercise: View {
+    @Binding var selectedTab: Int
+    @Binding var navPath: [String]
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                ExerciseButton(name: "Push-Ups", icon: "figure.arms.open")
-                ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open")
-                ExerciseButton(name: "Planks", icon: "figure.arms.open")
-                ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open")
-                ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open")
+                ExerciseButton(name: "Push-Ups", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Planks", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 Spacer()
             }
             .padding()
@@ -19,9 +22,11 @@ struct Exercise: View {
 struct ExerciseButton: View {
     let name: String
     let icon: String
+    @Binding var selectedTab: Int
+    @Binding var navPath: [String]
     
     var body: some View {
-        NavigationLink(destination: ARExerciseView(exerciseName: name)) {
+        NavigationLink(destination: ARExerciseView(selectedTab: $selectedTab, navPath: $navPath, exerciseName: name)) {
             HStack {
                 Image(systemName: icon)
                     .font(.title)

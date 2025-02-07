@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct ExerciseSummaryView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Binding var selectedTab: Int
+    @Binding var navPath: [String]
     let exerciseName: String
     let repCount: Int
     let elapsedTime: TimeInterval
@@ -25,7 +26,7 @@ struct ExerciseSummaryView: View {
 
             VStack(spacing: 15) {
                 Button(action: {
-                    presentationMode.wrappedValue.dismiss()
+                    navPath.removeAll()
                 }) {
                     Text("Back to Workouts")
                         .font(.title3)
@@ -37,7 +38,11 @@ struct ExerciseSummaryView: View {
                         .cornerRadius(10)
                 }
 
-                NavigationLink(destination: ActivityView().navigationBarHidden(true)) {
+
+                Button(action: {
+                    navPath.removeAll()
+                    navPath.append("Activity")
+                }) {
                     Text("Go to Activity")
                         .font(.title3)
                         .fontWeight(.semibold)
@@ -47,12 +52,14 @@ struct ExerciseSummaryView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
+                
             }
             .padding(.horizontal)
             .padding(.bottom, 30)
+            .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(true)
         }
         .padding()
-        .navigationBarHidden(true)
     }
 
     private func timeString(from timeInterval: TimeInterval) -> String {

@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct TabMenus: View {
-    @State private var selectedTab = 1
+    @Binding var selectedTab: Int
+    @Binding var navPath: [String]
     @AppStorage("themePreference") private var themePreference = "system"
     
-    init() {
+    init(selectedTab: Binding<Int>, navPath: Binding<[String]>) {
+        self._selectedTab = selectedTab
+        self._navPath = navPath
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground()
         appearance.backgroundColor = UIColor { traitCollection in
@@ -35,92 +38,90 @@ struct TabMenus: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                Text(currentTabName)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .padding(.vertical, 15)
-                    .padding(.horizontal)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .background(
-                        UIDevice.current.userInterfaceIdiom == .pad ? Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.mainContentBackgroundColorDark
-                            } else {
-                                return Theme.mainContentBackgroundColorLight
-                            }
-                        }) : Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.headerColorDark
-                            } else {
-                                return Theme.headerColorLight
-                            }
-                        })
-                    )
-                TabView(selection: $selectedTab) {
-                    ZStack {
-                        Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.mainContentBackgroundColorDark
-                            } else {
-                                return Theme.mainContentBackgroundColorLight
-                            }
-                        })
-                            .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                        ProgressTracker()
-                    }
-                        .tabItem {
-                            Label("Progress", systemImage: "chart.bar")
+        VStack(spacing: 0) {
+            Text(currentTabName)
+                .font(.title)
+                .fontWeight(.bold)
+                .padding(.vertical, 15)
+                .padding(.horizontal)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .background(
+                    UIDevice.current.userInterfaceIdiom == .pad ? Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.mainContentBackgroundColorDark
+                        } else {
+                            return Theme.mainContentBackgroundColorLight
                         }
-                        .tag(0)
-                    ZStack {
-                        Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.mainContentBackgroundColorDark
-                            } else {
-                                return Theme.mainContentBackgroundColorLight
-                            }
-                        })
-                            .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                        Exercise()
-                    }
-                        .tabItem {
-                            Label("Workout", systemImage: "figure.walk")
+                    }) : Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.headerColorDark
+                        } else {
+                            return Theme.headerColorLight
                         }
-                        .tag(1)
-                    ZStack {
-                        Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.mainContentBackgroundColorDark
-                            } else {
-                                return Theme.mainContentBackgroundColorLight
-                            }
-                        })
-                            .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                        ActivityView()
-                    }
-                        .tabItem {
-                            Label("Activity", systemImage: "list.bullet")
+                    })
+                )
+            TabView(selection: $selectedTab) {
+                ZStack {
+                    Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.mainContentBackgroundColorDark
+                        } else {
+                            return Theme.mainContentBackgroundColorLight
                         }
-                        .tag(2)
-                    ZStack {
-                        Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.mainContentBackgroundColorDark
-                            } else {
-                                return Theme.mainContentBackgroundColorLight
-                            }
-                        })
-                            .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                        Settings()
+                    })
+                        .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                    ProgressTracker()
+                }
+                    .tabItem {
+                        Label("Progress", systemImage: "chart.bar")
                     }
-                        .tabItem {
-                            Label("Settings", systemImage: "gearshape")
+                    .tag(0)
+                ZStack {
+                    Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.mainContentBackgroundColorDark
+                        } else {
+                            return Theme.mainContentBackgroundColorLight
                         }
-                        .tag(3)
-                }.accentColor(Theme.footerAccentColor)
-            }
+                    })
+                        .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                    Exercise(selectedTab: $selectedTab, navPath: $navPath)
+                }
+                    .tabItem {
+                        Label("Workout", systemImage: "figure.walk")
+                    }
+                    .tag(1)
+                ZStack {
+                    Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.mainContentBackgroundColorDark
+                        } else {
+                            return Theme.mainContentBackgroundColorLight
+                        }
+                    })
+                        .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                    ActivityView()
+                }
+                    .tabItem {
+                        Label("Activity", systemImage: "list.bullet")
+                    }
+                    .tag(2)
+                ZStack {
+                    Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.mainContentBackgroundColorDark
+                        } else {
+                            return Theme.mainContentBackgroundColorLight
+                        }
+                    })
+                        .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                    Settings()
+                }
+                    .tabItem {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                    .tag(3)
+            }.accentColor(Theme.footerAccentColor)
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .preferredColorScheme(

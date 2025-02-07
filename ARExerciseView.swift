@@ -12,6 +12,8 @@ struct ARExerciseView: View {
     @State private var showPauseMessage = false
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableAutomaticTimer") private var enableAutomaticTimer = true
+    @Binding var selectedTab: Int
+    @Binding var navPath: [String]
     let exerciseName: String
 
     var body: some View {
@@ -175,13 +177,9 @@ struct ARExerciseView: View {
                                 
                                 Spacer()
                                 
-                                NavigationLink(
-                                    destination: ExerciseSummaryView(
-                                        exerciseName: exerciseName,
-                                        repCount: repCount,
-                                        elapsedTime: elapsedTime
-                                    )
-                                ) {
+                                Button(action: {
+                                    navPath.removeAll()
+                                }) {
                                     Image(systemName: "stop.circle")
                                         .font(.system(size: 30))
                                         .foregroundColor(.white)
@@ -260,13 +258,10 @@ struct ARExerciseView: View {
                             
                             Spacer()
                             
-                            NavigationLink(
-                                destination: ExerciseSummaryView(
-                                    exerciseName: exerciseName,
-                                    repCount: repCount,
-                                    elapsedTime: elapsedTime
-                                )
-                            ) {
+                            Button(action: {
+                               let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)"
+                               navPath.append("ExerciseSummaryView|\(encodedString)")
+                            }) {
                                 Image(systemName: "stop.circle")
                                     .font(.system(size: 30))
                                     .foregroundColor(.white)
