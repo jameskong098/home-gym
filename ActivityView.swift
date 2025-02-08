@@ -3,7 +3,11 @@ import SwiftUI
 struct ActivityView: View {
     @State private var workouts: [WorkoutData] = []
     @State private var selectedWorkout: WorkoutData?
-    @State private var isEditing = false
+    @State private var isShowingEditSheet = false
+    @State private var workoutToDelete: WorkoutData?
+    @State private var showingDeleteAlert = false
+    @Binding var editMode: Bool
+    var onActivitiesChange: (Int) -> Void
 
     var body: some View {
         VStack {
@@ -16,56 +20,79 @@ struct ActivityView: View {
                 List {
                     ForEach(workouts.sorted(by: { $0.date > $1.date })) { workout in
                         VStack(alignment: .leading, spacing: 10) {
-                            Text(workout.exerciseName)
-                                .font(.headline)
-                                .foregroundColor(Theme.footerAccentColor)
-                            Text("Reps: \(workout.repCount)")
-                                .foregroundColor(Color(UIColor { traitCollection in
-                                    if traitCollection.userInterfaceStyle == .dark {
-                                        return Theme.settingsThemeTextColorDark
-                                    } else {
-                                        return Theme.settingsThemeTextColorLight
+                            HStack {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text(workout.exerciseName)
+                                        .font(.headline)
+                                        .foregroundColor(Theme.footerAccentColor)
+                                    Text("Reps: \(workout.repCount)")
+                                        .foregroundColor(Color(UIColor { traitCollection in
+                                            if traitCollection.userInterfaceStyle == .dark {
+                                                return Theme.settingsThemeTextColorDark
+                                            } else {
+                                                return Theme.settingsThemeTextColorLight
+                                            }
+                                        }))
+                                    Text("Duration: \(timeString(from: workout.elapsedTime))")
+                                        .foregroundColor(Color(UIColor { traitCollection in
+                                            if traitCollection.userInterfaceStyle == .dark {
+                                                return Theme.settingsThemeTextColorDark
+                                            } else {
+                                                return Theme.settingsThemeTextColorLight
+                                            }
+                                        }))
+                                    Text("Date: \(formattedDate(workout.date))")
+                                        .foregroundColor(Color(UIColor { traitCollection in
+                                            if traitCollection.userInterfaceStyle == .dark {
+                                                return Theme.settingsThemeTextColorDark
+                                            } else {
+                                                return Theme.settingsThemeTextColorLight
+                                            }
+                                        }))
+                                }
+                                
+                                Spacer()
+                                
+                                if editMode {
+                                    VStack() {
+                                        Button(action: {
+                                            selectedWorkout = workout
+                                            isShowingEditSheet = true
+                                        }) {
+                                            Image(systemName: "pencil")
+                                                .foregroundColor(.blue)
+                                                .padding(8)
+                                                .background(Color.blue.opacity(0.2))
+                                                .cornerRadius(8)
+                                        }
+                                        .buttonStyle(BorderlessButtonStyle())
+                                        
+                                        Spacer()
+                                        
+                                        Button(action: {
+                                            workoutToDelete = workout
+                                            showingDeleteAlert = true
+                                        }) {
+                                            Image(systemName: "trash")
+                                                .foregroundColor(.red)
+                                                .padding(8)
+                                                .background(Color.red.opacity(0.2))
+                                                .cornerRadius(8)
+                                        }
+                                        .buttonStyle(BorderlessButtonStyle())
                                     }
-                                }))
-                            Text("Duration: \(timeString(from: workout.elapsedTime))")
-                                .foregroundColor(Color(UIColor { traitCollection in
-                                    if traitCollection.userInterfaceStyle == .dark {
-                                        return Theme.settingsThemeTextColorDark
-                                    } else {
-                                        return Theme.settingsThemeTextColorLight
-                                    }
-                                }))
-                            Text("Date: \(formattedDate(workout.date))")
-                                .foregroundColor(Color(UIColor { traitCollection in
-                                    if traitCollection.userInterfaceStyle == .dark {
-                                        return Theme.settingsThemeTextColorDark
-                                    } else {
-                                        return Theme.settingsThemeTextColorLight
-                                    }
-                                }))
-                        }
-                        .padding(.vertical, 10)
-                        .background(Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.settingsSectionBackgroundColorDark
-                            } else {
-                                return Theme.settingsSectionBackgroundColorLight
+                                }
                             }
-                        }))
-                        .cornerRadius(10)
-                        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-                        .contextMenu {
-                            Button(action: {
-                                selectedWorkout = workout
-                                isEditing = true
-                            }) {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            Button(action: {
-                                deleteWorkout(workout)
-                            }) {
-                                Label("Delete", systemImage: "trash")
-                            }
+                            .padding()
+                            .background(Color(UIColor { traitCollection in
+                                if traitCollection.userInterfaceStyle == .dark {
+                                    return Theme.settingsSectionBackgroundColorDark
+                                } else {
+                                    return Theme.settingsSectionBackgroundColorLight
+                                }
+                            }))
+                            .cornerRadius(10)
+                            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
                         }
                     }
                 }
@@ -75,15 +102,28 @@ struct ActivityView: View {
         .padding(.horizontal)
         .onAppear {
             loadWorkouts()
+            onActivitiesChange(workouts.count)
         }
-        .sheet(isPresented: $isEditing) {
+        .sheet(isPresented: $isShowingEditSheet) {
             if let workout = selectedWorkout {
-                SavedDataEditView(workout: workout, isEditing: $isEditing, onSave: { updatedWorkout in
+                SavedDataEditView(workout: workout, isShowingEditSheet: $isShowingEditSheet, onSave: { updatedWorkout in
                     updateWorkout(updatedWorkout)
+                    onActivitiesChange(workouts.count)
                 })
             }
         }
-        .onChange(of: isEditing) { newValue in
+        .alert("Delete Workout", isPresented: $showingDeleteAlert) {
+              Button("Delete", role: .destructive) {
+                  if let workout = workoutToDelete {
+                      deleteWorkout(workout)
+                      onActivitiesChange(workouts.count)
+                  }
+              }
+              Button("Cancel", role: .cancel) {}
+          } message: {
+              Text("Are you sure you want to delete this workout? This action cannot be undone.")
+          }
+        .onChange(of: isShowingEditSheet) { newValue in
             if !newValue {
                 selectedWorkout = nil
             }
@@ -131,12 +171,12 @@ struct ActivityView: View {
 
 struct SavedDataEditView: View {
     @State private var workout: WorkoutData
-    @Binding var isEditing: Bool
+    @Binding var isShowingEditSheet: Bool
     var onSave: (WorkoutData) -> Void
 
-    init(workout: WorkoutData, isEditing: Binding<Bool>, onSave: @escaping (WorkoutData) -> Void) {
+    init(workout: WorkoutData, isShowingEditSheet: Binding<Bool>, onSave: @escaping (WorkoutData) -> Void) {
         self._workout = State(initialValue: workout)
-        self._isEditing = isEditing
+        self._isShowingEditSheet = isShowingEditSheet
         self.onSave = onSave
     }
 
@@ -177,11 +217,11 @@ struct SavedDataEditView: View {
             .navigationTitle("Edit Workout")
             .navigationBarItems(
                 leading: Button("Cancel") {
-                    isEditing = false
+                    isShowingEditSheet = false
                 },
                 trailing: Button("Done") {
                     onSave(workout)
-                    isEditing = false
+                    isShowingEditSheet = false
                 }
             )
         }

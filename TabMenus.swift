@@ -4,7 +4,9 @@ struct TabMenus: View {
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     @AppStorage("themePreference") private var themePreference = "system"
-    
+    @State private var editMode = false
+    @State private var activityCount = 0
+
     init(selectedTab: Binding<Int>, navPath: Binding<[String]>) {
         self._selectedTab = selectedTab
         self._navPath = navPath
@@ -39,27 +41,46 @@ struct TabMenus: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Text(currentTabName)
-                .font(.title)
-                .fontWeight(.bold)
-                .padding(.vertical, 15)
-                .padding(.horizontal)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .background(
-                    UIDevice.current.userInterfaceIdiom == .pad ? Color(UIColor { traitCollection in
-                        if traitCollection.userInterfaceStyle == .dark {
-                            return Theme.mainContentBackgroundColorDark
-                        } else {
-                            return Theme.mainContentBackgroundColorLight
-                        }
-                    }) : Color(UIColor { traitCollection in
-                        if traitCollection.userInterfaceStyle == .dark {
-                            return Theme.headerColorDark
-                        } else {
-                            return Theme.headerColorLight
-                        }
-                    })
-                )
+            HStack {
+               Spacer()
+               Text(currentTabName)
+                   .font(.title)
+                   .fontWeight(.bold)
+               Spacer()
+           }
+           .padding(.vertical, 15)
+           .background(
+               UIDevice.current.userInterfaceIdiom == .pad ? Color(UIColor { traitCollection in
+                   if traitCollection.userInterfaceStyle == .dark {
+                       return Theme.mainContentBackgroundColorDark
+                   } else {
+                       return Theme.mainContentBackgroundColorLight
+                   }
+               }) : Color(UIColor { traitCollection in
+                   if traitCollection.userInterfaceStyle == .dark {
+                       return Theme.headerColorDark
+                   } else {
+                       return Theme.headerColorLight
+                   }
+               })
+           )
+           .overlay(
+               HStack {
+                   Spacer()
+                   if selectedTab == 2 && activityCount > 0 {
+                       Button(action: {
+                           editMode.toggle()
+                       }) {
+                           Text(editMode ? "Done" : "Edit")
+                               .font(.headline)
+                               .frame(width: 50)
+                       }
+                       .padding(.trailing, 15)
+                   }
+               },
+               alignment: .trailing
+           )
+
             TabView(selection: $selectedTab) {
                 ZStack {
                     Color(UIColor { traitCollection in
@@ -100,7 +121,12 @@ struct TabMenus: View {
                         }
                     })
                         .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                    ActivityView()
+                    ActivityView(editMode: $editMode, onActivitiesChange: { count in
+                        activityCount = count
+                        if count == 0 {
+                            editMode = false
+                        }
+                    })
                 }
                     .tabItem {
                         Label("Activity", systemImage: "list.bullet")
