@@ -1,80 +1,5 @@
 import SwiftUI
 
-struct EditView: View {
-    @Binding var repCount: Int
-    @Binding var elapsedTime: TimeInterval
-    @Binding var isEditing: Bool
-    @State private var temporaryRepCount: Int
-    @State private var temporaryTime: TimeInterval
-    
-    init(repCount: Binding<Int>, elapsedTime: Binding<TimeInterval>, isEditing: Binding<Bool>) {
-        self._repCount = repCount
-        self._elapsedTime = elapsedTime
-        self._isEditing = isEditing
-        self._temporaryRepCount = State(initialValue: repCount.wrappedValue)
-        self._temporaryTime = State(initialValue: elapsedTime.wrappedValue)
-    }
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Workout Details")) {
-                    Stepper("Reps: \(temporaryRepCount)", value: $temporaryRepCount, in: 0...1000)
-                        .onChange(of: temporaryRepCount) { _ in
-                            triggerHapticFeedback()
-                        }
-                    
-                    HStack {
-                        Text("Time:")
-                        Spacer()
-                        
-                        HStack {
-                            Button("-1s") {
-                                if temporaryTime >= 1 {
-                                    temporaryTime -= 1
-                                    triggerHapticFeedback()
-                                }
-                            }
-                            .buttonStyle(.bordered)
-                            
-                            Text(timeString(from: temporaryTime))
-                                .frame(minWidth: 70)
-                            
-                            Button("+1s") {
-                                temporaryTime += 1
-                                triggerHapticFeedback()
-                            }
-                            .buttonStyle(.bordered)
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Edit Workout")
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    isEditing = false
-                },
-                trailing: Button("Done") {
-                    repCount = temporaryRepCount
-                    elapsedTime = temporaryTime
-                    isEditing = false
-                }
-            )
-        }
-    }
-    
-    private func triggerHapticFeedback() {
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.impactOccurred()
-    }
-    
-    private func timeString(from timeInterval: TimeInterval) -> String {
-        let minutes = Int(timeInterval) / 60
-        let seconds = Int(timeInterval) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-}
-
 struct ExerciseSummaryView: View {
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
@@ -161,6 +86,7 @@ struct ExerciseSummaryView: View {
                     Spacer()
                     
                     actionButton(title: "Save Workout", icon: "checkmark", color: .green) {
+                        saveWorkout()
                         selectedTab = 2
                         navPath.append("Activity")
                     }
@@ -198,6 +124,81 @@ struct ExerciseSummaryView: View {
                 .foregroundColor(Theme.footerAccentColor)
         }
     }
+    
+    struct EditView: View {
+        @Binding var repCount: Int
+        @Binding var elapsedTime: TimeInterval
+        @Binding var isEditing: Bool
+        @State private var temporaryRepCount: Int
+        @State private var temporaryTime: TimeInterval
+        
+        init(repCount: Binding<Int>, elapsedTime: Binding<TimeInterval>, isEditing: Binding<Bool>) {
+            self._repCount = repCount
+            self._elapsedTime = elapsedTime
+            self._isEditing = isEditing
+            self._temporaryRepCount = State(initialValue: repCount.wrappedValue)
+            self._temporaryTime = State(initialValue: elapsedTime.wrappedValue)
+        }
+        
+        var body: some View {
+            NavigationView {
+                Form {
+                    Section(header: Text("Workout Details")) {
+                        Stepper("Reps: \(temporaryRepCount)", value: $temporaryRepCount, in: 0...1000)
+                            .onChange(of: temporaryRepCount) { _ in
+                                triggerHapticFeedback()
+                            }
+                        
+                        HStack {
+                            Text("Time:")
+                            Spacer()
+                            
+                            HStack {
+                                Button("-1s") {
+                                    if temporaryTime >= 1 {
+                                        temporaryTime -= 1
+                                        triggerHapticFeedback()
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                
+                                Text(timeString(from: temporaryTime))
+                                    .frame(minWidth: 70)
+                                
+                                Button("+1s") {
+                                    temporaryTime += 1
+                                    triggerHapticFeedback()
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                    }
+                }
+                .navigationTitle("Edit Workout")
+                .navigationBarItems(
+                    leading: Button("Cancel") {
+                        isEditing = false
+                    },
+                    trailing: Button("Done") {
+                        repCount = temporaryRepCount
+                        elapsedTime = temporaryTime
+                        isEditing = false
+                    }
+                )
+            }
+        }
+        
+        private func triggerHapticFeedback() {
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+        }
+        
+        private func timeString(from timeInterval: TimeInterval) -> String {
+            let minutes = Int(timeInterval) / 60
+            let seconds = Int(timeInterval) % 60
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+    }
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
@@ -225,5 +226,22 @@ struct ExerciseSummaryView: View {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private func saveWorkout() {
+        let workout = WorkoutData(date: Date(), exerciseName: exerciseName, repCount: editedRepCount, elapsedTime: editedElapsedTime)
+        var savedWorkouts = loadWorkouts()
+        savedWorkouts.append(workout)
+        if let encoded = try? JSONEncoder().encode(savedWorkouts) {
+            UserDefaults.standard.set(encoded, forKey: "workouts")
+        }
+    }
+
+    private func loadWorkouts() -> [WorkoutData] {
+        if let savedData = UserDefaults.standard.data(forKey: "workouts"),
+           let decodedWorkouts = try? JSONDecoder().decode([WorkoutData].self, from: savedData) {
+            return decodedWorkouts
+        }
+        return []
     }
 }
