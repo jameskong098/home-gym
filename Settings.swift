@@ -3,7 +3,7 @@ import SwiftUI
 struct Settings: View {
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableAutomaticTimer") private var enableAutomaticTimer = true
-    @AppStorage("useWideAngleCamera") private var useWideAngleCamera = false
+    @AppStorage("useWideAngleCamera") private var useWideAngleCamera = true
     @AppStorage("enableSoundCues") private var enableSoundCues = true
     @AppStorage("enableVoice") private var enableVoice = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
