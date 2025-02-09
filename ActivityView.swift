@@ -91,6 +91,7 @@ struct ActivityView: View {
                         }
                     )
                     .id(workout.id)
+                    .transition(.opacity) 
                 }
                 if isShowingEditSheet && UIDevice.current.userInterfaceIdiom != .pad {
                     Color.clear
@@ -137,8 +138,10 @@ struct ActivityView: View {
     }
 
     private func deleteWorkout(_ workout: WorkoutData) {
-        workouts.removeAll { $0.id == workout.id }
-        saveWorkouts()
+        withAnimation {
+            workouts.removeAll { $0.id == workout.id }
+            saveWorkouts()
+        }
     }
 
     private func saveWorkouts() {
@@ -189,6 +192,14 @@ struct WorkoutCard: View {
                 .shadow(color: isHighlighted ? .blue.opacity(0.3) : .clear, radius: 8)
         )
         .animation(.easeInOut(duration: 0.3), value: isHighlighted)
+        .contextMenu {
+            Button(action: onEdit) {
+                Label("Edit", systemImage: "pencil")
+            }
+            Button(action: onDelete) {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
     
     private var workoutInfo: some View {
@@ -296,18 +307,20 @@ struct SavedDataEditView: View {
         NavigationView {
             Form {
                 Section(header: Text("Workout Details")) {
-                    HStack {
-                        Text("Exercise Name:")
-                        Spacer()
-                        Text(workout.exerciseName)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    HStack {
-                        Text("Date:")
-                        Spacer()
-                        Text(formattedDate(workout.date))
-                            .foregroundColor(.secondary)
+                    if UIDevice.current.userInterfaceIdiom == .pad {
+                        HStack {
+                            Text("Exercise Name:")
+                            Spacer()
+                            Text(workout.exerciseName)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        HStack {
+                            Text("Date:")
+                            Spacer()
+                            Text(formattedDate(workout.date))
+                                .foregroundColor(.secondary)
+                        }
                     }
                     Stepper("Reps: \(workout.repCount)", value: $workout.repCount, in: 0...1000)
                         .onChange(of: workout.repCount) { _ in

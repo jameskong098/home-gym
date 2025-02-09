@@ -75,6 +75,8 @@ struct ExerciseSummaryView: View {
                         EditView(repCount: $editedRepCount,
                                 elapsedTime: $editedElapsedTime,
                                 isEditing: $isEditing)
+                        .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 300 : 250)])
+                        .interactiveDismissDisabled()
                     }
                     
                     Spacer()
