@@ -32,7 +32,7 @@ struct ActivityView: View {
                 SavedDataEditView(workout: workout, 
                                  isShowingEditSheet: $isShowingEditSheet, 
                                  onSave: handleWorkoutUpdate)
-                .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 400 : 250)])
+                .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 400 : 300)])
                 .interactiveDismissDisabled()
             }
         }
@@ -229,6 +229,13 @@ struct WorkoutCard: View {
                 label: "Date:",
                 value: formattedDate(workout.date)
             )
+            if let weight = workout.weight {
+                MetricRow(
+                    icon: "scalemass.fill",
+                    label: "Weight:",
+                    value: "\(weight) lb"
+                )
+            }
         }
         .foregroundColor(.secondary)
     }
@@ -349,6 +356,15 @@ struct SavedDataEditView: View {
                             }
                             .buttonStyle(.bordered)
                         }
+                    }
+                    
+                    HStack {
+                        Text("Weight (lb):")
+                        Spacer()
+                        TextField("Optional", value: $workout.weight, format: .number)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 100)
                     }
                 }
             }

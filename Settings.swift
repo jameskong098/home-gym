@@ -10,6 +10,9 @@ struct Settings: View {
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
     @AppStorage("themePreference") private var themePreference = "system"
+    @AppStorage("heightFeet") private var heightFeet = 5
+    @AppStorage("heightInches") private var heightInches = 7
+    @AppStorage("bodyWeight") private var bodyWeight = 70.0
 
     var body: some View {
         ScrollView {
@@ -106,6 +109,45 @@ struct Settings: View {
                         .onChange(of: showBodyTrackingLines) { _ in
                             triggerHapticFeedback()
                         }
+                }
+                .padding()
+                .background(Color(UIColor { traitCollection in
+                    if (traitCollection.userInterfaceStyle == .dark) {
+                        return Theme.settingsSectionBackgroundColorDark
+                    } else {
+                        return Theme.settingsSectionBackgroundColorLight
+                    }
+                }))
+                .cornerRadius(25)
+
+                Text("Personal Information")
+                    .font(.headline)
+                    .padding(.top)
+
+                VStack(alignment: .center, spacing: 10) {
+                    HStack {
+                        Text("Height")
+                        Spacer()
+                        TextField("Feet", value: $heightFeet, formatter: NumberFormatter())
+                            .keyboardType(.numberPad)
+                            .padding(.horizontal)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        Text("ft")
+                        TextField("Inches", value: $heightInches, formatter: NumberFormatter())
+                            .keyboardType(.numberPad)
+                            .padding(.horizontal)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        Text("in")
+                    }
+                    Divider()
+                    HStack {
+                        Text("Body Weight (lb)")
+                        Spacer()
+                        TextField("Body Weight", value: $bodyWeight, formatter: NumberFormatter())
+                            .keyboardType(.decimalPad)
+                            .padding(.horizontal)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
                 }
                 .padding()
                 .background(Color(UIColor { traitCollection in

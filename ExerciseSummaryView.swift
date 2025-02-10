@@ -6,18 +6,22 @@ struct ExerciseSummaryView: View {
     @State private var isEditing = false
     @State private var editedRepCount: Int
     @State private var editedElapsedTime: TimeInterval
+    @State private var editedWeight: Double?
     let exerciseName: String
     let repCount: Int
     let elapsedTime: TimeInterval
+    let weight: Double?
 
-    init(selectedTab: Binding<Int>, navPath: Binding<[String]>, exerciseName: String, repCount: Int, elapsedTime: TimeInterval) {
+    init(selectedTab: Binding<Int>, navPath: Binding<[String]>, exerciseName: String, repCount: Int, elapsedTime: TimeInterval, weight: Double? = nil) {
         self._selectedTab = selectedTab
         self._navPath = navPath
         self.exerciseName = exerciseName
         self.repCount = repCount
         self.elapsedTime = elapsedTime
+        self.weight = weight
         self._editedRepCount = State(initialValue: repCount)
         self._editedElapsedTime = State(initialValue: elapsedTime)
+        self._editedWeight = State(initialValue: weight)
     }
 
     var body: some View {
@@ -51,6 +55,13 @@ struct ExerciseSummaryView: View {
                     Divider()
                         .background(Color.gray.opacity(0.3))
                     summaryItem(icon: "clock", title: "Time", value: timeString(from: editedElapsedTime))
+                    Divider()
+                        .background(Color.gray.opacity(0.3))
+                    summaryItem(icon: "scalemass", title: "Weight", value: weightString(from: editedWeight))
+                    Text("Weight can include additional weight from equipment such as a weight vest or dumbbells. Click 'Edit' to add or update the value if needed.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 5)
                 }
                 .padding(.vertical, 20)
                 .padding(.horizontal, 25)
@@ -74,8 +85,9 @@ struct ExerciseSummaryView: View {
                     .sheet(isPresented: $isEditing) {
                         EditView(repCount: $editedRepCount,
                                 elapsedTime: $editedElapsedTime,
+                                weight: $editedWeight,
                                 isEditing: $isEditing)
-                        .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 300 : 250)])
+                        .presentationDetents([.height(300)])
                         .interactiveDismissDisabled()
                     }
                     
@@ -127,19 +139,31 @@ struct ExerciseSummaryView: View {
         }
     }
     
+    private func weightString(from weight: Double?) -> String {
+        if let weight = weight {
+            return "\(weight) lb"
+        } else {
+            return "N/A"
+        }
+    }
+    
     struct EditView: View {
         @Binding var repCount: Int
         @Binding var elapsedTime: TimeInterval
+        @Binding var weight: Double?
         @Binding var isEditing: Bool
         @State private var temporaryRepCount: Int
         @State private var temporaryTime: TimeInterval
+        @State private var temporaryWeight: Double?
         
-        init(repCount: Binding<Int>, elapsedTime: Binding<TimeInterval>, isEditing: Binding<Bool>) {
+        init(repCount: Binding<Int>, elapsedTime: Binding<TimeInterval>, weight: Binding<Double?>, isEditing: Binding<Bool>) {
             self._repCount = repCount
             self._elapsedTime = elapsedTime
+            self._weight = weight
             self._isEditing = isEditing
             self._temporaryRepCount = State(initialValue: repCount.wrappedValue)
             self._temporaryTime = State(initialValue: elapsedTime.wrappedValue)
+            self._temporaryWeight = State(initialValue: weight.wrappedValue)
         }
         
         var body: some View {
@@ -174,6 +198,15 @@ struct ExerciseSummaryView: View {
                                 .buttonStyle(.bordered)
                             }
                         }
+                        
+                        HStack {
+                            Text("Weight (lb):")
+                            Spacer()
+                            TextField("Optional", value: $temporaryWeight, format: .number)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 100)
+                        }
                     }
                 }
                 .navigationTitle("Edit Workout")
@@ -184,6 +217,7 @@ struct ExerciseSummaryView: View {
                     trailing: Button("Done") {
                         repCount = temporaryRepCount
                         elapsedTime = temporaryTime
+                        weight = temporaryWeight
                         isEditing = false
                     }
                 )
@@ -231,7 +265,7 @@ struct ExerciseSummaryView: View {
     }
 
     private func saveWorkout() {
-        let workout = WorkoutData(date: Date(), exerciseName: exerciseName, repCount: editedRepCount, elapsedTime: editedElapsedTime)
+        let workout = WorkoutData(date: Date(), exerciseName: exerciseName, repCount: editedRepCount, elapsedTime: editedElapsedTime, weight: editedWeight)
         var savedWorkouts = loadWorkouts()
         savedWorkouts.append(workout)
         if let encoded = try? JSONEncoder().encode(savedWorkouts) {

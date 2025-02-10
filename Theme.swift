@@ -27,4 +27,5 @@ struct Theme {
     static let settingsThemeTextColorLight = UIColor.black
     static let settingsThemeTextColorDark = UIColor.white
     static let toggleSwitchColor = Color.blue
+    static let settingsInfoSaveButton = Color.blue
 }

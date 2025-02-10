@@ -24,7 +24,6 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     var showTutorialBinding: Binding<Bool>?
     var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
     var isGoingDown: Bool = false
-    private var hasSpokenTuckInMessage = false
     private var isBusy = false
     private var lastRequestTime = Date()
 
@@ -259,26 +258,15 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         guard showTutorialBinding?.wrappedValue == false || !enableTutorials else { return }
         switch exerciseName {
         case "Push-Ups":
-            if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist], let neck = jointPoints[.neck] {
+            if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist] {
                 let leftElbowAngle = angleBetweenPoints(leftShoulder, leftElbow, leftWrist)
                 let rightElbowAngle = angleBetweenPoints(rightShoulder, rightElbow, rightWrist)
-                let leftShoulderNeckAngle = angleBetweenPoints(leftElbow, leftShoulder, neck)
-                let rightShoulderNeckAngle = angleBetweenPoints(rightElbow, rightShoulder, neck)
                 
                 if leftElbowAngle < 100 && rightElbowAngle < 100 {
                     isGoingDown = true
-
-                    // Check if elbows are tucked in when going down
-                    if (leftShoulderNeckAngle > 130 || rightShoulderNeckAngle > 130) && !hasSpokenTuckInMessage {
-                        if enableVoice {
-                            speak("Tuck in your elbows!")
-                        }
-                        hasSpokenTuckInMessage = true
-                    }
                 } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
-                    hasSpokenTuckInMessage = false
                     if enableVoice {
                         speak("\(repCounter)")
                     }
@@ -290,12 +278,88 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         case "Planks":
             break
             // Implement Planks Logic
-        case "Bicep Curls":
-            break
-            // Implement Bicep Curl Logic
+        case "Bicep Curls - Simultaneous":
+            if let leftElbow = jointPoints[.leftElbow],
+               let leftShoulder = jointPoints[.leftShoulder],
+               let leftWrist = jointPoints[.leftWrist],
+               let rightElbow = jointPoints[.rightElbow],
+               let rightShoulder = jointPoints[.rightShoulder],
+               let rightWrist = jointPoints[.rightWrist] {
+
+                let leftElbowAngle = angleBetweenPoints(leftShoulder, leftElbow, leftWrist)
+                let rightElbowAngle = angleBetweenPoints(rightShoulder, rightElbow, rightWrist)
+
+                if leftElbowAngle < 60 && rightElbowAngle < 60 {
+                    isGoingDown = true
+                } else if isGoingDown && leftElbowAngle > 150 && rightElbowAngle > 150 {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        speak("\(repCounter)")
+                    }
+                }
+            }
+        case "Bicep Curls - Alternating":
+            if let leftElbow = jointPoints[.leftElbow],
+               let leftShoulder = jointPoints[.leftShoulder],
+               let leftWrist = jointPoints[.leftWrist],
+               let rightElbow = jointPoints[.rightElbow],
+               let rightShoulder = jointPoints[.rightShoulder],
+               let rightWrist = jointPoints[.rightWrist] {
+
+                let leftElbowAngle = angleBetweenPoints(leftShoulder, leftElbow, leftWrist)
+                let rightElbowAngle = angleBetweenPoints(rightShoulder, rightElbow, rightWrist)
+
+                var leftArmCompleted = false
+                var rightArmCompleted = false
+
+                if leftElbowAngle < 60 {
+                    isGoingDown = true
+                } else if isGoingDown && leftElbowAngle > 150 {
+                    leftArmCompleted = true
+                }
+
+                if rightElbowAngle < 60 {
+                    isGoingDown = true
+                } else if isGoingDown && rightElbowAngle > 150 {
+                    rightArmCompleted = true
+                }
+
+                if leftArmCompleted && rightArmCompleted {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        speak("\(repCounter)")
+                    }
+                }
+            }
         case "Jumping Jacks":
-            break
-            // Implement Jumping Jack Logic
+            if let leftShoulder = jointPoints[.leftShoulder],
+               let rightShoulder = jointPoints[.rightShoulder],
+               let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip],
+               let leftWrist = jointPoints[.leftWrist],
+               let rightWrist = jointPoints[.rightWrist],
+               let root = jointPoints[.root],
+               let leftKnee = jointPoints[.leftKnee],
+               let rightKnee = jointPoints[.rightKnee] {
+                
+                let leftArmAngle = angleBetweenPoints(leftWrist, leftShoulder, leftHip)
+                let rightArmAngle = angleBetweenPoints(rightWrist, rightShoulder, rightHip)
+                let armsUp = leftArmAngle > 120 && rightArmAngle > 120
+                let legsAngle = angleBetweenPoints(leftKnee, root, rightKnee)
+                let legsOpen = legsAngle > 120
+                
+                if armsUp && legsOpen {
+                    isGoingDown = true
+                } else if isGoingDown && !armsUp && !legsOpen {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        speak("\(repCounter)")
+                    }
+                }
+            }
         default:
             break
         }
@@ -393,4 +457,3 @@ extension CGImagePropertyOrientation {
         }
     }
 }
-

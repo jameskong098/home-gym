@@ -10,7 +10,8 @@ struct Exercise: View {
                 ExerciseButton(name: "Push-Ups", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Planks", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Bicep Curls", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Bicep Curls - Simultaneous", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Bicep Curls - Alternating", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 Spacer()
             }

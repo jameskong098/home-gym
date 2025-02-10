@@ -37,11 +37,13 @@ struct ARExerciseView: View {
                                     .font(.title2.bold())
                                     .foregroundColor(.white)
                                 
-                                Text("Lean your device against something solid and angle it towards your workout area.")
+                                Text("Place your device on a stable surface, angled toward your workout area. Ensure good lighting conditions for the most accurate tracking. Avoid wearing flowing/robe-like clothing along with densely crowded backgrounds.")
                                     .multilineTextAlignment(.center)
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.9))
                                     .padding(.horizontal)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
                             
                             Divider()
@@ -298,8 +300,10 @@ struct ARExerciseView: View {
             return "Lie on your back with knees bent and feet flat on the ground. Keep your upper body visible to the camera throughout the movement."
         case "Planks":
             return "Position your body in a straight line from head to heels, supporting yourself on forearms and toes. Keep your core tight and body visible to the camera."
-        case "Bicep Curls":
-            return "Stand facing the camera with arms at your sides. Keep your upper body steady and perform controlled curls with your full arms visible."
+        case "Bicep Curls - Simultaneous":
+            return "Stand facing the camera with arms at your sides. Keep your upper body steady and perform controlled curls at the same time with your full arms visible."
+        case "Bicep Curls - Alternating":
+            return "Stand facing the camera with arms at your sides. Keep your upper body steady and perform controlled alternated curls with your full arms visible."
         case "Jumping Jacks":
             return "Stand facing the camera with feet together and arms at your sides. Ensure your full body stays in view while performing the exercise."
         default:
