@@ -1,9 +1,8 @@
 import SwiftUI
-import ARKit
 import Vision
 import AVFoundation
 
-struct ARExerciseView: View {
+struct ExerciseView: View {
     @State private var elapsedTime: TimeInterval = 0
     @State private var timer: Timer?
     @State private var repCount: Int = 0
@@ -18,7 +17,7 @@ struct ARExerciseView: View {
 
     var body: some View {
         ZStack {
-            ARCameraView(exerciseName: exerciseName, repCount: $repCount, showTutorial: $showTutorial)
+            CameraView(exerciseName: exerciseName, repCount: $repCount, showTutorial: $showTutorial)
                 .edgesIgnoringSafeArea(.all)
             
             if enableTutorials && showTutorial {

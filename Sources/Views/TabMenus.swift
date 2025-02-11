@@ -106,7 +106,7 @@ struct TabMenus: View {
                         }
                     })
                         .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                    Exercise(selectedTab: $selectedTab, navPath: $navPath)
+                    WorkoutView(selectedTab: $selectedTab, navPath: $navPath)
                 }
                     .tabItem {
                         Label("Workout", systemImage: "figure.walk")

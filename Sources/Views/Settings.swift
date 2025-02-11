@@ -36,7 +36,7 @@ struct Settings: View {
                         .onChange(of: enableAutomaticTimer) { _ in
                             triggerHapticFeedback()
                         }
-                    if ARCameraViewController.deviceSupportsUltraWide() {
+                    if CameraViewController.deviceSupportsUltraWide() {
                         Divider()
                         Toggle("Use Ultra Wide Camera", isOn: $useWideAngleCamera)
                             .padding(.horizontal)

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Exercise: View {
+struct WorkoutView: View {
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     
@@ -29,7 +29,7 @@ struct ExerciseButton: View {
     @Binding var navPath: [String]
     
     var body: some View {
-        NavigationLink(destination: ARExerciseView(selectedTab: $selectedTab, navPath: $navPath, exerciseName: name)) {
+        NavigationLink(destination: ExerciseView(selectedTab: $selectedTab, navPath: $navPath, exerciseName: name)) {
             HStack {
                 Image(systemName: icon)
                     .font(.title)

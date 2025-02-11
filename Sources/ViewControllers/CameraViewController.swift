@@ -1,9 +1,8 @@
 import SwiftUI
-import ARKit
 import Vision
 import AVFoundation
 
-class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, ARSessionDelegate {
+class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let exerciseName: String
     private var cameraSession: AVCaptureSession?
     private var previewLayer: AVCaptureVideoPreviewLayer!

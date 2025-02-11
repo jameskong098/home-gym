@@ -1,19 +1,21 @@
 # 🏋️ Home Gym - Swift Student Challenge 2025  
 
 ## 📌 Overview  
-**Home Gym** is an **AR-powered exercise tracking app**. For many, gym memberships can be expensive, and finding the time to visit the gym can be difficult with busy schedules. This app aims to make working out at home more exciting, fun, and easier. By using advanced body tracking technology, **Home Gym** allows you to track your exercises in real-time, monitor your form, and receive feedback on your progress. With interactive features like counting reps, setting personalized goals, and rewarding you with achievements, you can experience a fully immersive workout without needing to leave home. 
-
-Unlike traditional fitness apps, **Home Gym** **automates** rep counting, **sets goals**, and includes an **achievement award system**—all while using a **voice assistant** to guide users through each exercise.  
+**Home Gym** is an **exercise tracking app** designed to make working out at home more engaging and effective. By leveraging advanced body tracking technology and computer vision, **Home Gym** allows you to monitor your exercises in real-time, ensuring proper form and providing feedback on your progress. The app supports a variety of exercises and includes features like automatic rep counting, personalized goal setting, and achievement rewards to keep you motivated.
 
 ## 🎯 Key Features  
 
 ### 🔍 **Real-time Exercise Tracking**  
-- Uses **Vision Framework** for **body tracking** and **form analysis**.  
+- Utilizes **Vision Framework** for **body tracking** and **form analysis**.  
 - Supports multiple exercises:  
   - **Push-ups**  
-  - **Sit-ups**  
-  - **Planks**  
-  - **Bicep Curls** (more to come!)  
+  - **Basic Squats**  
+  - **Wall Squats**  
+  - **High Knees**  
+  - **Pilates Sit-Ups Hybrid**  
+  - **Lunges**  
+  - **Bicep Curls - Simultaneous**  
+  - **Jumping Jacks**  
 
 ### 🔢 **Automatic Rep Counting & Goal Setting**  
 - Tracks **reps and sets automatically** based on movement detection.  
@@ -35,6 +37,12 @@ Unlike traditional fitness apps, **Home Gym** **automates** rep counting, **sets
 - 🎯 **Set Custom Workout Goals**  
 - 🔴 **Show/Hide Body Tracking Points**  
 - 🔠 **Show/Hide Body Tracking Labels**  
+- 🔵 **Show/Hide Body Tracking Lines**  
+- 📹 **Use Wide Angle Camera**  
+- ⏱️ **Enable/Disable Automatic Timer**  
+- 📚 **Enable/Disable Tutorials**  
+- 🎨 **Theme Selection**  
+- 🔠 **Name, Weight, and Height** 
 
 ## 🔧 Technologies Used  
 
@@ -47,7 +55,7 @@ Unlike traditional fitness apps, **Home Gym** **automates** rep counting, **sets
 ## 📱 How It Works  
 
 1. **Launch the app** and grant camera access.  
-2. **Select an exercise** (e.g., push-ups, sit-ups, planks, curls).  
+2. **Select an exercise** (e.g., push-ups, squats, lunges).  
 3. **Start tracking** – The app detects movements and **automatically counts reps**.  
 4. **Get voice and visual feedback** on form and progress.  
 5. **Achieve fitness goals** by tracking daily/weekly performance.  
@@ -57,4 +65,4 @@ Unlike traditional fitness apps, **Home Gym** **automates** rep counting, **sets
 - **More Exercise Modes**: Additional workout types and tracking methods.  
 - **AI-based Form Correction**: AI-powered suggestions for better posture.  
 - **Workout History & Analytics**: Track long-term progress with detailed insights.  
-- **Social Features**: Compete with friends and share progress.  
+- **Social Features**: Compete with friends and share progress.
