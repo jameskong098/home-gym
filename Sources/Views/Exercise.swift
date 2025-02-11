@@ -7,11 +7,13 @@ struct Exercise: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                ExerciseButton(name: "High Knees", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Lunges", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Basic Squats", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Wall Squats", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Push-Ups", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Sit-Ups", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Planks", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Pilates Sit-Ups Hybrid", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Bicep Curls - Simultaneous", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Bicep Curls - Alternating", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Jumping Jacks", icon: "figure.arms.open", selectedTab: $selectedTab, navPath: $navPath)
                 Spacer()
             }

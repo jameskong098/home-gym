@@ -13,6 +13,7 @@ struct Settings: View {
     @AppStorage("heightFeet") private var heightFeet = 5
     @AppStorage("heightInches") private var heightInches = 7
     @AppStorage("bodyWeight") private var bodyWeight = 70.0
+    @AppStorage("name") private var name = ""
 
     var body: some View {
         ScrollView {
@@ -125,6 +126,14 @@ struct Settings: View {
                     .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
+                    HStack {
+                            Text("Name")
+                            Spacer()
+                            TextField("Enter your name", text: $name)
+                                .padding(.horizontal)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
+                    Divider()
                     HStack {
                         Text("Height")
                         Spacer()

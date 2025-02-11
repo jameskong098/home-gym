@@ -4,11 +4,11 @@ import Vision
 import AVFoundation
 
 class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, ARSessionDelegate {
-    let exerciseName: String
-    var cameraSession: AVCaptureSession?
-    var previewLayer: AVCaptureVideoPreviewLayer!
-    var overlayLayer: CALayer!
-    let speechSynthesizer = AVSpeechSynthesizer()
+    private let exerciseName: String
+    private var cameraSession: AVCaptureSession?
+    private var previewLayer: AVCaptureVideoPreviewLayer!
+    private var overlayLayer: CALayer!
+    private let speechSynthesizer = AVSpeechSynthesizer()
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableVoice") private var enableVoice: Bool = true
     @AppStorage("useWideAngleCamera") private var useWideAngleCamera = false
@@ -22,8 +22,10 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     }
     var repCountBinding: Binding<Int>?
     var showTutorialBinding: Binding<Bool>?
-    var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
-    var isGoingDown: Bool = false
+    private var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
+    private var isGoingDown: Bool = false
+    private var leftFootTouchedButt = false
+    private var rightFootTouchedButt = false
     private var isBusy = false
     private var lastRequestTime = Date()
 
@@ -257,12 +259,73 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     private func countReps(_ jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]) {
         guard showTutorialBinding?.wrappedValue == false || !enableTutorials else { return }
         switch exerciseName {
+        case "Basic Squats":
+            if let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip],
+               let leftKnee = jointPoints[.leftKnee],
+               let rightKnee = jointPoints[.rightKnee],
+               let leftAnkle = jointPoints[.leftAnkle],
+               let rightAnkle = jointPoints[.rightAnkle] {
+
+                let leftKneeAngle = angleBetweenPoints(leftHip, leftKnee, leftAnkle)
+                let rightKneeAngle = angleBetweenPoints(rightHip, rightKnee, rightAnkle)
+
+                if leftKneeAngle <= 90 && rightKneeAngle <= 90 {
+                    isGoingDown = true
+                } else if isGoingDown && leftKneeAngle > 160 && rightKneeAngle > 160 {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        speak("\(repCounter)")
+                    }
+                }
+            }
+        case "Wall Squats":
+            if let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip],
+               let leftKnee = jointPoints[.leftKnee],
+               let rightKnee = jointPoints[.rightKnee],
+               let leftAnkle = jointPoints[.leftAnkle],
+               let rightAnkle = jointPoints[.rightAnkle] {
+
+                let leftKneeAngle = angleBetweenPoints(leftHip, leftKnee, leftAnkle)
+                let rightKneeAngle = angleBetweenPoints(rightHip, rightKnee, rightAnkle)
+
+                if leftKneeAngle < 90 && rightKneeAngle < 90 {
+                    isGoingDown = true
+                } else if isGoingDown && leftKneeAngle > 160 && rightKneeAngle > 160 {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        speak("\(repCounter)")
+                    }
+                }
+            }
+        case "High Knees":
+            if let leftKnee = jointPoints[.leftKnee],
+               let rightKnee = jointPoints[.rightKnee],
+               let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip] {
+                
+                let leftKneeHigherThanHip = leftKnee.y < leftHip.y
+                let rightKneeHigherThanHip = rightKnee.y < rightHip.y
+                
+                if !isGoingDown && (leftKneeHigherThanHip || rightKneeHigherThanHip) {
+                    isGoingDown = true
+                } else if isGoingDown && !leftKneeHigherThanHip && !rightKneeHigherThanHip {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        speak("\(repCounter)")
+                    }
+                }
+            }
         case "Push-Ups":
             if let leftElbow = jointPoints[.leftElbow], let rightElbow = jointPoints[.rightElbow], let leftShoulder = jointPoints[.leftShoulder], let rightShoulder = jointPoints[.rightShoulder], let leftWrist = jointPoints[.leftWrist], let rightWrist = jointPoints[.rightWrist] {
                 let leftElbowAngle = angleBetweenPoints(leftShoulder, leftElbow, leftWrist)
                 let rightElbowAngle = angleBetweenPoints(rightShoulder, rightElbow, rightWrist)
                 
-                if leftElbowAngle < 100 && rightElbowAngle < 100 {
+                if leftElbowAngle < 120 && rightElbowAngle < 120 {
                     isGoingDown = true
                 } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
                     repCounter += 1
@@ -272,13 +335,58 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                     }
                 }
             }
-        case "Sit-Ups":
-            break
-            // Implement Sit-Ups Logic
-        case "Planks":
-            break
-            // Implement Planks Logic
-        case "Bicep Curls - Simultaneous":
+        case "Pilates Sit-Ups Hybrid":
+            if let leftElbow = jointPoints[.leftElbow],
+               let rightElbow = jointPoints[.rightElbow],
+               let leftKnee = jointPoints[.leftKnee],
+               let rightKnee = jointPoints[.rightKnee],
+               let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip],
+               let leftShoulder = jointPoints[.leftShoulder],
+               let rightShoulder = jointPoints[.rightShoulder] {
+
+                let kneesHigherThanHips = leftKnee.y < leftHip.y && rightKnee.y < rightHip.y
+                let shouldersBelowKnees = leftShoulder.y > leftKnee.y && rightShoulder.y > rightKnee.y
+
+                if kneesHigherThanHips {
+                    let leftElbowToKnee = distanceBetweenPoints(leftElbow, leftKnee)
+                    let rightElbowToKnee = distanceBetweenPoints(rightElbow, rightKnee)
+                    let elbowsCloseToKnees = leftElbowToKnee < 50 || rightElbowToKnee < 50
+
+                    if leftShoulder.y <= leftKnee.y && rightShoulder.y <= rightKnee.y && elbowsCloseToKnees {
+                        isGoingDown = true
+                    }
+                    else if isGoingDown && shouldersBelowKnees {
+                        repCounter += 1
+                        isGoingDown = false
+                        if enableVoice {
+                            speak("\(repCounter)")
+                        }
+                    }
+                }
+            }
+        case "Lunges":
+            if let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip],
+               let leftKnee = jointPoints[.leftKnee],
+               let rightKnee = jointPoints[.rightKnee],
+               let leftAnkle = jointPoints[.leftAnkle],
+               let rightAnkle = jointPoints[.rightAnkle] {
+
+                let leftKneeAngle = angleBetweenPoints(leftHip, leftKnee, leftAnkle)
+                let rightKneeAngle = angleBetweenPoints(rightHip, rightKnee, rightAnkle)
+
+                if leftKneeAngle <= 90 && rightKneeAngle <= 90 {
+                    isGoingDown = true
+                } else if isGoingDown && leftKneeAngle > 160 && rightKneeAngle > 160 {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        speak("\(repCounter)")
+                    }
+                }
+            }
+        case "Bicep Curls - Same Time":
             if let leftElbow = jointPoints[.leftElbow],
                let leftShoulder = jointPoints[.leftShoulder],
                let leftWrist = jointPoints[.leftWrist],
@@ -291,41 +399,7 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
 
                 if leftElbowAngle < 60 && rightElbowAngle < 60 {
                     isGoingDown = true
-                } else if isGoingDown && leftElbowAngle > 150 && rightElbowAngle > 150 {
-                    repCounter += 1
-                    isGoingDown = false
-                    if enableVoice {
-                        speak("\(repCounter)")
-                    }
-                }
-            }
-        case "Bicep Curls - Alternating":
-            if let leftElbow = jointPoints[.leftElbow],
-               let leftShoulder = jointPoints[.leftShoulder],
-               let leftWrist = jointPoints[.leftWrist],
-               let rightElbow = jointPoints[.rightElbow],
-               let rightShoulder = jointPoints[.rightShoulder],
-               let rightWrist = jointPoints[.rightWrist] {
-
-                let leftElbowAngle = angleBetweenPoints(leftShoulder, leftElbow, leftWrist)
-                let rightElbowAngle = angleBetweenPoints(rightShoulder, rightElbow, rightWrist)
-
-                var leftArmCompleted = false
-                var rightArmCompleted = false
-
-                if leftElbowAngle < 60 {
-                    isGoingDown = true
-                } else if isGoingDown && leftElbowAngle > 150 {
-                    leftArmCompleted = true
-                }
-
-                if rightElbowAngle < 60 {
-                    isGoingDown = true
-                } else if isGoingDown && rightElbowAngle > 150 {
-                    rightArmCompleted = true
-                }
-
-                if leftArmCompleted && rightArmCompleted {
+                } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
@@ -334,22 +408,23 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 }
             }
         case "Jumping Jacks":
-            if let leftShoulder = jointPoints[.leftShoulder],
-               let rightShoulder = jointPoints[.rightShoulder],
-               let leftHip = jointPoints[.leftHip],
-               let rightHip = jointPoints[.rightHip],
-               let leftWrist = jointPoints[.leftWrist],
+            if let leftWrist = jointPoints[.leftWrist],
                let rightWrist = jointPoints[.rightWrist],
-               let root = jointPoints[.root],
-               let leftKnee = jointPoints[.leftKnee],
-               let rightKnee = jointPoints[.rightKnee] {
-                
-                let leftArmAngle = angleBetweenPoints(leftWrist, leftShoulder, leftHip)
-                let rightArmAngle = angleBetweenPoints(rightWrist, rightShoulder, rightHip)
-                let armsUp = leftArmAngle > 120 && rightArmAngle > 120
-                let legsAngle = angleBetweenPoints(leftKnee, root, rightKnee)
-                let legsOpen = legsAngle > 120
-                
+               let leftShoulder = jointPoints[.leftShoulder],
+               let rightShoulder = jointPoints[.rightShoulder],
+               let leftAnkle = jointPoints[.leftAnkle],
+               let rightAnkle = jointPoints[.rightAnkle],
+               let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip] {
+
+                let leftArmUp = leftWrist.y < leftShoulder.y
+                let rightArmUp = rightWrist.y < rightShoulder.y
+                let armsUp = leftArmUp && rightArmUp
+
+                let hipWidth = hypot(leftHip.x - rightHip.x, leftHip.y - rightHip.y)
+                let ankleSpread = hypot(leftAnkle.x - rightAnkle.x, leftAnkle.y - rightAnkle.y)
+                let legsOpen = ankleSpread > hipWidth * 1.3
+
                 if armsUp && legsOpen {
                     isGoingDown = true
                 } else if isGoingDown && !armsUp && !legsOpen {
@@ -365,6 +440,10 @@ class ARCameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         }
         
         lastPose = jointPoints
+    }
+    
+    private func distanceBetweenPoints(_ p1: CGPoint, _ p2: CGPoint) -> CGFloat {
+        return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2))
     }
     
     private func angleBetweenPoints(_ p1: CGPoint, _ p2: CGPoint, _ p3: CGPoint) -> CGFloat {

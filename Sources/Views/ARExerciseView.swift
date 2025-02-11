@@ -37,7 +37,7 @@ struct ARExerciseView: View {
                                     .font(.title2.bold())
                                     .foregroundColor(.white)
                                 
-                                Text("Place your device on a stable surface, angled toward your workout area. Ensure good lighting conditions for the most accurate tracking. Avoid wearing flowing/robe-like clothing along with densely crowded backgrounds.")
+                                Text("Place your device on a stable surface, angled toward your workout area. Ensure good lighting conditions for the most accurate tracking. Avoid wearing flowing/robe-like clothing along with densely crowded backgrounds. T-shirts and shorts/tights are ideal.")
                                     .multilineTextAlignment(.center)
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.9))
@@ -294,18 +294,22 @@ struct ARExerciseView: View {
 
     private var exerciseInstructions: String {
         switch exerciseName {
+        case "High Knees":
+            return "Stand facing the camera with your full body visible. Alternate lifting each knee up towards your chest in a running motion. Each time both knees have been raised counts as one rep. Keep a steady pace and maintain good posture throughout the exercise."
+        case "Basic Squats":
+            return "Position your body so that it is parallel to the camera with feet shoulder-width apart. Keep your full body visible and perform squats by bending your knees while keeping your back straight. Lower yourself until your thighs are parallel to the ground, then return to standing position."
+        case "Lunges":
+            return "Position your body facing parallel to the camera. Step forward with one leg and lower your body until both knees form 90-degree angles. Return to the starting position and repeat with the other leg. Keep your full body visible to the camera."
+        case "Wall Squats":
+            return "Position your body so that it is parallel to the camera. Position your feet about 2 feet away from the wall, shoulder-width apart. Slide down the wall until your thighs are parallel to the ground, maintain this position, then push back up. Keep your full body visible to the camera."
         case "Push-Ups":
-            return "Get your whole body in view and assume the push-up position facing the camera. Maintain eye contact with the screen during your reps."
-        case "Sit-Ups":
-            return "Lie on your back with knees bent and feet flat on the ground. Keep your upper body visible to the camera throughout the movement."
-        case "Planks":
-            return "Position your body in a straight line from head to heels, supporting yourself on forearms and toes. Keep your core tight and body visible to the camera."
+            return "Position your body facing the camera. Get your whole body in view and assume the push-up position. Maintain eye contact with the screen during your reps."
+        case "Pilates Sit-Ups Hybrid":
+            return "Position your body so that it is parallel to the camera. Lie on your back with knees bent and feet flat on the ground. This is a pilates roll up and sits up hybrid, so you should stretch your arms out straight in front as you roll up and sit up. Keep your core tight and body visible to the camera."
         case "Bicep Curls - Simultaneous":
-            return "Stand facing the camera with arms at your sides. Keep your upper body steady and perform controlled curls at the same time with your full arms visible."
-        case "Bicep Curls - Alternating":
-            return "Stand facing the camera with arms at your sides. Keep your upper body steady and perform controlled alternated curls with your full arms visible."
+            return "Position your body facing the camera with arms at your sides. Keep your upper body steady and perform controlled curls at the same time with your full arms visible."
         case "Jumping Jacks":
-            return "Stand facing the camera with feet together and arms at your sides. Ensure your full body stays in view while performing the exercise."
+            return "Position your body facing the camera with feet together and arms at your sides. Ensure your full body stays in view while performing the exercise."
         default:
             return "Position yourself so your full body is visible to the camera throughout the exercise."
         }
