@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct HomeGymApp: App {
     @State private var navPath: [String] = []
-    @State private var selectedTab: Int = 1
+    @State private var selectedTab: Int = 0
     
     var body: some Scene {
         WindowGroup {

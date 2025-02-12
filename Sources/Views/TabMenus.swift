@@ -69,7 +69,9 @@ struct TabMenus: View {
                    Spacer()
                    if selectedTab == 2 && activityCount > 0 {
                        Button(action: {
-                           editMode.toggle()
+                            withAnimation() {
+                                editMode.toggle()
+                            }
                        }) {
                            Text(editMode ? "Done" : "Edit")
                                .font(.headline)
@@ -157,11 +159,15 @@ struct TabMenus: View {
     }
     
     private var currentTabName: String {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return "Home Gym"
+        }
+        
         switch selectedTab {
         case 0:
-            return "Progress"
-        case 1:
             return "Home Gym"
+        case 1:
+            return "Workout"
         case 2:
             return "Activity"
         case 3:
