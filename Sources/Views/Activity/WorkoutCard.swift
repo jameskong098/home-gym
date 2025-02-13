@@ -59,6 +59,11 @@ struct WorkoutCard: View {
                 value: timeString(from: workout.elapsedTime)
             )
             MetricRow(
+                icon: "flame.fill",
+                label: "Calories Burned:",
+                value: String(format: "%.2f", workout.caloriesBurned)
+            )
+            MetricRow(
                 icon: "calendar.circle.fill",
                 label: "Date:",
                 value: formattedDate(workout.date)

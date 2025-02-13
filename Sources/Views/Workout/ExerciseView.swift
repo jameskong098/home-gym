@@ -4,6 +4,7 @@ import AVFoundation
 
 struct ExerciseView: View {
     @State private var elapsedTime: TimeInterval = 0
+    @State private var caloriesBurned: Double = 0.0
     @State private var timer: Timer?
     @State private var repCount: Int = 0
     @State private var showTutorial = true
@@ -120,15 +121,23 @@ struct ExerciseView: View {
                             Spacer()
                             
                             HStack {
-                                Text(timeString(from: elapsedTime))
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                    .padding()
+                                VStack {
+                                    Text(timeString(from: elapsedTime))
+                                        .font(.largeTitle)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .padding()
+                                    
+                                    Text(String(format: "%.2f Cals.", caloriesBurned))
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .padding(.bottom)
+                                }
+                                .background(Color.blue.opacity(0.8))
+                                .cornerRadius(20)
+                                .shadow(radius: 10)
                             }
-                            .background(Color.blue.opacity(0.8))
-                            .cornerRadius(20)
-                            .shadow(radius: 10)
                         }
                         .padding(.horizontal, 25)
                         .padding(.vertical, 10)
@@ -179,8 +188,8 @@ struct ExerciseView: View {
                                 Spacer()
                                 
                                 Button(action: {
-                                   let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)"
-                                   navPath.append("ExerciseSummaryView|\(encodedString)")
+                                    let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
+                                    navPath.append("ExerciseSummaryView|\(encodedString)")
                                 }) {
                                     Image(systemName: "stop.circle")
                                         .font(.system(size: 30))
@@ -341,6 +350,7 @@ struct ExerciseView: View {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             DispatchQueue.main.async {
                 elapsedTime += 1
+                calculateCaloriesBurned()
             }
         }
     }
@@ -354,5 +364,51 @@ struct ExerciseView: View {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
+    private func calculateCaloriesBurned() {
+        let age = UserDefaults.standard.integer(forKey: "age")
+        let sex = UserDefaults.standard.string(forKey: "sex") ?? ""
+        let heightFeet = UserDefaults.standard.integer(forKey: "heightFeet")
+        let heightInches = UserDefaults.standard.integer(forKey: "heightInches")
+        let bodyWeight = UserDefaults.standard.double(forKey: "bodyWeight")
+        
+        let height = Double(heightFeet * 12 + heightInches) * 2.54 // Convert to cm
+        let weight = bodyWeight * 0.453592 // Convert to kg
+        
+        var bmr: Double = 0.0
+        
+        if sex == "Male" {
+            bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * Double(age))
+        } else if sex == "Female" {
+            bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * Double(age))
+        } else {
+            bmr = (88.362 + 447.593) / 2 + (11.322 * weight) + (3.9485 * height) - (5.0035 * Double(age))
+        }
+        
+        let metValue: Double
+        switch exerciseName {
+        case "High Knees":
+            metValue = 8.0
+        case "Basic Squats":
+            metValue = 5.0
+        case "Lunges":
+            metValue = 4.5
+        case "Wall Squats":
+            metValue = 4.0
+        case "Push-Ups":
+            metValue = 8.0
+        case "Pilates Sit-Ups Hybrid":
+            metValue = 3.5
+        case "Bicep Curls - Simultaneous":
+            metValue = 3.0
+        case "Jumping Jacks":
+            metValue = 8.0
+        default:
+            metValue = 4.0
+        }
+        
+        let caloriesPerMinute = (bmr / 1440) * metValue / 60
+        caloriesBurned = caloriesPerMinute * (elapsedTime / 60)
     }
 }

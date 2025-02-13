@@ -6,14 +6,16 @@ struct WorkoutData: Identifiable, Codable {
     var exerciseName: String
     var repCount: Int
     var elapsedTime: TimeInterval
+    var caloriesBurned: Double
     var weight: Double?
 
-    init(date: Date, exerciseName: String, repCount: Int, elapsedTime: TimeInterval, weight: Double? = nil) {
+    init(date: Date, exerciseName: String, repCount: Int, elapsedTime: TimeInterval, caloriesBurned: Double, weight: Double? = nil) {
         self.id = UUID()
         self.date = date
         self.exerciseName = exerciseName
         self.repCount = repCount
         self.elapsedTime = elapsedTime
+        self.caloriesBurned = caloriesBurned
         self.weight = weight
     }
 }

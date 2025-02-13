@@ -7,17 +7,19 @@ struct ExerciseSummaryView: View {
     @State private var editedRepCount: Int
     @State private var editedElapsedTime: TimeInterval
     @State private var editedWeight: Double?
+    @State private var caloriesBurned: Double
     let exerciseName: String
     let repCount: Int
     let elapsedTime: TimeInterval
     let weight: Double?
 
-    init(selectedTab: Binding<Int>, navPath: Binding<[String]>, exerciseName: String, repCount: Int, elapsedTime: TimeInterval, weight: Double? = nil) {
+    init(selectedTab: Binding<Int>, navPath: Binding<[String]>, exerciseName: String, repCount: Int, elapsedTime: TimeInterval, caloriesBurned: Double, weight: Double? = nil) {
         self._selectedTab = selectedTab
         self._navPath = navPath
         self.exerciseName = exerciseName
         self.repCount = repCount
         self.elapsedTime = elapsedTime
+        self.caloriesBurned = caloriesBurned
         self.weight = weight
         self._editedRepCount = State(initialValue: repCount)
         self._editedElapsedTime = State(initialValue: elapsedTime)
@@ -55,6 +57,9 @@ struct ExerciseSummaryView: View {
                     Divider()
                         .background(Color.gray.opacity(0.3))
                     summaryItem(icon: "clock", title: "Time", value: timeString(from: editedElapsedTime))
+                    Divider()
+                        .background(Color.gray.opacity(0.3))
+                    summaryItem(icon: "flame.fill", title: "Calories Burned", value: String(format: "%.2f", caloriesBurned))
                     Divider()
                         .background(Color.gray.opacity(0.3))
                     summaryItem(icon: "scalemass", title: "Weight", value: weightString(from: editedWeight))
@@ -265,7 +270,7 @@ struct ExerciseSummaryView: View {
     }
 
     private func saveWorkout() {
-        let workout = WorkoutData(date: Date(), exerciseName: exerciseName, repCount: editedRepCount, elapsedTime: editedElapsedTime, weight: editedWeight)
+        let workout = WorkoutData(date: Date(), exerciseName: exerciseName, repCount: editedRepCount, elapsedTime: editedElapsedTime, caloriesBurned: caloriesBurned, weight: editedWeight)
         var savedWorkouts = loadWorkouts()
         savedWorkouts.append(workout)
         if let encoded = try? JSONEncoder().encode(savedWorkouts) {
