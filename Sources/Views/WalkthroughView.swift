@@ -3,60 +3,80 @@ import SwiftUI
 struct WalkthroughView: View {
     @AppStorage("hasCompletedWalkthrough") private var hasCompletedWalkthrough = false
     @AppStorage("name") private var name = ""
-    @AppStorage("age") private var age = 18
-    @AppStorage("sex") private var sex = "Male"
-    @AppStorage("heightFeet") private var heightFeet = 5
-    @AppStorage("heightInches") private var heightInches = 11
-    @AppStorage("bodyWeight") private var bodyWeight = 172.0
+    @AppStorage("age") private var age = 0
+    @AppStorage("sex") private var sex = ""
+    @AppStorage("heightFeet") private var heightFeet = 0
+    @AppStorage("heightInches") private var heightInches = 0
+    @AppStorage("bodyWeight") private var bodyWeight = 0.0
     @State private var currentPage = 0
+    @State private var slideOffset: CGFloat = 0
     
     var body: some View {
-        ZStack {
-            Color("Background")
-                .ignoresSafeArea()
-            
-            VStack {
-                HStack(spacing: 12) {
-                    ForEach(0..<4) { index in
-                        Circle()
-                            .fill(currentPage >= index ? Color.blue : Color.gray.opacity(0.3))
-                            .frame(width: 11, height: 11)
-                            .scaleEffect(currentPage == index ? 1.2 : 1.0)
-                            .animation(.spring(), value: currentPage)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top, 20)
-                .padding(.bottom, 10)
+            ZStack {
+                Color("Background")
+                    .ignoresSafeArea()
                 
-                Group {
-                    if currentPage == 0 {
-                        WelcomePage(onNext: { currentPage += 1 })
-                    } else if currentPage == 1 {
-                        BasicInfoPage(name: $name, age: $age, onNext: { currentPage += 1 })
-                    } else if currentPage == 2 {
-                        BodyMetricsPage(sex: $sex, heightFeet: $heightFeet, heightInches: $heightInches, bodyWeight: $bodyWeight, onNext: { currentPage += 1 })
-                    } else if currentPage == 3 {
-                        SummaryPage(name: name, onComplete: {
-                            hasCompletedWalkthrough = true
-                        })
-                    }
-                }
-                .background(
-                    Color(UIColor { traitCollection in
-                        if traitCollection.userInterfaceStyle == .dark {
-                            return Theme.footerBackgroundColorDark
-                        } else {
-                            return Theme.footerBackgroundColorLight
+                VStack {
+                    HStack(spacing: 12) {
+                        ForEach(0..<4) { index in
+                            Circle()
+                                .fill(currentPage >= index ? Color.blue : Color.gray.opacity(0.3))
+                                .frame(width: 11, height: 11)
+                                .scaleEffect(currentPage == index ? 1.2 : 1.0)
+                                .animation(.spring(), value: currentPage)
                         }
-                    })
-                )
-                .cornerRadius(20)
-                .padding(40)
+                    }
+                    .padding(.bottom, 40)
+                    GeometryReader { geometry in
+                        HStack(spacing: 0) {
+                            WelcomePage(onNext: {
+                                withAnimation(.spring()) {
+                                    slideOffset = -geometry.size.width
+                                    currentPage = 1
+                                }
+                            })
+                            .frame(width: geometry.size.width)
+                            
+                            BasicInfoPage(name: $name, age: $age, onNext: {
+                                withAnimation(.spring()) {
+                                    slideOffset = -geometry.size.width * 2
+                                    currentPage = 2
+                                }
+                            })
+                            .frame(width: geometry.size.width)
+                            
+                            BodyMetricsPage(sex: $sex, heightFeet: $heightFeet, heightInches: $heightInches, bodyWeight: $bodyWeight, onNext: {
+                                withAnimation(.spring()) {
+                                    slideOffset = -geometry.size.width * 3
+                                    currentPage = 3
+                                }
+                            })
+                            .frame(width: geometry.size.width)
+                            
+                            SummaryPage(name: name, onComplete: {
+                                withAnimation(.spring()) {
+                                    hasCompletedWalkthrough = true
+                                }
+                            })
+                            .frame(width: geometry.size.width)
+                        }
+                        .offset(x: slideOffset)
+                    }
+                    .background(
+                        Color(UIColor { traitCollection in
+                            if traitCollection.userInterfaceStyle == .dark {
+                                return Theme.footerBackgroundColorDark
+                            } else {
+                                return Theme.footerBackgroundColorLight
+                            }
+                        })
+                    )
+                    .cornerRadius(20)
+                    .frame(maxWidth: 660, maxHeight: 650)
+                }
             }
         }
     }
-}
 
 struct WelcomePage: View {
     let onNext: () -> Void

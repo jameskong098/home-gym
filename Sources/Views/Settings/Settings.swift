@@ -11,11 +11,11 @@ struct Settings: View {
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
     @AppStorage("themePreference") private var themePreference = "dark"
     @AppStorage("name") private var name = ""
-    @AppStorage("age") private var age = 18
-    @AppStorage("sex") private var sex = "Male"
-    @AppStorage("heightFeet") private var heightFeet = 5
-    @AppStorage("heightInches") private var heightInches = 11
-    @AppStorage("bodyWeight") private var bodyWeight = 172.0
+    @AppStorage("age") private var age = 0
+    @AppStorage("sex") private var sex = ""
+    @AppStorage("heightFeet") private var heightFeet = 0
+    @AppStorage("heightInches") private var heightInches = 0
+    @AppStorage("bodyWeight") private var bodyWeight = 0.0
     
 
     var body: some View {
