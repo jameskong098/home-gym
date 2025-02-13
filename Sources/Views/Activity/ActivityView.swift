@@ -10,6 +10,7 @@ struct ActivityView: View {
     var onActivitiesChange: (Int) -> Void
     @State private var highlightedWorkoutId: UUID?
     @Namespace private var animation
+    @State private var expandedSections: Set<String> = Set()
 
     var body: some View {
         ScrollView {
@@ -26,6 +27,7 @@ struct ActivityView: View {
         .onAppear {
             loadWorkouts()
             onActivitiesChange(workouts.count)
+            expandedSections = Set(groupWorkoutsByDate(workouts).map { $0.1 })
         }
         .sheet(isPresented: $isShowingEditSheet) {
             if let workout = selectedWorkout {
@@ -69,30 +71,71 @@ struct ActivityView: View {
     private var workoutsList: some View {
         ScrollViewReader { proxy in
             LazyVStack(spacing: 16) {
-                ForEach(workouts.sorted(by: { $0.date > $1.date })) { workout in
-                    WorkoutCard(
-                        workout: workout,
-                        editMode: editMode,
-                        isHighlighted: workout.id == highlightedWorkoutId,
-                        onEdit: {
-                            selectedWorkout = workout
-                            highlightedWorkoutId = workout.id
-                            
+                ForEach(groupWorkoutsByDate(workouts), id: \.1) { section in
+                    VStack(spacing: 8) {
+                        Button(action: {
                             withAnimation {
-                                proxy.scrollTo(workout.id, anchor: .center)
+                                if expandedSections.contains(section.1) {
+                                    expandedSections.remove(section.1)
+                                } else {
+                                    expandedSections.insert(section.1)
+                                }
                             }
-
-                            isShowingEditSheet = true
-                            
-                        },
-                        onDelete: { 
-                            workoutToDelete = workout
-                            showingDeleteAlert = true 
+                        }) {
+                            HStack {
+                                Text(section.0)
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                                
+                                VStack(alignment: .trailing) {
+                                    Text(section.1)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Image(systemName: expandedSections.contains(section.1) ? "chevron.down" : "chevron.right")
+                                    .foregroundColor(.secondary)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .padding(.leading, 8)
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                          
+                            .cornerRadius(10)
                         }
-                    )
-                    .id(workout.id)
-                    .transition(.opacity) 
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        if expandedSections.contains(section.1) {
+                            ForEach(section.2.sorted(by: { $0.date > $1.date })) { workout in
+                                WorkoutCard(
+                                    workout: workout,
+                                    editMode: editMode,
+                                    isHighlighted: workout.id == highlightedWorkoutId,
+                                    onEdit: {
+                                        selectedWorkout = workout
+                                        highlightedWorkoutId = workout.id
+                                        
+                                        withAnimation {
+                                            proxy.scrollTo(workout.id, anchor: .center)
+                                        }
+                                        
+                                        isShowingEditSheet = true
+                                    },
+                                    onDelete: {
+                                        workoutToDelete = workout
+                                        showingDeleteAlert = true
+                                    }
+                                )
+                                .id(workout.id)
+                                .transition(.opacity)
+                            }
+                        }
+                    }
                 }
+                
                 if isShowingEditSheet && UIDevice.current.userInterfaceIdiom != .pad {
                     Color.clear
                         .frame(height: 190)
@@ -161,5 +204,32 @@ struct ActivityView: View {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+
+    private func groupWorkoutsByDate(_ workouts: [WorkoutData]) -> [(String, String, [WorkoutData])] {
+        let calendar = Calendar.current
+        
+        return Dictionary(grouping: workouts) { workout in
+            calendar.startOfDay(for: workout.date)
+        }
+        .map { (date, workouts) in
+            let headerTitle: String
+            if calendar.isDateInToday(date) {
+                headerTitle = "Today"
+            } else if calendar.isDateInYesterday(date) {
+                headerTitle = "Yesterday"
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "EEEE"
+                headerTitle = formatter.string(from: date)
+            }
+            
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d, yyyy"
+            let dateString = formatter.string(from: date)
+            
+            return (headerTitle, dateString, workouts)
+        }
+        .sorted { $0.2.first?.date ?? Date() > $1.2.first?.date ?? Date() }
     }
 }
