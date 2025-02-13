@@ -17,10 +17,31 @@ struct DayStatsView: View {
         dayWorkouts.reduce(0) { $0 + $1.elapsedTime }
     }
     
-    private func exerciseBreakdown() -> [(exercise: String, reps: Int)] {
+    private var totalCaloriesBurned: Double {
+        dayWorkouts.reduce(0) { $0 + $1.caloriesBurned }
+    }
+    
+    private func exerciseBreakdown() -> [(exercise: String, reps: Int, duration: TimeInterval, calories: Double)] {
         Dictionary(grouping: dayWorkouts, by: { $0.exerciseName })
-            .map { (exercise: $0.key, reps: $0.value.reduce(0) { $0 + $1.repCount }) }
-            .sorted { $0.reps > $1.reps }
+            .map { (
+                exercise: $0.key,
+                reps: $0.value.reduce(0) { $0 + $1.repCount },
+                duration: $0.value.reduce(0) { $0 + $1.elapsedTime },
+                calories: $0.value.reduce(0) { $0 + $1.caloriesBurned }
+            )}
+            .sorted { first, second in
+                if first.reps != second.reps {
+                    return first.reps > second.reps
+                }
+                if first.duration != second.duration {
+                    return first.duration > second.duration
+                }
+                if first.calories != second.calories {
+                    return first.calories > second.calories
+                }
+
+                return first.exercise < second.exercise
+            }
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {
@@ -48,13 +69,19 @@ struct DayStatsView: View {
                 StatItem(
                     icon: "figure.strengthtraining.traditional",
                     value: "\(totalReps)",
-                    label: "Total Reps"
+                    label: "Reps"
                 )
                 
                 StatItem(
                     icon: "clock.fill",
                     value: formatDuration(totalTime),
                     label: "Duration"
+                )
+                
+                StatItem(
+                    icon: "flame.fill",
+                    value: String(format: "%.2f", totalCaloriesBurned),
+                    label: "Calories"
                 )
             }
             .padding(.horizontal)
@@ -67,9 +94,14 @@ struct DayStatsView: View {
                 .padding(.horizontal)
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 11) {
                     ForEach(exerciseBreakdown(), id: \.exercise) { breakdown in
-                        ExerciseRow(exercise: breakdown.exercise, reps: breakdown.reps)
+                        ExerciseRow(
+                            exercise: breakdown.exercise,
+                            reps: breakdown.reps, 
+                            duration: breakdown.duration,
+                            calories: breakdown.calories
+                        )
                     }
                     if exerciseBreakdown().isEmpty {
                         VStack(spacing: 8) {
@@ -119,16 +151,34 @@ struct StatItem: View {
 struct ExerciseRow: View {
     let exercise: String
     let reps: Int
+    let duration: TimeInterval
+    let calories: Double
     
     var body: some View {
-        HStack {
-            Text(exercise)
-                .font(.subheadline)
-            Spacer()
-            Text("\(reps) reps")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(exercise)
+                    .font(.subheadline)
+                Spacer()
+                Text("\(reps) reps, \(formatDuration(duration)), \(String(format: "%.0f", calories)) cal")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
         }
         .padding(.vertical, 4)
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let hours = Int(duration) / 3600
+        let minutes = Int(duration) / 60 % 60
+        let seconds = Int(duration) % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(minutes)m \(seconds)s"
+        } else if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        } else {
+            return "\(seconds)s"
+        }
     }
 }

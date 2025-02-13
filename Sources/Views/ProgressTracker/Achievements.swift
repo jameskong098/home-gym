@@ -27,7 +27,37 @@ struct CompactAchievementsView: View {
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        ForEach(achievements.filter { !$0.title.contains("Days") && !$0.title.contains("Year") }, id: \.title) { achievement in
+                        ForEach(achievements.filter { $0.title.contains("Reps") }, id: \.title) { achievement in
+                            CompactAchievementBadge(achievement: achievement)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            
+            Group {
+                Text("Duration")
+                    .font(.subheadline)
+                    .padding(.horizontal)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(achievements.filter { $0.title.contains("Hour") }, id: \.title) { achievement in
+                            CompactAchievementBadge(achievement: achievement)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            
+            Group {
+                Text("Calories")
+                    .font(.subheadline)
+                    .padding(.horizontal)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(achievements.filter { $0.title.contains("Calories") }, id: \.title) { achievement in
                             CompactAchievementBadge(achievement: achievement)
                         }
                     }
