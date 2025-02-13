@@ -10,10 +10,13 @@ struct Settings: View {
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
     @AppStorage("themePreference") private var themePreference = "dark"
-    @AppStorage("heightFeet") private var heightFeet = 5
-    @AppStorage("heightInches") private var heightInches = 7
-    @AppStorage("bodyWeight") private var bodyWeight = 70.0
     @AppStorage("name") private var name = ""
+    @AppStorage("age") private var age = 18
+    @AppStorage("sex") private var sex = "Male"
+    @AppStorage("heightFeet") private var heightFeet = 5
+    @AppStorage("heightInches") private var heightInches = 11
+    @AppStorage("bodyWeight") private var bodyWeight = 172.0
+    
 
     var body: some View {
         ScrollView {
@@ -127,12 +130,32 @@ struct Settings: View {
 
                 VStack(alignment: .center, spacing: 10) {
                     HStack {
-                            Text("Name")
-                            Spacer()
-                            TextField("Enter your name", text: $name)
-                                .padding(.horizontal)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        Text("Name")
+                        Spacer()
+                        TextField("Enter your name", text: $name)
+                            .padding(.horizontal)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    Divider()
+                    HStack {
+                        Text("Age")
+                        Spacer()
+                        TextField("Enter your age", value: $age, formatter: NumberFormatter())
+                            .keyboardType(.numberPad)
+                            .padding(.horizontal)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    Divider()
+                    HStack {
+                        Text("Gender")
+                        Spacer()
+                        Picker("Select your gender", selection: $sex) {
+                            Text("Male").tag("Male")
+                            Text("Female").tag("Female")
                         }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .padding(.horizontal)
+                    }
                     Divider()
                     HStack {
                         Text("Height")
