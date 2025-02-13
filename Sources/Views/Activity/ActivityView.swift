@@ -8,14 +8,17 @@ struct ActivityView: View {
     @State private var showingDeleteAlert = false
     @Binding var editMode: Bool
     var onActivitiesChange: (Int) -> Void
+    var onWorkoutsUpdate: ([WorkoutData]) -> Void
     @State private var highlightedWorkoutId: UUID?
     @Namespace private var animation
     @State private var expandedSections: Set<String> = Set()
+    @State private var showingFilterSheet = false
+    @ObservedObject var filterModel: WorkoutFilterModel
 
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                if workouts.isEmpty {
+                if filteredWorkouts.isEmpty {
                     emptyStateView
                 } else {
                     workoutsList
@@ -27,6 +30,7 @@ struct ActivityView: View {
         .onAppear {
             loadWorkouts()
             onActivitiesChange(workouts.count)
+            onWorkoutsUpdate(workouts)
             expandedSections = Set(groupWorkoutsByDate(workouts).map { $0.1 })
         }
         .sheet(isPresented: $isShowingEditSheet) {
@@ -71,7 +75,7 @@ struct ActivityView: View {
     private var workoutsList: some View {
         ScrollViewReader { proxy in
             LazyVStack(spacing: 16) {
-                ForEach(groupWorkoutsByDate(workouts), id: \.1) { section in
+                ForEach(groupWorkoutsByDate(filteredWorkouts), id: \.1) { section in
                     VStack(spacing: 8) {
                         Button(action: {
                             withAnimation {
@@ -145,6 +149,42 @@ struct ActivityView: View {
         }
     }
     
+    private var filteredWorkouts: [WorkoutData] {
+        workouts.filter { workout in
+            var passes = true
+            
+            if !filterModel.exerciseName.isEmpty {
+                passes = passes && workout.exerciseName == filterModel.exerciseName
+            }
+            
+            if let minReps = Int(filterModel.minReps) {
+                passes = passes && workout.repCount >= minReps
+            }
+            
+            if let maxReps = Int(filterModel.maxReps) {
+                passes = passes && workout.repCount <= maxReps
+            }
+            
+            if let startDate = filterModel.startDate {
+                passes = passes && workout.date >= startDate
+            }
+            
+            if let endDate = filterModel.endDate {
+                passes = passes && workout.date <= endDate
+            }
+            
+            if let minTime = filterModel.minTime {
+                passes = passes && workout.elapsedTime >= minTime
+            }
+            
+            if let maxTime = filterModel.maxTime {
+                passes = passes && workout.elapsedTime <= maxTime
+            }
+            
+            return passes
+        }
+    }
+    
     private func deleteAlert() -> some View {
         Group {
             Button("Delete", role: .destructive) {
@@ -170,6 +210,7 @@ struct ActivityView: View {
         if let savedData = UserDefaults.standard.data(forKey: "workouts"),
            let decodedWorkouts = try? JSONDecoder().decode([WorkoutData].self, from: savedData) {
             workouts = decodedWorkouts
+            onWorkoutsUpdate(workouts)
         }
     }
 

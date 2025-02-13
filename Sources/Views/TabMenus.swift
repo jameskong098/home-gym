@@ -6,6 +6,9 @@ struct TabMenus: View {
     @AppStorage("themePreference") private var themePreference = "system"
     @State private var editMode = false
     @State private var activityCount = 0
+    @State private var showingFilterMenu = false
+    @StateObject private var filterModel = WorkoutFilterModel()
+    @State private var workouts: [WorkoutData] = []
 
     init(selectedTab: Binding<Int>, navPath: Binding<[String]>) {
         self._selectedTab = selectedTab
@@ -69,6 +72,16 @@ struct TabMenus: View {
                    Spacer()
                    if selectedTab == 2 && activityCount > 0 {
                        Button(action: {
+                           showingFilterMenu = true
+                       }) {
+                           Image(systemName: "line.3.horizontal.decrease.circle")
+                               .font(.headline)
+                               .frame(width: 50) 
+                       }
+                       .popover(isPresented: $showingFilterMenu) {
+                           FilterMenu(filterModel: filterModel, workouts: workouts)
+                       }
+                       Button(action: {
                             withAnimation() {
                                 editMode.toggle()
                             }
@@ -77,7 +90,6 @@ struct TabMenus: View {
                                .font(.headline)
                                .frame(width: 50)
                        }
-                       .padding(.trailing, 15)
                    }
                },
                alignment: .trailing
@@ -123,12 +135,19 @@ struct TabMenus: View {
                         }
                     })
                         .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                    ActivityView(editMode: $editMode, onActivitiesChange: { count in
-                        activityCount = count
-                        if count == 0 {
-                            editMode = false
-                        }
-                    })
+                    ActivityView(
+                        editMode: $editMode,
+                        onActivitiesChange: { count in
+                            activityCount = count
+                            if count == 0 {
+                                editMode = false
+                            }
+                        },
+                        onWorkoutsUpdate: { updatedWorkouts in
+                            workouts = updatedWorkouts
+                        },
+                        filterModel: filterModel
+                    )
                 }
                     .tabItem {
                         Label("Activity", systemImage: "list.bullet")
