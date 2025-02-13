@@ -87,7 +87,7 @@ struct FilterMenu: View {
                 }
                 
                 Section(header: Text("Reps Range")) {
-                    RangeSlider(range: $repsRange, in: minReps...maxReps)
+                    RangeSlider(range: $repsRange, bounds: minReps...maxReps)
                         .frame(height: 44)
                         .onChange(of: repsRange) { newValue in
                             filterModel.minReps = String(Int(newValue.lowerBound))
@@ -105,7 +105,7 @@ struct FilterMenu: View {
                 }
                 
                 Section(header: Text("Date Range")) {
-                    DateRangeSlider(range: $dateRange, in: minDate...maxDate)
+                    DateRangeSlider(range: $dateRange, bounds: minDate...maxDate)
                         .frame(height: 44)
                         .onChange(of: dateRange) { newValue in
                             filterModel.startDate = newValue.lowerBound
@@ -123,7 +123,7 @@ struct FilterMenu: View {
                 }
                 
                 Section(header: Text("Duration Range")) {
-                    RangeSlider(range: $durationRange, in: minDuration...maxDuration)
+                    RangeSlider(range: $durationRange, bounds: minDuration...maxDuration)
                         .frame(height: 44)
                         .onChange(of: durationRange) { newValue in
                             filterModel.minTime = newValue.lowerBound
@@ -167,11 +167,6 @@ struct RangeSlider: View {
     @Binding var range: ClosedRange<Double>
     let bounds: ClosedRange<Double>
     
-    init(range: Binding<ClosedRange<Double>>, in bounds: ClosedRange<Double>) {
-        self._range = range
-        self.bounds = bounds
-    }
-    
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
@@ -179,18 +174,21 @@ struct RangeSlider: View {
                     .fill(Color.secondary.opacity(0.2))
                     .frame(width: geometry.size.width - 56, height: 4)
                     .padding(.horizontal, 28)
+                    .padding(.top, 7)
                 
                 Rectangle()
                     .fill(Color.blue)
                     .frame(width: width(for: range, in: geometry),
                            height: 4)
-                    .offset(x: xOffset(for: range.lowerBound, in: geometry) + 28)
+                    .offset(x: xOffset(for: range.lowerBound, in: geometry))
+                    .padding(.horizontal, 28)
+                    .padding(.top, 7)
                 
                 HStack(spacing: 0) {
                     Circle()
                         .fill(Color.blue)
                         .frame(width: 28, height: 28)
-                        .offset(x: xOffset(for: range.lowerBound, in: geometry) + 28)
+                        .offset(x: xOffset(for: range.lowerBound, in: geometry))
                         .gesture(DragGesture()
                             .onChanged { value in
                                 updateLowerBound(value, in: geometry)
@@ -199,15 +197,15 @@ struct RangeSlider: View {
                     Circle()
                         .fill(Color.blue)
                         .frame(width: 28, height: 28)
-                        .offset(x: xOffset(for: range.upperBound, in: geometry))
+                        .offset(x: xOffset(for: range.upperBound, in: geometry) - 28)
                         .gesture(DragGesture()
                             .onChanged { value in
                                 updateUpperBound(value, in: geometry)
                             })
                 }
             }
+            .padding(.horizontal, 14)
         }
-        .frame(height: 44)
     }
     
     private func width(for range: ClosedRange<Double>, in geometry: GeometryProxy) -> CGFloat {
@@ -221,26 +219,25 @@ struct RangeSlider: View {
     }
     
     private func updateLowerBound(_ value: DragGesture.Value, in geometry: GeometryProxy) {
-        let ratio = value.location.x / geometry.size.width
+        let ratio = value.location.x / (geometry.size.width - 56)
         let newValue = bounds.lowerBound + (bounds.upperBound - bounds.lowerBound) * Double(ratio)
-        range = min(max(newValue, bounds.lowerBound), range.upperBound)...range.upperBound
+        let minDistance = (bounds.upperBound - bounds.lowerBound) * 0.05
+        let maxAllowedValue = range.upperBound - minDistance
+        range = min(max(newValue, bounds.lowerBound), maxAllowedValue)...range.upperBound
     }
     
     private func updateUpperBound(_ value: DragGesture.Value, in geometry: GeometryProxy) {
-        let ratio = value.location.x / geometry.size.width
+        let ratio = value.location.x / (geometry.size.width - 56)
         let newValue = bounds.lowerBound + (bounds.upperBound - bounds.lowerBound) * Double(ratio)
-        range = range.lowerBound...max(min(newValue, bounds.upperBound), range.lowerBound)
+        let minDistance = (bounds.upperBound - bounds.lowerBound) * 0.05
+        let minAllowedValue = range.lowerBound + minDistance
+        range = range.lowerBound...max(min(newValue, bounds.upperBound), minAllowedValue)
     }
 }
 
 struct DateRangeSlider: View {
     @Binding var range: ClosedRange<Date>
     let bounds: ClosedRange<Date>
-    
-    init(range: Binding<ClosedRange<Date>>, in bounds: ClosedRange<Date>) {
-        self._range = range
-        self.bounds = bounds
-    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -254,13 +251,14 @@ struct DateRangeSlider: View {
                     .fill(Color.blue)
                     .frame(width: width(for: range, in: geometry),
                            height: 4)
-                    .offset(x: xOffset(for: range.lowerBound, in: geometry) + 28)
+                    .offset(x: xOffset(for: range.lowerBound, in: geometry))
+                    .padding(.horizontal, 28) 
                 
                 HStack(spacing: 0) {
                     Circle()
                         .fill(Color.blue)
                         .frame(width: 28, height: 28)
-                        .offset(x: xOffset(for: range.lowerBound, in: geometry) + 28)
+                        .offset(x: xOffset(for: range.lowerBound, in: geometry))
                         .gesture(DragGesture()
                             .onChanged { value in
                                 updateLowerBound(value, in: geometry)
@@ -269,15 +267,15 @@ struct DateRangeSlider: View {
                     Circle()
                         .fill(Color.blue)
                         .frame(width: 28, height: 28)
-                        .offset(x: xOffset(for: range.upperBound, in: geometry))
+                        .offset(x: xOffset(for: range.upperBound, in: geometry) - 28)
                         .gesture(DragGesture()
                             .onChanged { value in
                                 updateUpperBound(value, in: geometry)
                             })
                 }
             }
+            .padding(.horizontal, 14)
         }
-        .frame(height: 44)
     }
     
     private func width(for range: ClosedRange<Date>, in geometry: GeometryProxy) -> CGFloat {
@@ -294,15 +292,25 @@ struct DateRangeSlider: View {
     
     private func updateLowerBound(_ value: DragGesture.Value, in geometry: GeometryProxy) {
         let ratio = value.location.x / (geometry.size.width - 56)
-        let timeInterval = bounds.upperBound.timeIntervalSince1970 - bounds.lowerBound.timeIntervalSince1970
-        let newDate = Date(timeIntervalSince1970: bounds.lowerBound.timeIntervalSince1970 + timeInterval * Double(ratio))
-        range = min(max(newDate, bounds.lowerBound), range.upperBound)...range.upperBound
+        let totalTimeInterval = bounds.upperBound.timeIntervalSince1970 - bounds.lowerBound.timeIntervalSince1970
+        let newDate = Date(timeIntervalSince1970: bounds.lowerBound.timeIntervalSince1970 + totalTimeInterval * Double(ratio))
+        
+        // Minimum distance of 1 day (86400 seconds)
+        let minTimeInterval: TimeInterval = 86400
+        let maxAllowedDate = Date(timeIntervalSince1970: range.upperBound.timeIntervalSince1970 - minTimeInterval)
+        
+        range = min(max(newDate, bounds.lowerBound), maxAllowedDate)...range.upperBound
     }
     
     private func updateUpperBound(_ value: DragGesture.Value, in geometry: GeometryProxy) {
         let ratio = value.location.x / (geometry.size.width - 56)
-        let timeInterval = bounds.upperBound.timeIntervalSince1970 - bounds.lowerBound.timeIntervalSince1970
-        let newDate = Date(timeIntervalSince1970: bounds.lowerBound.timeIntervalSince1970 + timeInterval * Double(ratio))
-        range = range.lowerBound...max(min(newDate, bounds.upperBound), range.lowerBound)
+        let totalTimeInterval = bounds.upperBound.timeIntervalSince1970 - bounds.lowerBound.timeIntervalSince1970
+        let newDate = Date(timeIntervalSince1970: bounds.lowerBound.timeIntervalSince1970 + totalTimeInterval * Double(ratio))
+        
+        // Minimum distance of 1 day (86400 seconds)
+        let minTimeInterval: TimeInterval = 86400
+        let minAllowedDate = Date(timeIntervalSince1970: range.lowerBound.timeIntervalSince1970 + minTimeInterval)
+        
+        range = range.lowerBound...max(min(newDate, bounds.upperBound), minAllowedDate)
     }
 }

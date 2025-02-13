@@ -80,6 +80,7 @@ struct TabMenus: View {
                        }
                        .popover(isPresented: $showingFilterMenu) {
                            FilterMenu(filterModel: filterModel, workouts: workouts)
+                               .frame(idealWidth: 400, idealHeight: UIDevice.current.userInterfaceIdiom == .pad ? 800 : nil)
                        }
                        Button(action: {
                             withAnimation() {
