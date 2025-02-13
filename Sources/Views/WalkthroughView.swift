@@ -17,16 +17,6 @@ struct WalkthroughView: View {
                     .ignoresSafeArea()
                 
                 VStack {
-                    HStack(spacing: 12) {
-                        ForEach(0..<4) { index in
-                            Circle()
-                                .fill(currentPage >= index ? Color.blue : Color.gray.opacity(0.3))
-                                .frame(width: 11, height: 11)
-                                .scaleEffect(currentPage == index ? 1.2 : 1.0)
-                                .animation(.spring(), value: currentPage)
-                        }
-                    }
-                    .padding(.bottom, 40)
                     GeometryReader { geometry in
                         HStack(spacing: 0) {
                             WelcomePage(onNext: {
@@ -73,6 +63,16 @@ struct WalkthroughView: View {
                     )
                     .cornerRadius(20)
                     .frame(maxWidth: 660, maxHeight: 650)
+                    HStack(spacing: 12) {
+                        ForEach(0..<4) { index in
+                            Circle()
+                                .fill(currentPage >= index ? Color.blue : Color.gray.opacity(0.3))
+                                .frame(width: 11, height: 11)
+                                .scaleEffect(currentPage == index ? 1.2 : 1.0)
+                                .animation(.spring(), value: currentPage)
+                        }
+                    }
+                    .padding(.top, 40)
                 }
             }
         }
