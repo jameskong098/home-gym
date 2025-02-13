@@ -44,7 +44,7 @@ struct ActivityView: View {
                 SavedDataEditView(workout: workout, 
                                  isShowingEditSheet: $isShowingEditSheet, 
                                  onSave: handleWorkoutUpdate)
-                .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 400 : 300)])
+                .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 340 : 300)])
                 .interactiveDismissDisabled()
             }
         }

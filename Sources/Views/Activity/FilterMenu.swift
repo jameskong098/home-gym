@@ -154,7 +154,7 @@ struct FilterMenu: View {
                     }
                 }
             }
-            .navigationTitle("Filter Workouts")
+            .navigationTitle("Filter Workouts").navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing: Button("Done") { dismiss() })
             .frame(maxWidth: UIDevice.current.userInterfaceIdiom == .pad ? 400 : nil)
         }

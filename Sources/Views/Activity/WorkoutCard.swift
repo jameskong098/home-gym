@@ -212,7 +212,7 @@ struct SavedDataEditView: View {
                     }
                 }
             }
-            .navigationTitle("Edit Workout")
+            .navigationTitle("Edit Workout").navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
                 leading: Button("Cancel") {
                     isShowingEditSheet = false
