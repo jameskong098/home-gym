@@ -16,17 +16,43 @@ struct WalkthroughView: View {
                 .ignoresSafeArea()
             
             VStack {
-                if currentPage == 0 {
-                    WelcomePage(onNext: { currentPage += 1 })
-                } else if currentPage == 1 {
-                    BasicInfoPage(name: $name, age: $age, onNext: { currentPage += 1 })
-                } else if currentPage == 2 {
-                    BodyMetricsPage(sex: $sex, heightFeet: $heightFeet, heightInches: $heightInches, bodyWeight: $bodyWeight, onNext: { currentPage += 1 })
-                } else if currentPage == 3 {
-                    SummaryPage(name: name, onComplete: {
-                        hasCompletedWalkthrough = true
-                    })
+                HStack(spacing: 12) {
+                    ForEach(0..<4) { index in
+                        Circle()
+                            .fill(currentPage >= index ? Color.blue : Color.gray.opacity(0.3))
+                            .frame(width: 11, height: 11)
+                            .scaleEffect(currentPage == index ? 1.2 : 1.0)
+                            .animation(.spring(), value: currentPage)
+                    }
                 }
+                .padding(.horizontal)
+                .padding(.top, 20)
+                .padding(.bottom, 10)
+                
+                Group {
+                    if currentPage == 0 {
+                        WelcomePage(onNext: { currentPage += 1 })
+                    } else if currentPage == 1 {
+                        BasicInfoPage(name: $name, age: $age, onNext: { currentPage += 1 })
+                    } else if currentPage == 2 {
+                        BodyMetricsPage(sex: $sex, heightFeet: $heightFeet, heightInches: $heightInches, bodyWeight: $bodyWeight, onNext: { currentPage += 1 })
+                    } else if currentPage == 3 {
+                        SummaryPage(name: name, onComplete: {
+                            hasCompletedWalkthrough = true
+                        })
+                    }
+                }
+                .background(
+                    Color(UIColor { traitCollection in
+                        if traitCollection.userInterfaceStyle == .dark {
+                            return Theme.footerBackgroundColorDark
+                        } else {
+                            return Theme.footerBackgroundColorLight
+                        }
+                    })
+                )
+                .cornerRadius(20)
+                .padding(40)
             }
         }
     }
@@ -70,7 +96,8 @@ struct WelcomePage: View {
             }
             .padding(.top, 40)
         }
-        .padding()
+        .padding(40)
+        .frame(maxWidth: 660, maxHeight: 650)
     }
 }
 
@@ -92,7 +119,7 @@ struct BasicInfoPage: View {
             
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading) {
-                    Text("What's your name?")
+                    Text("What's your first name?")
                         .fontWeight(.medium)
                     TextField("Enter your name", text: $name)
                         .textFieldStyle(.roundedBorder)
@@ -128,7 +155,8 @@ struct BasicInfoPage: View {
                 Alert(title: Text("Invalid Input"), message: Text("Please enter a valid name and age."), dismissButton: .default(Text("OK")))
             }
         }
-        .padding()
+        .padding(40)
+        .frame(maxWidth: 660, maxHeight: 650)
     }
 }
 
@@ -205,7 +233,8 @@ struct BodyMetricsPage: View {
                 Alert(title: Text("Invalid Input"), message: Text("Please enter valid height and weight."), dismissButton: .default(Text("OK")))
             }
         }
-        .padding()
+        .padding(40)
+        .frame(maxWidth: 660, maxHeight: 650)
     }
 }
 
@@ -238,7 +267,8 @@ struct SummaryPage: View {
             }
             .padding(.top, 40)
         }
-        .padding()
+        .padding(40)
+        .frame(maxWidth: 660, maxHeight: 650)
     }
 }
 

@@ -10,6 +10,7 @@ struct HomeGymApp: App {
         WindowGroup {
             
             if hasCompletedWalkthrough {
+            
                 NavigationStack(path: $navPath) {
                     TabMenus(selectedTab: $selectedTab, navPath: $navPath)
                     .navigationDestination(for: String.self) { pathValue in
@@ -29,8 +30,8 @@ struct HomeGymApp: App {
                         }
                     }
                 }
+             
             } else {
-            
                 WalkthroughView()
             }
         }
