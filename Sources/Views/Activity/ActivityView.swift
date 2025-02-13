@@ -15,6 +15,18 @@ struct ActivityView: View {
     @State private var showingFilterSheet = false
     @ObservedObject var filterModel: WorkoutFilterModel
 
+    init(editMode: Binding<Bool>, onActivitiesChange: @escaping (Int) -> Void, onWorkoutsUpdate: @escaping ([WorkoutData]) -> Void, filterModel: WorkoutFilterModel) {
+        self._editMode = editMode
+        self.onActivitiesChange = onActivitiesChange
+        self.onWorkoutsUpdate = onWorkoutsUpdate
+        self.filterModel = filterModel
+        
+        if let savedData = UserDefaults.standard.data(forKey: "workouts"),
+           let decodedWorkouts = try? JSONDecoder().decode([WorkoutData].self, from: savedData) {
+            self._workouts = State(initialValue: decodedWorkouts)
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -27,12 +39,6 @@ struct ActivityView: View {
             .padding()
         }
         .background(Color(UIColor.systemGroupedBackground))
-        .onAppear {
-            loadWorkouts()
-            onActivitiesChange(workouts.count)
-            onWorkoutsUpdate(workouts)
-            expandedSections = Set(groupWorkoutsByDate(workouts).map { $0.1 })
-        }
         .sheet(isPresented: $isShowingEditSheet) {
             if let workout = selectedWorkout {
                 SavedDataEditView(workout: workout, 
@@ -51,6 +57,11 @@ struct ActivityView: View {
                 selectedWorkout = nil
                 highlightedWorkoutId = nil
             }
+        }
+        .task {
+            onActivitiesChange(workouts.count)
+            onWorkoutsUpdate(workouts)
+            expandedSections = Set(groupWorkoutsByDate(workouts).map { $0.1 })
         }
     }
     

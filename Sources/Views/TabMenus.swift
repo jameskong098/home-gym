@@ -3,7 +3,7 @@ import SwiftUI
 struct TabMenus: View {
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
-    @AppStorage("themePreference") private var themePreference = "system"
+    @AppStorage("themePreference") private var themePreference = "dark"
     @State private var editMode = false
     @State private var activityCount = 0
     @State private var showingFilterMenu = false
@@ -78,7 +78,7 @@ struct TabMenus: View {
                                .font(.headline)
                                .frame(width: 50) 
                        }
-                       .popover(isPresented: $showingFilterMenu) {
+                       .popover(isPresented: $showingFilterMenu, arrowEdge: .top) {
                            FilterMenu(filterModel: filterModel, workouts: workouts)
                                .frame(idealWidth: 400, idealHeight: UIDevice.current.userInterfaceIdiom == .pad ? 800 : nil)
                        }

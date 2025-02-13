@@ -6,7 +6,6 @@ struct FilterMenu: View {
     let workouts: [WorkoutData]
     
     @State private var repsRange: ClosedRange<Double>
-    
     @State private var dateRange: ClosedRange<Date>
     @State private var durationRange: ClosedRange<Double>
     

@@ -9,7 +9,7 @@ struct Settings: View {
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
-    @AppStorage("themePreference") private var themePreference = "system"
+    @AppStorage("themePreference") private var themePreference = "dark"
     @AppStorage("heightFeet") private var heightFeet = 5
     @AppStorage("heightInches") private var heightInches = 7
     @AppStorage("bodyWeight") private var bodyWeight = 70.0
