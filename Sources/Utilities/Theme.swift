@@ -17,9 +17,9 @@ struct Theme {
     static let exerciseListItemIconColorDark = UIColor.black
     static let exerciseListItemTextColorLight = UIColor.black
     static let exerciseListItemTextColorDark = UIColor.white
-    static let exerciseListItemBackgroundColorLight = UIColor(red: 0/255, green: 0/255, blue: 255/255, alpha: 0.5)
+    static let exerciseListItemBackgroundColorLight = UIColor(red: 0/255, green: 100/255, blue: 255/255, alpha: 1.0)
     static let exerciseListItemBackgroundColorDark = UIColor.white
-    static let exerciseListBackgroundColorLight = UIColor(red: 0/255, green: 0/255, blue: 255/255, alpha: 0.2)
+    static let exerciseListBackgroundColorLight = UIColor(red: 214/255, green: 228/255, blue: 255/255, alpha: 1.0)
     static let exerciseListBackgroundColorDark = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 0.7)
     
     static let settingsSectionBackgroundColorLight = UIColor.white

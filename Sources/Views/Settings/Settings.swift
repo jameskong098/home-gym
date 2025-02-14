@@ -21,9 +21,13 @@ struct Settings: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("General")
-                    .font(.headline)
-                    .padding(.top)
+                HStack {
+                    Image(systemName: "gearshape.fill")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("General")
+                        .font(.headline)
+                }
+                .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
                     Toggle("Show Tutorials", isOn: $enableTutorials)
@@ -59,9 +63,13 @@ struct Settings: View {
                 }))
                 .cornerRadius(25)
 
-                Text("Audio")
-                    .font(.headline)
-                    .padding(.top)
+                HStack {
+                    Image(systemName: "speaker.wave.3.fill")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("Audio")
+                        .font(.headline)
+                }
+                .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
                     Toggle("Enable Sound Cues", isOn: $enableSoundCues)
@@ -88,9 +96,13 @@ struct Settings: View {
                 }))
                 .cornerRadius(25)
 
-                Text("Body Tracking")
-                    .font(.headline)
-                    .padding(.top)
+                HStack {
+                    Image(systemName: "figure.walk")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("Body Tracking")
+                        .font(.headline)
+                }
+                .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
                     Toggle("Show Body Tracking Points", isOn: $showBodyTrackingPoints)
@@ -124,9 +136,13 @@ struct Settings: View {
                 }))
                 .cornerRadius(25)
 
-                Text("Personal Information")
-                    .font(.headline)
-                    .padding(.top)
+                HStack {
+                    Image(systemName: "person.fill")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("Personal Information")
+                        .font(.headline)
+                }
+                .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
                     HStack {
@@ -191,9 +207,13 @@ struct Settings: View {
                 }))
                 .cornerRadius(25)
 
-                Text("Theme")
-                    .font(.headline)
-                    .padding(.top)
+                HStack {
+                    Image(systemName: "paintpalette.fill")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("Theme")
+                        .font(.headline)
+                }
+                .padding(.top)
                 
                 ThemeSelectionButton()
                     .padding(.horizontal)
@@ -202,9 +222,14 @@ struct Settings: View {
                     .font(.footnote)
                     .foregroundColor(.gray)
                     .padding(.horizontal)
-                Text("About")
-                    .font(.headline)
-                    .padding(.top)
+                
+                HStack {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("Credits")
+                        .font(.headline)
+                }
+                .padding(.top)
 
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {

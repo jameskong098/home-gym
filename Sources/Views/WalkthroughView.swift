@@ -1,5 +1,32 @@
 import SwiftUI
 
+struct MainContentView: View {
+    @State private var navPath: [String] = []
+    @State private var selectedTab: Int = 0
+
+    var body: some View {
+        NavigationStack(path: $navPath) {
+            TabMenus(selectedTab: $selectedTab, navPath: $navPath)
+                .navigationDestination(for: String.self) { pathValue in
+                    if pathValue == "Activity" {
+                        TabMenus(selectedTab: $selectedTab, navPath: $navPath)
+                            .navigationBarBackButtonHidden(true)
+                            .navigationBarHidden(true)
+                    } else if pathValue.starts(with: "ExerciseSummaryView") {
+                        let components = pathValue.split(separator: "|").map { String($0) }
+                        if components.count == 5 {
+                            let exerciseName = components[1]
+                            let repCount = Int(components[2]) ?? 0
+                            let elapsedTime = TimeInterval(components[3]) ?? 0
+                            let caloriesBurned = Double(components[4]) ?? 0.0
+                            ExerciseSummaryView(selectedTab: $selectedTab, navPath: $navPath, exerciseName: exerciseName, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
+                        }
+                    }
+                }
+        }
+    }
+}
+
 struct WalkthroughView: View {
     @AppStorage("hasCompletedWalkthrough") private var hasCompletedWalkthrough = false
     @AppStorage("name") private var name = ""
@@ -10,8 +37,12 @@ struct WalkthroughView: View {
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
     @State private var currentPage = 0
     @State private var slideOffset: CGFloat = 0
-    
+    @State private var walkthroughCompleted = false
+
     var body: some View {
+        if walkthroughCompleted {
+            MainContentView()
+        } else {
             ZStack {
                 Color("Background")
                     .ignoresSafeArea()
@@ -46,6 +77,7 @@ struct WalkthroughView: View {
                             SummaryPage(name: name, onComplete: {
                                 withAnimation(.spring()) {
                                     hasCompletedWalkthrough = true
+                                    walkthroughCompleted = true
                                 }
                             })
                             .frame(width: geometry.size.width)
@@ -77,6 +109,7 @@ struct WalkthroughView: View {
             }
         }
     }
+}
 
 struct WelcomePage: View {
     let onNext: () -> Void
@@ -245,7 +278,7 @@ struct BodyMetricsPage: View {
             .padding(.top, 30)
             
             Button(action: {
-                if heightFeet <= 0 || heightInches < 0 || bodyWeight <= 0 {
+                if sex.isEmpty || heightFeet <= 0 || heightInches < 0 || bodyWeight <= 0 {
                     showAlert = true
                 } else {
                     onNext()
@@ -261,7 +294,7 @@ struct BodyMetricsPage: View {
             }
             .padding(.top, 40)
             .alert(isPresented: $showAlert) {
-                Alert(title: Text("Invalid Input"), message: Text("Please enter valid height and weight."), dismissButton: .default(Text("OK")))
+                Alert(title: Text("Invalid Input"), message: Text("Please enter valid height, weight, and select your sex."), dismissButton: .default(Text("OK")))
             }
         }
         .padding(40)
