@@ -82,42 +82,53 @@ struct WelcomePage: View {
     let onNext: () -> Void
     
     var body: some View {
-        VStack(spacing: 30) {
-            Image(systemName: "figure.strengthtraining.traditional.circle")
-                .font(.system(size: 150))
-                .foregroundColor(.blue)
+        GeometryReader { geometry in
+            let isPhone = UIDevice.current.userInterfaceIdiom == .phone
             
-            Text("Welcome to Home Gym!")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            Text("Your AI Home Gym Trainer")
-                .font(.title2)
-                .foregroundColor(.secondary)
-            
-            VStack(alignment: .leading, spacing: 20) {
-                FeatureRow(icon: "chart.bar.fill",
-                          text: "Track your workouts and progress")
-                FeatureRow(icon: "flame.fill",
-                          text: "Calculate calories burned")
-                FeatureRow(icon: "person.fill",
-                          text: "Personalized workout recommendations")
+            VStack(spacing: 30) {
+                Image(systemName: "figure.strengthtraining.traditional.circle")
+                    .font(.system(size: isPhone ? 100 : 150))
+                    .foregroundColor(.blue)
+                
+                Text("Welcome to Home Gym!")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(isPhone ? 0.7 : 1)
+                
+                Text("Your AI Home Gym Trainer")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(isPhone ? 0.7 : 1)
+                
+                VStack(alignment: .leading, spacing: 20) {
+                    FeatureRow(icon: "chart.bar.fill",
+                              text: "Track your workouts and progress",
+                              isPhone: isPhone)
+                    FeatureRow(icon: "flame.fill",
+                              text: "Calculate calories burned",
+                              isPhone: isPhone)
+                    FeatureRow(icon: "person.fill",
+                              text: "Personalized workout recommendations",
+                              isPhone: isPhone)
+                }
+                .padding(.top, 30)
+                
+                Button(action: onNext) {
+                    Text("Next")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: 80)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                .padding(.top, 40)
             }
-            .padding(.top, 30)
-            
-            Button(action: onNext) {
-                Text("Next")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: 80)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .padding(.top, 40)
+            .padding(40)
+            .frame(maxWidth: 660, maxHeight: 650)
         }
-        .padding(40)
-        .frame(maxWidth: 660, maxHeight: 650)
     }
 }
 
@@ -295,6 +306,7 @@ struct SummaryPage: View {
 struct FeatureRow: View {
     let icon: String
     let text: String
+    let isPhone: Bool
     
     var body: some View {
         HStack(spacing: 15) {
@@ -303,6 +315,8 @@ struct FeatureRow: View {
                 .font(.title2)
             Text(text)
                 .foregroundColor(.primary)
+                .lineLimit(isPhone ? 2 : 1)
+                .minimumScaleFactor(isPhone ? 0.7 : 1)
         }
     }
 }

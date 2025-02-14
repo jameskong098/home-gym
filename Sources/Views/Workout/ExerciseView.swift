@@ -128,7 +128,7 @@ struct ExerciseView: View {
                                         .foregroundColor(.white)
                                         .padding()
                                     
-                                    Text(String(format: "%.2f Cals.", caloriesBurned))
+                                    Text(String(format: "%.0f Cals.", caloriesBurned))
                                         .font(.title2)
                                         .fontWeight(.bold)
                                         .foregroundColor(.white)
@@ -215,11 +215,21 @@ struct ExerciseView: View {
                             
                             Spacer()
                             
-                            Text(timeString(from: elapsedTime))
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding()
+                            HStack {
+                                VStack {
+                                    Text(timeString(from: elapsedTime))
+                                        .font(.largeTitle)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .padding()
+                                    
+                                    Text(String(format: "%.0f Cals.", caloriesBurned))
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .padding(.bottom)
+                                }
+                            }
                         }
                         .background(Color.blue.opacity(0.8))
                         .cornerRadius(20)
@@ -270,8 +280,8 @@ struct ExerciseView: View {
                             Spacer()
                             
                             Button(action: {
-                               let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)"
-                               navPath.append("ExerciseSummaryView|\(encodedString)")
+                                let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
+                                navPath.append("ExerciseSummaryView|\(encodedString)")
                             }) {
                                 Image(systemName: "stop.circle")
                                     .font(.system(size: 30))

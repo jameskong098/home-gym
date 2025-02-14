@@ -148,7 +148,7 @@ struct ExerciseSummaryView: View {
         if let weight = weight {
             return "\(weight) lb"
         } else {
-            return "N/A"
+            return "-"
         }
     }
     
@@ -214,7 +214,7 @@ struct ExerciseSummaryView: View {
                         }
                     }
                 }
-                .navigationTitle("Edit Workout")
+                .navigationTitle("Edit Workout").navigationBarTitleDisplayMode(.inline)
                 .navigationBarItems(
                     leading: Button("Cancel") {
                         isEditing = false

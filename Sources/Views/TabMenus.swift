@@ -51,7 +51,7 @@ struct TabMenus: View {
                    .fontWeight(.bold)
                Spacer()
            }
-           .padding(.vertical, 15)
+           .padding(.bottom, 15)
            .background(
                UIDevice.current.userInterfaceIdiom == .pad ? Color(UIColor { traitCollection in
                    if traitCollection.userInterfaceStyle == .dark {
@@ -124,7 +124,7 @@ struct TabMenus: View {
                     WorkoutView(selectedTab: $selectedTab, navPath: $navPath)
                 }
                     .tabItem {
-                        Label("Workout", systemImage: "figure.walk")
+                        Label("Workout", systemImage: "figure.strengthtraining.traditional")
                     }
                     .tag(1)
                 ZStack {
