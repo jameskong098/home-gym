@@ -202,7 +202,74 @@ struct Settings: View {
                     .font(.footnote)
                     .foregroundColor(.gray)
                     .padding(.horizontal)
-                
+                Text("About")
+                    .font(.headline)
+                    .padding(.top)
+
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Developer")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text("James Deming Kong")
+                            .font(.body)
+                            .fontWeight(.medium)
+                    }
+                    
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Version")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text("1.0.0")
+                            .font(.body)
+                    }
+                    
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Swift Student Challenge 2025")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text("Made with ❤️ and dedication")
+                            .font(.body)
+                    }
+                    HStack() {
+                        Link(destination: URL(string: "https://jameskong098.github.io/")!) {
+                            HStack {
+                                Image(systemName: "link")
+                                Text("Personal Website")
+                            }
+                            .foregroundColor(Theme.toggleSwitchColor)
+                        }
+                        .padding(.trailing, 12)
+                        Link(destination: URL(string: "https://www.linkedin.com/in/jamesdemingkong/")!) {
+                            HStack {
+                                Image(systemName: "link")
+                                Text("LinkedIn")
+                            }
+                            .foregroundColor(Theme.toggleSwitchColor)
+                        }
+                        .padding(.trailing, 12)
+                        Link(destination: URL(string: "https://github.com/jameskong098")!) {
+                            HStack {
+                                Image(systemName: "link")
+                                Text("GitHub")
+                            }
+                            .foregroundColor(Theme.toggleSwitchColor)
+                        }
+                    }
+                }
+                .padding()
+                .background(Color(UIColor { traitCollection in
+                    if (traitCollection.userInterfaceStyle == .dark) {
+                        return Theme.settingsSectionBackgroundColorDark
+                    } else {
+                        return Theme.settingsSectionBackgroundColorLight
+                    }
+                }))
+                .cornerRadius(25)
                 Spacer()
             }
             .padding()
