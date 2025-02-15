@@ -99,30 +99,38 @@ struct ProgressTracker: View {
                         }
                         .pickerStyle(SegmentedPickerStyle())
                         .padding(.horizontal)
-                        ProgressBar(
-                            progress: dailyProgress,
-                            title: "Daily",
-                            color: .green,
-                            currentValue: Int(dailyProgress * Double(dailyGoals[selectedGoalType] ?? 0)),
-                            goalValue: dailyGoals[selectedGoalType] ?? 0,
-                            goalType: selectedGoalType
-                        )
-                        ProgressBar(
-                            progress: weeklyProgress,
-                            title: "Weekly",
-                            color: .blue,
-                            currentValue: Int(weeklyProgress * Double(weeklyGoals[selectedGoalType] ?? 0)),
-                            goalValue: weeklyGoals[selectedGoalType] ?? 0,
-                            goalType: selectedGoalType
-                        )
-                        ProgressBar(
-                            progress: monthlyProgress,
-                            title: "Monthly",
-                            color: .orange,
-                            currentValue: Int(monthlyProgress * Double(monthlyGoals[selectedGoalType] ?? 0)),
-                            goalValue: monthlyGoals[selectedGoalType] ?? 0,
-                            goalType: selectedGoalType
-                        )
+                        
+                        HStack(spacing: shouldUseHorizontalLayout ? 24 : 4) {
+                            Spacer()
+                            CircularProgressBar(
+                                progress: dailyProgress,
+                                title: "Daily",
+                                color: colorForGoalType(goalType: selectedGoalType, level: .daily),
+                                currentValue: Int(dailyProgress * Double(dailyGoals[selectedGoalType] ?? 0)),
+                                goalValue: dailyGoals[selectedGoalType] ?? 0,
+                                goalType: selectedGoalType
+                            )
+                            Spacer()
+                            CircularProgressBar(
+                                progress: weeklyProgress,
+                                title: "Weekly",
+                                color: colorForGoalType(goalType: selectedGoalType, level: .weekly),
+                                currentValue: Int(weeklyProgress * Double(weeklyGoals[selectedGoalType] ?? 0)),
+                                goalValue: weeklyGoals[selectedGoalType] ?? 0,
+                                goalType: selectedGoalType
+                            )
+                            Spacer()
+                            CircularProgressBar(
+                                progress: monthlyProgress,
+                                title: "Monthly",
+                                color: colorForGoalType(goalType: selectedGoalType, level: .monthly),
+                                currentValue: Int(monthlyProgress * Double(monthlyGoals[selectedGoalType] ?? 0)),
+                                goalValue: monthlyGoals[selectedGoalType] ?? 0,
+                                goalType: selectedGoalType
+                            )
+                            Spacer()
+                        }
+                        .padding(.top, 15)
                         Spacer()
                         Divider()
                         HStack(spacing: 16) {
@@ -169,20 +177,18 @@ struct ProgressTracker: View {
         let calendar = Calendar.current
         let today = Date()
         
-        // Daily calculations
         let dailyWorkouts = workouts.filter { calendar.isDate($0.date, inSameDayAs: today) }
         let dailyValue = dailyWorkouts.reduce(0.0) { total, workout in
             switch selectedGoalType {
             case .reps:
                 return total + Double(workout.repCount)
             case .duration:
-                return total + workout.elapsedTime / 60.0 // Convert seconds to minutes
+                return total + workout.elapsedTime / 60.0
             case .calories:
                 return total + workout.caloriesBurned
             }
         }
         
-        // Weekly calculations
         let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
         let weeklyWorkouts = workouts.filter { $0.date >= startOfWeek && $0.date <= today }
         let weeklyValue = weeklyWorkouts.reduce(0.0) { total, workout in
@@ -196,7 +202,6 @@ struct ProgressTracker: View {
             }
         }
         
-        // Monthly calculations
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
         let monthlyWorkouts = workouts.filter { $0.date >= startOfMonth && $0.date <= today }
         let monthlyValue = monthlyWorkouts.reduce(0.0) { total, workout in
@@ -335,6 +340,44 @@ enum GoalType: String, CaseIterable {
     case calories
 }
 
+enum GoalLevel {
+    case daily
+    case weekly
+    case monthly
+}
+
+private func colorForGoalType(goalType: GoalType, level: GoalLevel) -> Color {
+    switch goalType {
+    case .reps:
+        switch level {
+        case .daily:
+            return Color.green.opacity(0.6)
+        case .weekly:
+            return Color.green.opacity(0.8)
+        case .monthly:
+            return Color.green
+        }
+    case .duration:
+        switch level {
+        case .daily:
+            return Color.blue.opacity(0.6)
+        case .weekly:
+            return Color.blue.opacity(0.8)
+        case .monthly:
+            return Color.blue
+        }
+    case .calories:
+        switch level {
+        case .daily:
+            return Color.orange.opacity(0.6)
+        case .weekly:
+            return Color.orange.opacity(0.8)
+        case .monthly:
+            return Color.orange
+        }
+    }
+}
+
 struct ProgressBar: View {
     let progress: Double
     let title: String
@@ -403,6 +446,59 @@ struct StreakView: View {
             Text(label)
                 .font(.caption)
                 .foregroundColor(.secondary)
+        }
+    }
+}
+
+struct CircularProgressBar: View {
+    let progress: Double
+    let title: String
+    let color: Color
+    let currentValue: Int
+    let goalValue: Int
+    let goalType: GoalType
+    
+    private var unitLabel: String {
+        switch goalType {
+        case .reps:
+            return "Reps"
+        case .duration:
+            return "mins"
+        case .calories:
+            return "cal"
+        }
+    }
+    
+    var body: some View {
+        VStack {
+            ZStack {
+                Circle()
+                    .stroke(lineWidth: 10)
+                    .opacity(0.3)
+                    .foregroundColor(color)
+                
+                Circle()
+                    .trim(from: 0.0, to: CGFloat(min(progress, 1.0)))
+                    .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
+                    .foregroundColor(color)
+                    .rotationEffect(Angle(degrees: 270.0))
+                    .animation(.linear, value: progress)
+                
+                VStack {
+                    Text("\(currentValue)/\(goalValue)")
+                        .font(.headline)
+                        .bold()
+                    Text(unitLabel)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .frame(width: 100, height: 100)
+            .padding(.bottom, 10)
+            
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
         }
     }
 }

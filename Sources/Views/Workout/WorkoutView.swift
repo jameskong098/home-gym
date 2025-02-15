@@ -12,14 +12,14 @@ struct WorkoutView: View {
                 ExerciseButton(name: "Basic Squats", icon: "figure.cross.training", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Wall Squats", icon: "figure.cross.training", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Lunges", icon: "figure.strengthtraining.functional", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Push-Ups", icon: "figure", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Push-Ups", icon: "figure.wrestling", selectedTab: $selectedTab, navPath: $navPath)
                 ExerciseButton(name: "Bicep Curls - Simultaneous", icon: "dumbbell.fill", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Pilates Sit-Ups Hybrid", icon: "figure.indoor.rowing", selectedTab: $selectedTab, navPath: $navPath)
+                ExerciseButton(name: "Pilates Sit-Ups Hybrid", icon: "figure.core.training", selectedTab: $selectedTab, navPath: $navPath)
                 Spacer()
             }
             .padding()
         }
-    }
+    } 
 }
 
 struct ExerciseButton: View {

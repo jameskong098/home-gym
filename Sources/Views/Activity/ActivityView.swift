@@ -14,6 +14,7 @@ struct ActivityView: View {
     @State private var expandedSections: Set<String> = Set()
     @State private var showingFilterSheet = false
     @ObservedObject var filterModel: WorkoutFilterModel
+    var showDevTools = false
 
     init(editMode: Binding<Bool>, onActivitiesChange: @escaping (Int) -> Void, onWorkoutsUpdate: @escaping ([WorkoutData]) -> Void, filterModel: WorkoutFilterModel) {
         self._editMode = editMode
@@ -28,40 +29,63 @@ struct ActivityView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                if filteredWorkouts.isEmpty {
-                    emptyStateView
-                } else {
-                    workoutsList
+        VStack {
+            if showDevTools {
+                HStack {
+                    Button("Generate Test Data") {
+                        generateTestData()
+                    }
+                    .padding()
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                    
+                    Button("Clear All Data") {
+                        clearAllData()
+                    }
+                    .padding()
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .padding()
+            }
+
+            ScrollView {
+                VStack(spacing: 20) {
+                    if filteredWorkouts.isEmpty {
+                        emptyStateView
+                    } else {
+                        workoutsList
+                    }
+                }
+                .padding()
+            }
+            .background(Color(UIColor.systemGroupedBackground))
+            .sheet(isPresented: $isShowingEditSheet) {
+                if let workout = selectedWorkout {
+                    SavedDataEditView(workout: workout, 
+                                     isShowingEditSheet: $isShowingEditSheet, 
+                                     onSave: handleWorkoutUpdate)
+                    .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 400 : 300)])
+                    .interactiveDismissDisabled()
                 }
             }
-            .padding()
-        }
-        .background(Color(UIColor.systemGroupedBackground))
-        .sheet(isPresented: $isShowingEditSheet) {
-            if let workout = selectedWorkout {
-                SavedDataEditView(workout: workout, 
-                                 isShowingEditSheet: $isShowingEditSheet, 
-                                 onSave: handleWorkoutUpdate)
-                .presentationDetents([.height(UIDevice.current.userInterfaceIdiom == .pad ? 340 : 300)])
-                .interactiveDismissDisabled()
+            .alert("Delete Workout", 
+                   isPresented: $showingDeleteAlert,
+                   actions: deleteAlert,
+                   message: deleteAlertMessage)
+            .onChange(of: isShowingEditSheet) { newValue in
+                if !newValue { 
+                    selectedWorkout = nil
+                    highlightedWorkoutId = nil
+                }
             }
-        }
-        .alert("Delete Workout", 
-               isPresented: $showingDeleteAlert,
-               actions: deleteAlert,
-               message: deleteAlertMessage)
-        .onChange(of: isShowingEditSheet) { newValue in
-            if !newValue { 
-                selectedWorkout = nil
-                highlightedWorkoutId = nil
+            .task {
+                onActivitiesChange(workouts.count)
+                onWorkoutsUpdate(workouts)
+                expandedSections = Set(groupWorkoutsByDate(workouts).map { $0.1 })
             }
-        }
-        .task {
-            onActivitiesChange(workouts.count)
-            onWorkoutsUpdate(workouts)
-            expandedSections = Set(groupWorkoutsByDate(workouts).map { $0.1 })
         }
     }
     
@@ -229,6 +253,8 @@ struct ActivityView: View {
         if let index = workouts.firstIndex(where: { $0.id == updatedWorkout.id }) {
             workouts[index] = updatedWorkout
             saveWorkouts()
+            onWorkoutsUpdate(workouts)
+            onActivitiesChange(workouts.count)
         }
     }
 
@@ -236,6 +262,8 @@ struct ActivityView: View {
         withAnimation {
             workouts.removeAll { $0.id == workout.id }
             saveWorkouts()
+            onWorkoutsUpdate(workouts)
+            onActivitiesChange(workouts.count)
         }
     }
 
@@ -283,5 +311,46 @@ struct ActivityView: View {
             return (headerTitle, dateString, workouts)
         }
         .sorted { $0.2.first?.date ?? Date() > $1.2.first?.date ?? Date() }
+    }
+
+    private func generateTestData() {
+        let exercises = ["Jumping Jacks", "High Knees", "Basic Squats", "Wall Squats", "Lunges", "Push-Ups", "Bicep Curls - Simultaneous", "Pilates Sit-Ups Hybrid"]
+        let calendar = Calendar.current
+        let today = Date()
+        var fixedWorkouts: [WorkoutData] = []
+
+        for dayOffset in -21...0 {
+            let date = calendar.date(byAdding: .day, value: dayOffset, to: today)!
+            let workoutCount = [0, 1, 2, 3].randomElement()!
+            
+            for i in 0..<workoutCount {
+                let exercise = exercises[i % exercises.count]
+                let repCount = 10 + i * 5
+                let elapsedTime = TimeInterval(600 + i * 300)
+                let caloriesBurned = (elapsedTime / 60) * 10
+                let workout = WorkoutData(date: date, exerciseName: exercise, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
+                fixedWorkouts.append(workout)
+            }
+        }
+
+        let currentDayWorkouts = exercises.prefix(5).map { exercise in
+            let repCount = Int.random(in: 30...54)
+            let elapsedTime = TimeInterval.random(in: 50...100)
+            let caloriesBurned = (elapsedTime / 60) * 2
+            return WorkoutData(date: today, exerciseName: exercise, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
+        }
+        fixedWorkouts.append(contentsOf: currentDayWorkouts)
+
+        workouts = fixedWorkouts
+        saveWorkouts()
+        onWorkoutsUpdate(workouts)
+        onActivitiesChange(workouts.count)
+    }
+
+    private func clearAllData() {
+        workouts.removeAll()
+        saveWorkouts()
+        onWorkoutsUpdate(workouts)
+        onActivitiesChange(workouts.count)
     }
 }

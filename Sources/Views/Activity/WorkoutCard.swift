@@ -201,14 +201,20 @@ struct SavedDataEditView: View {
                             .buttonStyle(.bordered)
                         }
                     }
-                    
-                    HStack {
-                        Text("Weight (lb):")
-                        Spacer()
-                        TextField("Optional", value: $workout.weight, format: .number)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(width: 100)
+                    VStack() {
+                        HStack {
+                            Text("Weight (lb):")
+                            Spacer()
+                            TextField("Optional", value: $workout.weight, format: .number)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 100)
+                        }
+                        Text("Weight can include additional weight from equipment such as a weight vest or dumbbells.")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 4)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
             }

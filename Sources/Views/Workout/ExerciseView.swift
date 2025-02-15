@@ -378,7 +378,7 @@ struct ExerciseView: View {
     
     private func calculateCaloriesBurned() {
         let age = UserDefaults.standard.integer(forKey: "age")
-        let sex = UserDefaults.standard.string(forKey: "sex") ?? ""
+        let sex = UserDefaults.standard.string(forKey: "sex")
         let heightFeet = UserDefaults.standard.integer(forKey: "heightFeet")
         let heightInches = UserDefaults.standard.integer(forKey: "heightInches")
         let bodyWeight = UserDefaults.standard.double(forKey: "bodyWeight")
@@ -390,10 +390,8 @@ struct ExerciseView: View {
         
         if sex == "Male" {
             bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * Double(age))
-        } else if sex == "Female" {
-            bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * Double(age))
         } else {
-            bmr = (88.362 + 447.593) / 2 + (11.322 * weight) + (3.9485 * height) - (5.0035 * Double(age))
+            bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * Double(age))
         }
         
         let metValue: Double

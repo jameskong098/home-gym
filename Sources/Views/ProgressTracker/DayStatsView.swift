@@ -80,7 +80,7 @@ struct DayStatsView: View {
                 
                 StatItem(
                     icon: "flame.fill",
-                    value: String(format: "%.0f", totalCaloriesBurned),
+                    value: String(format: "%.2f", totalCaloriesBurned),
                     label: "Calories"
                 )
             }

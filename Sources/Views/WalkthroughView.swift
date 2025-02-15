@@ -136,15 +136,15 @@ struct WelcomePage: View {
                     .minimumScaleFactor(isPhone ? 0.7 : 1)
                 
                 VStack(alignment: .leading, spacing: 20) {
-                    FeatureRow(icon: "chart.bar.fill",
-                              text: "Track your workouts and progress",
-                              isPhone: isPhone)
-                    FeatureRow(icon: "flame.fill",
-                              text: "Calculate calories burned",
-                              isPhone: isPhone)
                     FeatureRow(icon: "person.fill",
-                              text: "Personalized workout recommendations",
-                              isPhone: isPhone)
+                               text: "AI Coach provides personalized insights and analysis",
+                               isPhone: isPhone)
+                    FeatureRow(icon: "eye.square.fill",
+                               text: "Automatically track your exercises using machine learning vision",
+                               isPhone: isPhone)
+                    FeatureRow(icon: "chart.bar.fill",
+                               text: "Monitor and analyze your workout progress",
+                               isPhone: isPhone)
                 }
                 .padding(.top, 30)
                 
@@ -246,7 +246,6 @@ struct BodyMetricsPage: View {
                 Picker("Biological Sex", selection: $sex) {
                     Text("Male").tag("Male")
                     Text("Female").tag("Female")
-                    Text("Other").tag("Other")
                 }
                 .pickerStyle(.segmented)
                 

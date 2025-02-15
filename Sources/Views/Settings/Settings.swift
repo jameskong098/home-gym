@@ -163,9 +163,9 @@ struct Settings: View {
                     }
                     Divider()
                     HStack {
-                        Text("Gender")
+                        Text("Sex")
                         Spacer()
-                        Picker("Select your gender", selection: $sex) {
+                        Picker("Select your sex", selection: $sex) {
                             Text("Male").tag("Male")
                             Text("Female").tag("Female")
                         }
