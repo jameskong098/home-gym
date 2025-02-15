@@ -10,11 +10,13 @@ struct ExerciseView: View {
     @State private var showTutorial = true
     @State private var isPaused = true
     @State private var showPauseMessage = false
+    @State private var showEndWorkoutAlert = false
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableAutomaticTimer") private var enableAutomaticTimer = true
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     let exerciseName: String
+    let hudBackgroundColor = Color.black.opacity(0.4)
 
     var body: some View {
         ZStack {
@@ -114,7 +116,7 @@ struct ExerciseView: View {
                                     .foregroundColor(.white)
                                     .padding()
                             }
-                            .background(Color.blue.opacity(0.8))
+                            .background(hudBackgroundColor)
                             .cornerRadius(20)
                             .shadow(radius: 10)
                             
@@ -122,19 +124,33 @@ struct ExerciseView: View {
                             
                             HStack {
                                 VStack {
-                                    Text(timeString(from: elapsedTime))
-                                        .font(.largeTitle)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .padding()
+                                    HStack(spacing: 5) {
+                                        Image(systemName: "timer")
+                                            .foregroundColor(.white)
+                                            .font(.title2)
+                                            .padding(.top)
+                                            .padding(.leading)
+                                        Text(timeString(from: elapsedTime))
+                                            .font(.largeTitle)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                            .padding(.top)
+                                            .padding(.trailing)
+                                    }
                                     
-                                    Text(String(format: "%.0f Cals.", caloriesBurned))
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .padding(.bottom)
+                                    HStack(spacing: 8) {
+                                        Text(String(format: "%.2f", caloriesBurned))
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        Text("Cals")
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.orange)
+                                    }
+                                    .padding(.bottom)
                                 }
-                                .background(Color.blue.opacity(0.8))
+                                .background(hudBackgroundColor)
                                 .cornerRadius(20)
                                 .shadow(radius: 10)
                             }
@@ -160,13 +176,18 @@ struct ExerciseView: View {
                                         showPauseMessage = true
                                     }
                                 }) {
-                                    Image(systemName: isPaused ? "play.circle.fill" : "pause.circle.fill")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(!enableAutomaticTimer || repCount > 0 ? .white : .white.opacity(0.5))
-                                        .padding()
-                                        .background(Color.blue.opacity(0.8))
-                                        .cornerRadius(15)
-                                        .shadow(radius: 10)
+                                    ZStack {
+                                        Circle()
+                                            .fill(!isPaused ? .green : .orange)
+                                        Image(systemName: isPaused ? "play.fill" : "pause.fill")
+                                            .frame(width: 20, height: 20)
+                                            .foregroundStyle(.white)
+                                    }
+                                    .frame(width: 35, height: 35)
+                                    .padding()
+                                    .background(hudBackgroundColor)
+                                    .cornerRadius(15)
+                                    .shadow(radius: 10)
                                 }
             
                                 .alert("Start your exercise!", isPresented: $showPauseMessage) {
@@ -181,23 +202,36 @@ struct ExerciseView: View {
                                     .font(.system(size: 72, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
                                     .padding()
-                                    .background(Color.blue.opacity(0.8))
+                                    .background(hudBackgroundColor)
                                     .cornerRadius(15)
                                     .shadow(radius: 10)
                                 
                                 Spacer()
                                 
                                 Button(action: {
-                                    let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
-                                    navPath.append("ExerciseSummaryView|\(encodedString)")
+                                    showEndWorkoutAlert = true
                                 }) {
-                                    Image(systemName: "stop.circle")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .background(Color.blue.opacity(0.8))
-                                        .cornerRadius(15)
-                                        .shadow(radius: 10)
+                                    ZStack {
+                                        Circle()
+                                            .fill(.red)
+                                        Image(systemName: "xmark")
+                                            .frame(width: 10, height: 10)
+                                            .foregroundStyle(.white)
+                                    }
+                                    .frame(width: 35, height: 35)
+                                    .padding()
+                                    .background(hudBackgroundColor)
+                                    .cornerRadius(15)
+                                    .shadow(radius: 10)
+                                }
+                                .alert("End Workout", isPresented: $showEndWorkoutAlert) {
+                                    Button("Cancel", role: .cancel) { }
+                                    Button("End", role: .destructive) {
+                                        let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
+                                        navPath.append("ExerciseSummaryView|\(encodedString)")
+                                    }
+                                } message: {
+                                    Text("Are you sure you want to end this workout?")
                                 }
                             }
                             .padding(.horizontal, 25)
@@ -217,21 +251,35 @@ struct ExerciseView: View {
                             
                             HStack {
                                 VStack {
-                                    Text(timeString(from: elapsedTime))
-                                        .font(.largeTitle)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .padding()
+                                    HStack(spacing: 5) {
+                                        Image(systemName: "timer")
+                                            .foregroundColor(.white)
+                                            .font(.title2)
+                                            .padding(.top)
+                                            .padding(.leading)
+                                        Text(timeString(from: elapsedTime))
+                                            .font(.largeTitle)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                            .padding(.top)
+                                            .padding(.trailing)
+                                    }
                                     
-                                    Text(String(format: "%.0f Cals.", caloriesBurned))
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .padding(.bottom)
+                                    HStack(spacing: 8) {
+                                        Text(String(format: "%.2f", caloriesBurned))
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        Text("Cals")
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.orange)
+                                    }
+                                    .padding(.bottom)
                                 }
                             }
                         }
-                        .background(Color.blue.opacity(0.8))
+                        .background(hudBackgroundColor)
                         .cornerRadius(20)
                         .padding(.horizontal, 25)
                         .padding(.vertical, 10)
@@ -252,13 +300,18 @@ struct ExerciseView: View {
                                     showPauseMessage = true
                                 }
                             }) {
-                                Image(systemName: isPaused ? "play.circle.fill" : "pause.circle.fill")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(!enableAutomaticTimer || repCount > 0 ? .white : .white.opacity(0.5))
-                                    .padding()
-                                    .background(Color.blue.opacity(0.8))
-                                    .cornerRadius(15)
-                                    .shadow(radius: 10)
+                                ZStack {
+                                    Circle()
+                                        .fill(!isPaused ? .green : .orange)
+                                    Image(systemName: isPaused ? "play.fill" : "pause.fill")
+                                        .frame(width: 20, height: 20)
+                                        .foregroundStyle(.white)
+                                }
+                                .frame(width: 35, height: 35)
+                                .padding()
+                                .background(hudBackgroundColor)
+                                .cornerRadius(15)
+                                .shadow(radius: 10)
                             }
         
                             .alert("Start your exercise!", isPresented: $showPauseMessage) {
@@ -273,23 +326,36 @@ struct ExerciseView: View {
                                 .font(.system(size: 72, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .padding()
-                                .background(Color.blue.opacity(0.8))
+                                .background(hudBackgroundColor)
                                 .cornerRadius(15)
                                 .shadow(radius: 10)
                             
                             Spacer()
                             
                             Button(action: {
-                                let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
-                                navPath.append("ExerciseSummaryView|\(encodedString)")
+                                showEndWorkoutAlert = true
                             }) {
-                                Image(systemName: "stop.circle")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .background(Color.blue.opacity(0.8))
-                                    .cornerRadius(15)
-                                    .shadow(radius: 10)
+                                ZStack {
+                                    Circle()
+                                        .fill(.red)
+                                    Image(systemName: "xmark")
+                                        .frame(width: 10, height: 10)
+                                        .foregroundStyle(.white)
+                                }
+                                .frame(width: 35, height: 35)
+                                .padding()
+                                .background(hudBackgroundColor)
+                                .cornerRadius(15)
+                                .shadow(radius: 10)
+                            }
+                            .alert("End Workout", isPresented: $showEndWorkoutAlert) {
+                                Button("Cancel", role: .cancel) { }
+                                Button("End", role: .destructive) {
+                                    let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
+                                    navPath.append("ExerciseSummaryView|\(encodedString)")
+                                }
+                            } message: {
+                                Text("Are you sure you want to end this workout?")
                             }
                         }
                         .padding(.horizontal, 25)

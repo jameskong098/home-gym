@@ -458,6 +458,32 @@ struct CircularProgressBar: View {
     let goalValue: Int
     let goalType: GoalType
     
+    private var gradient: AngularGradient {
+        switch goalType {
+        case .reps:
+            return AngularGradient(
+                gradient: Gradient(colors: [.green, .mint, .teal]),
+                center: .center,
+                startAngle: .degrees(0),
+                endAngle: .degrees(360)
+            )
+        case .duration:
+            return AngularGradient(
+                gradient: Gradient(colors: [.blue, .cyan, .indigo]),
+                center: .center,
+                startAngle: .degrees(0),
+                endAngle: .degrees(360)
+            )
+        case .calories:
+            return AngularGradient(
+                gradient: Gradient(colors: [.orange, .red, .pink]),
+                center: .center,
+                startAngle: .degrees(0),
+                endAngle: .degrees(360)
+            )
+        }
+    }
+    
     private var unitLabel: String {
         switch goalType {
         case .reps:
@@ -479,8 +505,7 @@ struct CircularProgressBar: View {
                 
                 Circle()
                     .trim(from: 0.0, to: CGFloat(min(progress, 1.0)))
-                    .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
-                    .foregroundColor(color)
+                    .stroke(gradient, style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
                     .rotationEffect(Angle(degrees: 270.0))
                     .animation(.linear, value: progress)
                 
