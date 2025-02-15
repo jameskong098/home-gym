@@ -9,7 +9,7 @@ struct Settings: View {
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
-    @AppStorage("themePreference") private var themePreference = "dark"
+    @AppStorage("themePreference") private var themePreference = "system"
     @AppStorage("name") private var name = ""
     @AppStorage("age") private var age = 0
     @AppStorage("sex") private var sex = ""

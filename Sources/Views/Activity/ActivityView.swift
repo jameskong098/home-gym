@@ -48,7 +48,6 @@ struct ActivityView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
-                .padding()
             }
 
             ScrollView {

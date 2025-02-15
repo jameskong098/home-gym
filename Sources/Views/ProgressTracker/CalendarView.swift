@@ -115,12 +115,17 @@ struct CustomCalendarView: View {
 }
 
 struct DayCell: View {
+    @Environment(\.colorScheme) private var colorScheme
     let date: Date
     let isSelected: Bool
     let hasWorkout: Bool
     let onTap: () -> Void
     
     private let calendar = Calendar.current
+    
+    private var highlightOutlineColor: Color {
+        colorScheme == .dark ? Theme.calendarHighlightOutlineDark : Theme.calendarHighlightOutlineLight
+    }
     
     var body: some View {
         Button(action: onTap) {
@@ -133,11 +138,11 @@ struct DayCell: View {
                     ZStack {
                         if hasWorkout {
                             Circle()
-                                .fill(Color.blue.opacity(0.30))
+                                .fill(Color.blue.opacity(0.50))
                         }
                         if isSelected {
                             Circle()
-                                .stroke(Color.blue, lineWidth: 2)
+                                .stroke(highlightOutlineColor, lineWidth: 4)
                                 .background(Circle().fill(Color.blue.opacity(0.1)))
                         }
                     }

@@ -13,6 +13,9 @@ struct Theme {
     static let mainContentBackgroundColorLight = UIColor(white: 0.95, alpha: 1.0)
     static let mainContentBackgroundColorDark = UIColor.black
     
+    static let calendarHighlightOutlineLight = Color.black
+    static let calendarHighlightOutlineDark = Color.white
+    
     static let exerciseListItemIconColorLight = UIColor.white
     static let exerciseListItemIconColorDark = UIColor.black
     static let exerciseListItemTextColorLight = UIColor.black

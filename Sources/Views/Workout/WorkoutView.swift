@@ -4,22 +4,56 @@ struct WorkoutView: View {
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     
+    private let exercises: [(section: String, items: [(name: String, icon: String)])] = [
+        ("Cardio", [
+            ("Jumping Jacks", "figure.mixed.cardio"),
+            ("High Knees", "figure.highintensity.intervaltraining")
+        ]),
+        ("Lower Body", [
+            ("Basic Squats", "figure.cross.training"),
+            ("Wall Squats", "figure.cross.training"),
+            ("Lunges", "figure.strengthtraining.functional")
+        ]),
+        ("Upper Body", [
+            ("Push-Ups", "figure.wrestling"),
+            ("Bicep Curls - Simultaneous", "dumbbell.fill")
+        ]),
+        ("Core", [
+            ("Pilates Sit-Ups Hybrid", "figure.core.training")
+        ])
+    ]
+    
+    let columns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
+    ]
+    
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                ExerciseButton(name: "Jumping Jacks", icon: "figure.mixed.cardio", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "High Knees", icon: "figure.highintensity.intervaltraining", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Basic Squats", icon: "figure.cross.training", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Wall Squats", icon: "figure.cross.training", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Lunges", icon: "figure.strengthtraining.functional", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Push-Ups", icon: "figure.wrestling", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Bicep Curls - Simultaneous", icon: "dumbbell.fill", selectedTab: $selectedTab, navPath: $navPath)
-                ExerciseButton(name: "Pilates Sit-Ups Hybrid", icon: "figure.core.training", selectedTab: $selectedTab, navPath: $navPath)
-                Spacer()
+            VStack(spacing: 24) {
+                ForEach(exercises, id: \.section) { section in
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(section.section)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .padding(.horizontal)
+                        
+                        LazyVGrid(columns: columns, spacing: 16) {
+                            ForEach(section.items, id: \.name) { exercise in
+                                ExerciseButton(
+                                    name: exercise.name,
+                                    icon: exercise.icon,
+                                    selectedTab: $selectedTab,
+                                    navPath: $navPath
+                                )
+                            }
+                        }
+                    }
+                }
             }
             .padding()
         }
-    } 
+    }
 }
 
 struct ExerciseButton: View {
@@ -30,7 +64,7 @@ struct ExerciseButton: View {
     
     var body: some View {
         NavigationLink(destination: ExerciseView(selectedTab: $selectedTab, navPath: $navPath, exerciseName: name)) {
-            HStack {
+            VStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.title)
                     .foregroundColor(Color(UIColor { traitCollection in
@@ -59,11 +93,11 @@ struct ExerciseButton: View {
                             return Theme.exerciseListItemTextColorLight
                         }
                     }))
-                
-                Spacer()
+                    .multilineTextAlignment(.center)
             }
-            .padding()
             .frame(maxWidth: .infinity)
+            .frame(height: 120)
+            .padding()
             .background(Color(UIColor { traitCollection in
                 if traitCollection.userInterfaceStyle == .dark {
                     return Theme.exerciseListBackgroundColorDark
@@ -71,7 +105,7 @@ struct ExerciseButton: View {
                     return Theme.exerciseListBackgroundColorLight
                 }
             }))
-            .cornerRadius(40)
+            .cornerRadius(20)
         }
     }
 }
