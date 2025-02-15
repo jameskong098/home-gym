@@ -16,7 +16,7 @@ struct Settings: View {
     @AppStorage("heightFeet") private var heightFeet = 0
     @AppStorage("heightInches") private var heightInches = 0
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
-    
+    @State private var isEditingPersonalInfo = false
 
     var body: some View {
         ScrollView {
@@ -135,12 +135,22 @@ struct Settings: View {
                     }
                 }))
                 .cornerRadius(25)
-
+                
                 HStack {
                     Image(systemName: "person.fill")
                         .foregroundColor(Theme.toggleSwitchColor)
                     Text("Personal Information")
                         .font(.headline)
+                    Spacer()
+                    Button(action: {
+                        isEditingPersonalInfo.toggle()
+                        if !isEditingPersonalInfo {
+                            triggerHapticFeedback()
+                        }
+                    }) {
+                        Text(isEditingPersonalInfo ? "Done" : "Edit")
+                            .foregroundColor(Theme.toggleSwitchColor)
+                    }
                 }
                 .padding(.top)
 
@@ -148,53 +158,85 @@ struct Settings: View {
                     HStack {
                         Text("Name")
                         Spacer()
-                        TextField("Enter your name", text: $name)
-                            .padding(.horizontal)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        if isEditingPersonalInfo {
+                            TextField("Enter your name", text: $name)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        } else {
+                            Text(name.isEmpty ? "Not set" : name)
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    
                     Divider()
+                    
                     HStack {
                         Text("Age")
                         Spacer()
-                        TextField("Enter your age", value: $age, formatter: NumberFormatter())
-                            .keyboardType(.numberPad)
-                            .padding(.horizontal)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        if isEditingPersonalInfo {
+                            TextField("Enter your age", value: $age, formatter: NumberFormatter())
+                                .keyboardType(.numberPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        } else {
+                            Text(age == 0 ? "Not set" : "\(age)")
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    
                     Divider()
+                    
                     HStack {
                         Text("Sex")
                         Spacer()
-                        Picker("Select your sex", selection: $sex) {
-                            Text("Male").tag("Male")
-                            Text("Female").tag("Female")
+                        if isEditingPersonalInfo {
+                            Picker("Select your sex", selection: $sex) {
+                                Text("Male").tag("Male")
+                                Text("Female").tag("Female")
+                            }
+                            .pickerStyle(SegmentedPickerStyle())
+                        } else {
+                            Text(sex.isEmpty ? "Not set" : sex)
+                                .foregroundColor(.secondary)
                         }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.horizontal)
                     }
+                    
                     Divider()
+                    
                     HStack {
                         Text("Height")
                         Spacer()
-                        TextField("Feet", value: $heightFeet, formatter: NumberFormatter())
-                            .keyboardType(.numberPad)
-                            .padding(.horizontal)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Text("ft")
-                        TextField("Inches", value: $heightInches, formatter: NumberFormatter())
-                            .keyboardType(.numberPad)
-                            .padding(.horizontal)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Text("in")
+                        if isEditingPersonalInfo {
+                            HStack() {
+                                TextField("Feet", value: $heightFeet, formatter: NumberFormatter())
+                                    .keyboardType(.numberPad)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .frame(width: 50)
+                                Text("ft")
+                                TextField("Inches", value: $heightInches, formatter: NumberFormatter())
+                                    .keyboardType(.numberPad)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .frame(width: 50)
+                                Text("in")
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Text(heightFeet == 0 && heightInches == 0 ? "Not set" : "\(heightFeet)ft \(heightInches)in")
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    
                     Divider()
+                    
                     HStack {
                         Text("Body Weight (lb)")
                         Spacer()
-                        TextField("Body Weight", value: $bodyWeight, formatter: NumberFormatter())
-                            .keyboardType(.decimalPad)
-                            .padding(.horizontal)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        if isEditingPersonalInfo {
+                            TextField("Body Weight", value: $bodyWeight, formatter: NumberFormatter())
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        } else {
+                            Text(bodyWeight == 0 ? "Not set" : String(format: "%.1f", bodyWeight))
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
                 .padding()

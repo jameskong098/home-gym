@@ -51,7 +51,7 @@ struct ProgressTracker: View {
             VStack(spacing: shouldUseHorizontalLayout ? 24 : 4) {
                 if !name.isEmpty {
                     HStack(spacing: 4) {
-                        Text("Welcome back, \(name)! 💪")
+                        Text("Welcome \(name)! 💪")
                             .font(.title2)
                             .fontWeight(.bold)
                         Spacer()
