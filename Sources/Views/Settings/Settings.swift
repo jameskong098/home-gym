@@ -2,7 +2,7 @@ import SwiftUI
 
 struct Settings: View {
     @AppStorage("enableTutorials") private var enableTutorials = true
-    @AppStorage("enableAutomaticTimer") private var enableAutomaticTimer = true
+    @AppStorage("enableCountdownTimer") private var enableCountdownTimer = true
     @AppStorage("useWideAngleCamera") private var useWideAngleCamera = true
     @AppStorage("enableSoundCues") private var enableSoundCues = true
     @AppStorage("enableVoice") private var enableVoice = true
@@ -37,10 +37,10 @@ struct Settings: View {
                             triggerHapticFeedback()
                         }
                     Divider()
-                    Toggle("Automatic Timer", isOn: $enableAutomaticTimer)
+                    Toggle("Enable Countdown Timer", isOn: $enableCountdownTimer)
                         .padding(.horizontal)
                         .tint(Theme.toggleSwitchColor)
-                        .onChange(of: enableAutomaticTimer) { _ in
+                        .onChange(of: enableCountdownTimer) { _ in
                             triggerHapticFeedback()
                         }
                     if CameraViewController.deviceSupportsUltraWide() {
