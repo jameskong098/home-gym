@@ -203,36 +203,62 @@ struct ExerciseView: View {
                                     }
                                 }
                                 
-                                Rectangle()
-                                    .fill(Color.white)
-                                    .frame(width: 2)
-                                    .frame(height: 85)
-                                
-                                VStack(alignment: .leading, spacing: 15) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "timer")
-                                            .foregroundColor(.white)
-                                            .font(.title)
-                                            .fontWeight(.bold)
-                                        Text(timeString(from: elapsedTime))
-                                            .font(.title)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                    }
+                                if UIDevice.current.userInterfaceIdiom == .pad {
+                                    Rectangle()
+                                        .fill(Color.white)
+                                        .frame(width: 2)
+                                        .frame(height: 85)
                                     
-                                    HStack(spacing: 10) {
-                                        Text(String(format: "%.2f", caloriesBurned))
-                                            .font(.title)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                        Text("Cals")
-                                            .font(.title)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.orange)
+                                    VStack(alignment: .leading, spacing: 15) {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "timer")
+                                                .foregroundColor(.white)
+                                                .font(.title)
+                                                .fontWeight(.bold)
+                                            Text(timeString(from: elapsedTime))
+                                                .font(.title)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.white)
+                                        }
+                                        
+                                        HStack(spacing: 10) {
+                                            Text(String(format: "%.2f", caloriesBurned))
+                                                .font(.title)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.white)
+                                            Text("Cals")
+                                                .font(.title)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.orange)
+                                        }
+                                    }
+                                } else {
+                                    VStack(alignment: .leading, spacing: 15) {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "timer")
+                                                .foregroundColor(.white)
+                                                .font(.title2)
+                                                .fontWeight(.bold)
+                                            Text(timeString(from: elapsedTime))
+                                                .font(.title2)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.white)
+                                        }
+                                        
+                                        HStack(spacing: 10) {
+                                            Text(String(format: "%.2f", caloriesBurned))
+                                                .font(.title2)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.white)
+                                            Text("Cals")
+                                                .font(.title2)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.orange)
+                                        }
                                     }
                                 }
                             }
-                            .padding(.horizontal, 30)
+                            .padding(.horizontal, UIDevice.current.userInterfaceIdiom == .pad ? 30 : 15)
                             .padding(.vertical, 20)
                             .background(Theme.hudBackgroundColor)
                             .cornerRadius(25)

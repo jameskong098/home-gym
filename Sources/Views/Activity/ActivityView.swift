@@ -143,8 +143,10 @@ struct ActivityView: View {
                         .buttonStyle(PlainButtonStyle())
                         
                         if expandedSections.contains(section.1) {
-                            LazyVGrid(columns: [
+                            LazyVGrid(columns: UIDevice.current.userInterfaceIdiom == .pad ? [
                                 GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ] : [
                                 GridItem(.flexible())
                             ], spacing: 16) {
                                 ForEach(section.2.sorted(by: { $0.date > $1.date })) { workout in
