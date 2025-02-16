@@ -20,12 +20,12 @@ struct ExerciseView: View {
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     let exerciseName: String
-    let hudBackgroundColor = Color.black.opacity(0.4)
     @State private var countdownTime: Int = 5
     @State private var showCountdown: Bool = false
     @State private var countdownTimer: Timer?
     @State private var countdownProgress: Double = 1.0
     @State private var smoothCountdownTimer: Timer?
+    @State private var showExerciseSummary = false
 
     private var repCountBinding: Binding<Int> {
         Binding(
@@ -41,7 +41,7 @@ struct ExerciseView: View {
         ZStack {
             CameraView(exerciseName: exerciseName, repCount: repCountBinding, showTutorial: $showTutorial)
                 .edgesIgnoringSafeArea(.all)
-                .blur(radius: showCountdown ? 10 : 0)
+                .blur(radius: showCountdown || showExerciseSummary ? 10 : 0)
 
             if enableTutorials && showTutorial {
                 GeometryReader { geometry in
@@ -143,243 +143,134 @@ struct ExerciseView: View {
                     .background(Color.black.opacity(0.5).edgesIgnoringSafeArea(.all))
                     .transition(.opacity.combined(with: .scale))
                 } else {
-                    if UIDevice.current.userInterfaceIdiom == .pad {
-                        VStack {
-                            HStack {
-                                HStack {
-                                    Text(exerciseName)
-                                        .font(.largeTitle)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .padding()
-                                }
-                                .background(hudBackgroundColor)
-                                .cornerRadius(20)
-                                .shadow(radius: 10)
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    VStack {
-                                        HStack(spacing: 5) {
-                                            Image(systemName: "timer")
-                                                .foregroundColor(.white)
-                                                .font(.title2)
-                                                .padding(.top)
-                                                .padding(.leading)
-                                            Text(timeString(from: elapsedTime))
-                                                .font(.largeTitle)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.white)
-                                                .padding(.top)
-                                                .padding(.trailing)
+                    VStack {
+                        if !showExerciseSummary {
+                            HStack(alignment: .top, spacing: 25) {
+                                VStack(spacing: 15) {
+                                    HStack(spacing: 15) {
+                                        Text("\(exerciseName):")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        Text("\(repCount)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                    }
+                                    
+                                    HStack(spacing: 25) {
+                                        Button(action: {
+                                            isPaused.toggle()
+                                            if isPaused {
+                                                stopTimer()
+                                            } else {
+                                                startTimer()
+                                            }
+                                        }) {
+                                            ZStack {
+                                                Circle()
+                                                    .fill(!isPaused ? .orange : .green)
+                                                Image(systemName: isPaused ? "play.fill" : "pause.fill")
+                                                    .frame(width: 25, height: 25)
+                                                    .foregroundStyle(.white)
+                                            }
+                                            .frame(width: 45, height: 45)
                                         }
                                         
-                                        HStack(spacing: 8) {
-                                            Text(String(format: "%.2f", caloriesBurned))
-                                                .font(.title2)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.white)
-                                            Text("Cals")
-                                                .font(.title2)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.orange)
+                                        Button(action: {
+                                            showEndWorkoutAlert = true
+                                        }) {
+                                            ZStack {
+                                                Circle()
+                                                    .fill(.red)
+                                                Image(systemName: "xmark")
+                                                    .frame(width: 15, height: 15)
+                                                    .foregroundStyle(.white)
+                                            }
+                                            .frame(width: 45, height: 45)
+                                            .alert("End Workout", isPresented: $showEndWorkoutAlert) {
+                                                Button("Cancel", role: .cancel) { }
+                                                Button("End", role: .destructive) {
+                                                    stopTimer()
+                                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                                        showExerciseSummary = true
+                                                    }
+                                                }
+                                            } message: {
+                                                Text("Are you sure you want to end this workout?")
+                                            }
                                         }
-                                        .padding(.bottom)
                                     }
-                                    .background(hudBackgroundColor)
-                                    .cornerRadius(20)
-                                    .shadow(radius: 10)
+                                }
+                                
+                                Rectangle()
+                                    .fill(Color.white)
+                                    .frame(width: 2)
+                                    .frame(height: 85)
+                                
+                                VStack(alignment: .leading, spacing: 15) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "timer")
+                                            .foregroundColor(.white)
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                        Text(timeString(from: elapsedTime))
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                    }
+                                    
+                                    HStack(spacing: 10) {
+                                        Text(String(format: "%.2f", caloriesBurned))
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        Text("Cals")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.orange)
+                                    }
                                 }
                             }
-                            .padding(.horizontal, 25)
-                            .padding(.vertical, 10)
+                            .padding(.horizontal, 30)
+                            .padding(.vertical, 20)
+                            .background(Theme.hudBackgroundColor)
+                            .cornerRadius(25)
+                            .shadow(radius: 15)
+                            .padding(.top, 15)
                             
                             Spacer()
-                            
-                            VStack {
-                                Spacer()
-                                
-                                HStack {
-                                    Button(action: {
-                                        isPaused.toggle()
-                                        if isPaused {
-                                            stopTimer()
-                                        } else {
-                                            startTimer()
-                                        }
-                                    }) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(!isPaused ? .orange : .green)
-                                            Image(systemName: isPaused ? "play.fill" : "pause.fill")
-                                                .frame(width: 20, height: 20)
-                                                .foregroundStyle(.white)
-                                        }
-                                        .frame(width: 35, height: 35)
-                                        .padding()
-                                        .background(hudBackgroundColor)
-                                        .cornerRadius(15)
-                                        .shadow(radius: 10)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text("\(repCount)")
-                                        .font(.system(size: 72, weight: .bold, design: .rounded))
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .background(hudBackgroundColor)
-                                        .cornerRadius(15)
-                                        .shadow(radius: 10)
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: {
-                                        showEndWorkoutAlert = true
-                                    }) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(.red)
-                                            Image(systemName: "xmark")
-                                                .frame(width: 10, height: 10)
-                                                .foregroundStyle(.white)
-                                        }
-                                        .frame(width: 35, height: 35)
-                                        .padding()
-                                        .background(hudBackgroundColor)
-                                        .cornerRadius(15)
-                                        .shadow(radius: 10)
-                                    }
-                                    .alert("End Workout", isPresented: $showEndWorkoutAlert) {
-                                        Button("Cancel", role: .cancel) { }
-                                        Button("End", role: .destructive) {
-                                            let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
-                                            navPath.append("ExerciseSummaryView|\(encodedString)")
-                                        }
-                                    } message: {
-                                        Text("Are you sure you want to end this workout?")
-                                    }
-                                }
-                                .padding(.horizontal, 25)
-                                .padding(.bottom, 30)
-                            }
-                        }
-                    } else {
-                        VStack {
-                            HStack {
-                                Text(exerciseName)
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                    .padding()
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    VStack {
-                                        HStack(spacing: 5) {
-                                            Image(systemName: "timer")
-                                                .foregroundColor(.white)
-                                                .font(.title2)
-                                                .padding(.top)
-                                                .padding(.leading)
-                                            Text(timeString(from: elapsedTime))
-                                                .font(.largeTitle)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.white)
-                                                .padding(.top)
-                                                .padding(.trailing)
-                                        }
-                                        
-                                        HStack(spacing: 8) {
-                                            Text(String(format: "%.2f", caloriesBurned))
-                                                .font(.title2)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.white)
-                                            Text("Cals")
-                                                .font(.title2)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.orange)
-                                        }
-                                        .padding(.bottom)
-                                    }
-                                }
-                            }
-                            .background(hudBackgroundColor)
-                            .cornerRadius(20)
-                            .padding(.horizontal, 25)
-                            .padding(.vertical, 10)
-                            .shadow(radius: 10)
-                            
-                            Spacer()
-                            
-                            HStack {
-                                Button(action: {
-                                    isPaused.toggle()
-                                    if isPaused {
-                                        stopTimer()
-                                    } else {
-                                        startTimer()
-                                    }
-                                }) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(!isPaused ? .orange : .green)
-                                        Image(systemName: isPaused ? "play.fill" : "pause.fill")
-                                            .frame(width: 20, height: 20)
-                                            .foregroundStyle(.white)
-                                    }
-                                    .frame(width: 35, height: 35)
-                                    .padding()
-                                    .background(hudBackgroundColor)
-                                    .cornerRadius(15)
-                                    .shadow(radius: 10)
-                                }
-                                
-                                Spacer()
-                                
-                                Text("\(repCount)")
-                                    .font(.system(size: 72, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .background(hudBackgroundColor)
-                                    .cornerRadius(15)
-                                    .shadow(radius: 10)
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    showEndWorkoutAlert = true
-                                }) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(.red)
-                                        Image(systemName: "xmark")
-                                            .frame(width: 10, height: 10)
-                                            .foregroundStyle(.white)
-                                    }
-                                    .frame(width: 35, height: 35)
-                                    .padding()
-                                    .background(hudBackgroundColor)
-                                    .cornerRadius(15)
-                                    .shadow(radius: 10)
-                                }
-                                .alert("End Workout", isPresented: $showEndWorkoutAlert) {
-                                    Button("Cancel", role: .cancel) { }
-                                    Button("End", role: .destructive) {
-                                        let encodedString = "\(exerciseName)|\(repCount)|\(elapsedTime)|\(caloriesBurned)"
-                                        navPath.append("ExerciseSummaryView|\(encodedString)")
-                                    }
-                                } message: {
-                                    Text("Are you sure you want to end this workout?")
-                                }
-                            }
-                            .padding(.horizontal, 25)
-                            .padding(.bottom, 30)
                         }
                     }
+                    .padding(.horizontal, 25)
                 }
+            }
+
+            if showExerciseSummary {
+                Color.black
+                    .opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                    .transition(.opacity)
+                
+                ExerciseSummaryView(selectedTab: $selectedTab, 
+                                    navPath: $navPath, 
+                                    exerciseName: exerciseName, 
+                                    repCount: repCount, 
+                                    elapsedTime: elapsedTime, 
+                                    caloriesBurned: caloriesBurned)
+                    .frame(maxWidth: 600, maxHeight: 600)
+                    .background(Theme.hudBackgroundColor)
+                    .cornerRadius(20)
+                    .shadow(radius: 10)
+                    .transition(.asymmetric(
+                        insertion: .scale(scale: 0.8)
+                            .combined(with: .opacity)
+                            .combined(with: .offset(y: 50)),
+                        removal: .scale(scale: 0.8)
+                            .combined(with: .opacity)
+                            .combined(with: .offset(y: 50))
+                    ))
+                    .zIndex(1)
             }
         }
         .navigationBarHidden(true)

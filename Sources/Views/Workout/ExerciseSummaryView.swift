@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ExerciseSummaryView: View {
+    @Environment(\.dismiss) private var dismiss
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     @State private var isEditing = false
@@ -8,6 +9,9 @@ struct ExerciseSummaryView: View {
     @State private var editedElapsedTime: TimeInterval
     @State private var editedWeight: Double?
     @State private var caloriesBurned: Double
+    @State private var showingCancelAlert = false
+    @State private var isAnimatingOut = false
+    @State private var opacity = 1.0
     let exerciseName: String
     let repCount: Int
     let elapsedTime: TimeInterval
@@ -28,63 +32,42 @@ struct ExerciseSummaryView: View {
 
     var body: some View {
         ZStack {
-            Color(UIColor { traitCollection in
-                if traitCollection.userInterfaceStyle == .dark {
-                    return Theme.mainContentBackgroundColorDark
-                } else {
-                    return Theme.mainContentBackgroundColorLight
-                }
-            })
+            Color.black.opacity(0.4)
             .edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 25) {
-                Text("Exercise Summary")
+                Text("Summary")
                     .font(.system(size: 34, weight: .bold))
-                    .foregroundColor(Color(UIColor { traitCollection in
-                        if traitCollection.userInterfaceStyle == .dark {
-                            return Theme.settingsThemeTextColorDark
-                        } else {
-                            return Theme.settingsThemeTextColorLight
-                        }
-                    }))
+                    .foregroundColor(.white)
                     .padding(.top, 30)
 
                 VStack(spacing: 15) {
                     summaryItem(icon: "figure.walk", title: "Exercise", value: exerciseName)
                     Divider()
-                        .background(Color.gray.opacity(0.3))
+                        .background(Color.white)
                     summaryItem(icon: "repeat", title: "Reps", value: "\(editedRepCount)")
                     Divider()
-                        .background(Color.gray.opacity(0.3))
+                        .background(Color.white)
                     summaryItem(icon: "clock", title: "Time", value: timeString(from: editedElapsedTime))
                     Divider()
-                        .background(Color.gray.opacity(0.3))
+                        .background(Color.white)
                     summaryItem(icon: "flame.fill", title: "Calories Burned", value: String(format: "%.2f", caloriesBurned))
                     Divider()
-                        .background(Color.gray.opacity(0.3))
+                        .background(Color.white)
                     summaryItem(icon: "scalemass", title: "Weight", value: weightString(from: editedWeight))
                     Text("Weight can include additional weight from equipment such as a weight vest or dumbbells. Click 'Edit' to add or update the value if needed.")
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white)
                         .padding(.top, 5)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(.vertical, 20)
                 .padding(.horizontal, 25)
-                .background(Color(UIColor { traitCollection in
-                    if traitCollection.userInterfaceStyle == .dark {
-                        return Theme.settingsSectionBackgroundColorDark
-                    } else {
-                        return Theme.settingsSectionBackgroundColorLight
-                    }
-                }))
-                .cornerRadius(20)
-                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-                .padding(.horizontal)
-
-                Spacer()
-
+                
                 HStack(spacing: 30) {
-                    actionButton(title: "Edit Workout", icon: "pencil", color: Theme.footerAccentColor) {
+                    actionButton(title: "Edit", icon: "pencil", color: Theme.footerAccentColor) {
                         isEditing = true
                     }
                     .sheet(isPresented: $isEditing) {
@@ -98,21 +81,38 @@ struct ExerciseSummaryView: View {
                     
                     Spacer()
 
-                    actionButton(title: "Don't Save", icon: "xmark", color: .red) {
-                        navPath.removeAll()
+                    actionButton(title: "Delete", icon: "xmark", color: .red) {
+                        showingCancelAlert = true
+                    }
+                    .alert("Cancel Workout", isPresented: $showingCancelAlert) {
+                        Button("Cancel", role: .cancel) { }
+                        Button("Yes, Delete", role: .destructive) {
+                            dismiss()
+                        }
+                    } message: {
+                        Text("Are you sure you want to delete this workout? This action cannot be undone.")
                     }
                     
                     Spacer()
                     
-                    actionButton(title: "Save Workout", icon: "checkmark", color: .green) {
+                    actionButton(title: "Save", icon: "checkmark", color: .green) {
                         saveWorkout()
-                        selectedTab = 2
-                        navPath.append("Activity")
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            isAnimatingOut = true
+                            opacity = 0
+                        }
+     
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            selectedTab = 2
+                            navPath.append("Activity")
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.vertical, 40)
+                .padding(.vertical, 30)
             }
+            .opacity(opacity)
+            .scaleEffect(isAnimatingOut ? 0.9 : 1.0)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
@@ -127,13 +127,7 @@ struct ExerciseSummaryView: View {
             
             Text(title)
                 .font(.headline)
-                .foregroundColor(Color(UIColor { traitCollection in
-                    if traitCollection.userInterfaceStyle == .dark {
-                        return Theme.settingsThemeTextColorDark
-                    } else {
-                        return Theme.settingsThemeTextColorLight
-                    }
-                }))
+                .foregroundColor(.white)
             
             Spacer()
             

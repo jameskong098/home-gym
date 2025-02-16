@@ -31,4 +31,6 @@ struct Theme {
     static let settingsThemeTextColorDark = UIColor.white
     static let toggleSwitchColor = Color.blue
     static let settingsInfoSaveButton = Color.blue
+    
+    static let hudBackgroundColor = Color.black.opacity(0.4)
 }

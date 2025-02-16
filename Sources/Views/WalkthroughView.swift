@@ -12,15 +12,6 @@ struct MainContentView: View {
                         TabMenus(selectedTab: $selectedTab, navPath: $navPath)
                             .navigationBarBackButtonHidden(true)
                             .navigationBarHidden(true)
-                    } else if pathValue.starts(with: "ExerciseSummaryView") {
-                        let components = pathValue.split(separator: "|").map { String($0) }
-                        if components.count == 5 {
-                            let exerciseName = components[1]
-                            let repCount = Int(components[2]) ?? 0
-                            let elapsedTime = TimeInterval(components[3]) ?? 0
-                            let caloriesBurned = Double(components[4]) ?? 0.0
-                            ExerciseSummaryView(selectedTab: $selectedTab, navPath: $navPath, exerciseName: exerciseName, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
-                        }
                     }
                 }
         }
