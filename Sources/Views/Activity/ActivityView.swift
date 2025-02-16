@@ -75,7 +75,7 @@ struct ActivityView: View {
                    actions: deleteAlert,
                    message: deleteAlertMessage)
             .onChange(of: isShowingEditSheet) { newValue in
-                if !newValue { 
+                if (!newValue) { 
                     selectedWorkout = nil
                     highlightedWorkoutId = nil
                 }
@@ -120,56 +120,58 @@ struct ActivityView: View {
                                 }
                             }
                         }) {
-                            HStack {
+                            HStack(spacing: 8) {
                                 Text(section.0)
                                     .font(.title3)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.primary)
                                 
-                                Spacer()
+                                Text(section.1)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                                 
-                                VStack(alignment: .trailing) {
-                                    Text(section.1)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
+                                Spacer()
                                 
                                 Image(systemName: expandedSections.contains(section.1) ? "chevron.down" : "chevron.right")
                                     .foregroundColor(.secondary)
                                     .font(.system(size: 14, weight: .medium))
-                                    .padding(.leading, 8)
                             }
                             .padding(.horizontal)
                             .padding(.vertical, 8)
-                          
                             .cornerRadius(10)
                         }
                         .buttonStyle(PlainButtonStyle())
                         
                         if expandedSections.contains(section.1) {
-                            ForEach(section.2.sorted(by: { $0.date > $1.date })) { workout in
-                                WorkoutCard(
-                                    workout: workout,
-                                    editMode: editMode,
-                                    isHighlighted: workout.id == highlightedWorkoutId,
-                                    onEdit: {
-                                        selectedWorkout = workout
-                                        highlightedWorkoutId = workout.id
-                                        
-                                        withAnimation {
-                                            proxy.scrollTo(workout.id, anchor: .center)
+                            LazyVGrid(columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ], spacing: 16) {
+                                ForEach(section.2.sorted(by: { $0.date > $1.date })) { workout in
+                                    WorkoutCard(
+                                        workout: workout,
+                                        editMode: editMode,
+                                        isHighlighted: workout.id == highlightedWorkoutId,
+                                        onEdit: {
+                                            selectedWorkout = workout
+                                            highlightedWorkoutId = workout.id
+                                            
+                                            withAnimation {
+                                                proxy.scrollTo(workout.id, anchor: .center)
+                                            }
+                                            
+                                            isShowingEditSheet = true
+                                        },
+                                        onDelete: {
+                                            workoutToDelete = workout
+                                            showingDeleteAlert = true
                                         }
-                                        
-                                        isShowingEditSheet = true
-                                    },
-                                    onDelete: {
-                                        workoutToDelete = workout
-                                        showingDeleteAlert = true
-                                    }
-                                )
-                                .id(workout.id)
-                                .transition(.opacity)
+                                    )
+                                    .id(workout.id)
+                                    .transition(.opacity)
+                                }
                             }
+                            .padding(.horizontal)
                         }
                     }
                 }

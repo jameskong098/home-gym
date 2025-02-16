@@ -75,13 +75,26 @@ struct CompactAchievementsView: View {
 struct CompactAchievementBadge: View {
     let achievement: Achievement
     
+    private var badgeColor: Color {
+        if achievement.title.contains("Days") || achievement.title.contains("Year") {
+            return .orange
+        } else if achievement.title.contains("Reps") {
+            return .yellow
+        } else if achievement.title.contains("Hour") {
+            return .blue
+        } else if achievement.title.contains("Calories") {
+            return .red
+        }
+        return .gray
+    }
+    
     var body: some View {
-        VStack(spacing: 12) {
+        VStack {
             Image(systemName: achievement.imageName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 48, height: 48)
-                .foregroundColor(achievement.earned ? .yellow : .gray.opacity(0.5))
+                .foregroundColor(achievement.earned ? badgeColor : .gray.opacity(0.5))
             
             Text(achievement.title)
                 .font(.system(size: 13))
@@ -90,11 +103,11 @@ struct CompactAchievementBadge: View {
         }
         .padding(12)
         .frame(width: 120, height: 120)
-        .background(achievement.earned ? Color.yellow.opacity(0.1) : Color.clear)
+        .background(achievement.earned ? badgeColor.opacity(0.1) : Color.clear)
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(achievement.earned ? Color.yellow : Color.gray.opacity(0.2), lineWidth: 1)
+                .stroke(achievement.earned ? badgeColor : .gray.opacity(0.2), lineWidth: 1)
         )
     }
 }

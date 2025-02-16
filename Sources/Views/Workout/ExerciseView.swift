@@ -12,6 +12,11 @@ struct ExerciseView: View {
     @State private var showEndWorkoutAlert = false
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableCountdownTimer") private var enableCountdownTimer = true
+    @AppStorage("age") private var age = 0
+    @AppStorage("sex") private var sex = ""
+    @AppStorage("heightFeet") private var heightFeet = 0
+    @AppStorage("heightInches") private var heightInches = 0
+    @AppStorage("bodyWeight") private var bodyWeight = 0.0
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     let exerciseName: String
@@ -22,9 +27,19 @@ struct ExerciseView: View {
     @State private var countdownProgress: Double = 1.0
     @State private var smoothCountdownTimer: Timer?
 
+    private var repCountBinding: Binding<Int> {
+        Binding(
+            get: { repCount },
+            set: { newValue in
+                repCount = newValue
+                calculateCaloriesBurned()
+            }
+        )
+    }
+
     var body: some View {
         ZStack {
-            CameraView(exerciseName: exerciseName, repCount: $repCount, showTutorial: $showTutorial)
+            CameraView(exerciseName: exerciseName, repCount: repCountBinding, showTutorial: $showTutorial)
                 .edgesIgnoringSafeArea(.all)
                 .blur(radius: showCountdown ? 10 : 0)
 
@@ -437,7 +452,6 @@ struct ExerciseView: View {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             DispatchQueue.main.async {
                 elapsedTime += 1
-                calculateCaloriesBurned()
             }
         }
     }
@@ -454,12 +468,6 @@ struct ExerciseView: View {
     }
     
     private func calculateCaloriesBurned() {
-        let age = UserDefaults.standard.integer(forKey: "age")
-        let sex = UserDefaults.standard.string(forKey: "sex")
-        let heightFeet = UserDefaults.standard.integer(forKey: "heightFeet")
-        let heightInches = UserDefaults.standard.integer(forKey: "heightInches")
-        let bodyWeight = UserDefaults.standard.double(forKey: "bodyWeight")
-        
         let height = Double(heightFeet * 12 + heightInches) * 2.54 // Convert to cm
         let weight = bodyWeight * 0.453592 // Convert to kg
         
@@ -468,33 +476,34 @@ struct ExerciseView: View {
         if sex == "Male" {
             bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * Double(age))
         } else {
-            bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * Double(age))
+            bmr = 47.593 + (9.247 * weight) + (3.098 * height) - (4.330 * Double(age))
         }
         
-        let metValue: Double
+        let caloriesPerRep: Double
         switch exerciseName {
         case "High Knees":
-            metValue = 8.0
+            caloriesPerRep = 0.25
         case "Basic Squats":
-            metValue = 5.0
+            caloriesPerRep = 0.32
         case "Lunges":
-            metValue = 4.5
+            caloriesPerRep = 0.30
         case "Wall Squats":
-            metValue = 4.0
+            caloriesPerRep = 0.28
         case "Push-Ups":
-            metValue = 8.0
+            caloriesPerRep = 0.35
         case "Pilates Sit-Ups Hybrid":
-            metValue = 3.5
+            caloriesPerRep = 0.20
         case "Bicep Curls - Simultaneous":
-            metValue = 3.0
+            caloriesPerRep = 0.15
         case "Jumping Jacks":
-            metValue = 8.0
+            caloriesPerRep = 0.20
         default:
-            metValue = 4.0
+            caloriesPerRep = 0.25
         }
         
-        let caloriesPerMinute = (bmr / 1440) * metValue / 60
-        caloriesBurned = caloriesPerMinute * (elapsedTime / 60)
+        // Calculate calories based on BMR adjustment and rep count
+        let bmrAdjustmentFactor = bmr / 2000 // Normalize based on average BMR
+        caloriesBurned = Double(repCount) * caloriesPerRep * bmrAdjustmentFactor
     }
     
     private func startCountdown() {
