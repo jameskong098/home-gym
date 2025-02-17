@@ -7,10 +7,9 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     private var cameraSession: AVCaptureSession?
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private var overlayLayer: CALayer!
-    private let speechSynthesizer = AVSpeechSynthesizer()
     @AppStorage("enableTutorials") private var enableTutorials = true
     @AppStorage("enableVoice") private var enableVoice: Bool = true
-    @AppStorage("useWideAngleCamera") private var useWideAngleCamera = false
+    @AppStorage("useWideAngleCamera") private var useWideAngleCamera = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
@@ -21,6 +20,9 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     }
     var repCountBinding: Binding<Int>?
     var showTutorialBinding: Binding<Bool>?
+    var showCountdown: Binding<Bool>?
+    var showExerciseSummary: Binding<Bool>?
+    var isPaused: Binding<Bool>?
     private var lastPose: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
     private var isGoingDown: Bool = false
     private var leftFootTouchedButt = false
@@ -185,6 +187,16 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     
     @MainActor
     private func processPoseData(_ points: [VNHumanBodyPoseObservation.JointName: (location: CGPoint, confidence: VNConfidence)]) {
+        // Hide the overlay if the tutorial is showing
+        guard showTutorialBinding?.wrappedValue == false || !enableTutorials else { return }
+        // Hide the overlay if the countdown is showing
+        guard showCountdown?.wrappedValue == false else { return }
+        // Hide the overlay if the exercise summary is showing or the session is paused
+        if showExerciseSummary?.wrappedValue == true || isPaused?.wrappedValue == true {
+            overlayLayer.sublayers?.forEach { $0.removeFromSuperlayer() }
+            return
+        }
+        
         overlayLayer.sublayers?.forEach { $0.removeFromSuperlayer() }
         
         var jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
@@ -256,7 +268,8 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     }
     
     private func countReps(_ jointPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]) {
-        guard showTutorialBinding?.wrappedValue == false || !enableTutorials else { return }
+        guard showCountdown?.wrappedValue == false, showExerciseSummary?.wrappedValue == false else { return }
+
         switch exerciseName {
         case "Basic Squats":
             if let leftHip = jointPoints[.leftHip],
@@ -275,7 +288,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
-                        speak("\(repCounter)")
+                        Speech.speak("\(repCounter)")
                     }
                 }
             }
@@ -296,7 +309,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
-                        speak("\(repCounter)")
+                        Speech.speak("\(repCounter)")
                     }
                 }
             }
@@ -315,7 +328,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
-                        speak("\(repCounter)")
+                        Speech.speak("\(repCounter)")
                     }
                 }
             }
@@ -330,7 +343,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
-                        speak("\(repCounter)")
+                        Speech.speak("\(repCounter)")
                     }
                 }
             }
@@ -359,7 +372,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                         repCounter += 1
                         isGoingDown = false
                         if enableVoice {
-                            speak("\(repCounter)")
+                            Speech.speak("\(repCounter)")
                         }
                     }
                 }
@@ -381,11 +394,11 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
-                        speak("\(repCounter)")
+                        Speech.speak("\(repCounter)")
                     }
                 }
             }
-        case "Bicep Curls - Same Time":
+        case "Bicep Curls - Simultaneous":
             if let leftElbow = jointPoints[.leftElbow],
                let leftShoulder = jointPoints[.leftShoulder],
                let leftWrist = jointPoints[.leftWrist],
@@ -402,7 +415,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
-                        speak("\(repCounter)")
+                        Speech.speak("\(repCounter)")
                     }
                 }
             }
@@ -430,7 +443,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     repCounter += 1
                     isGoingDown = false
                     if enableVoice {
-                        speak("\(repCounter)")
+                        Speech.speak("\(repCounter)")
                     }
                 }
             }
@@ -450,12 +463,6 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
         let b = pow(p2.x - p3.x, 2) + pow(p2.y - p3.y, 2)
         let c = pow(p3.x - p1.x, 2) + pow(p3.y - p1.y, 2)
         return acos((a + b - c) / sqrt(4 * a * b)) * 180 / .pi
-    }
-    
-    private func speak(_ message: String) {
-        let utterance = AVSpeechUtterance(string: message)
-        utterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.siri_male_en-US_compact")
-        speechSynthesizer.speak(utterance)
     }
     
     private func bodyPartName(for jointName: VNHumanBodyPoseObservation.JointName) -> String {

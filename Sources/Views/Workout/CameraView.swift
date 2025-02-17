@@ -5,13 +5,19 @@ import AVFoundation
 
 struct CameraView: UIViewControllerRepresentable {
     let exerciseName: String
-    @Binding var repCount: Int
-    @Binding var showTutorial: Bool
+    var repCount: Binding<Int>
+    var showTutorial: Binding<Bool>
+    var showCountdown: Binding<Bool>
+    var showExerciseSummary: Binding<Bool>
+    var isPaused: Binding<Bool>
 
     func makeUIViewController(context: Context) -> CameraViewController {
         let viewController = CameraViewController(exerciseName: exerciseName)
-        viewController.repCountBinding = $repCount
-        viewController.showTutorialBinding = $showTutorial
+        viewController.repCountBinding = repCount
+        viewController.showTutorialBinding = showTutorial
+        viewController.showCountdown = showCountdown
+        viewController.showExerciseSummary = showExerciseSummary
+        viewController.isPaused = isPaused
         return viewController
     }
 

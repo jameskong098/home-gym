@@ -72,13 +72,6 @@ struct Settings: View {
                 .padding(.top)
 
                 VStack(alignment: .center, spacing: 10) {
-                    Toggle("Enable Sound Cues", isOn: $enableSoundCues)
-                        .padding(.horizontal)
-                        .tint(Theme.toggleSwitchColor)
-                        .onChange(of: enableSoundCues) { _ in
-                            triggerHapticFeedback()
-                        }
-                    Divider()
                     Toggle("Enable Voice", isOn: $enableVoice)
                         .padding(.horizontal)
                         .tint(Theme.toggleSwitchColor)

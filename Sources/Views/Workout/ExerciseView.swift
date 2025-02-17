@@ -17,6 +17,7 @@ struct ExerciseView: View {
     @AppStorage("heightFeet") private var heightFeet = 0
     @AppStorage("heightInches") private var heightInches = 0
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
+    @AppStorage("enableVoice") private var enableVoice = true
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     let exerciseName: String
@@ -26,8 +27,6 @@ struct ExerciseView: View {
     @State private var countdownProgress: Double = 1.0
     @State private var smoothCountdownTimer: Timer?
     @State private var showExerciseSummary = false
-    @State private var audioPlayer: AVAudioPlayer?
-    @State private var speechSynthesizer = AVSpeechSynthesizer()
 
     private var repCountBinding: Binding<Int> {
         Binding(
@@ -41,7 +40,7 @@ struct ExerciseView: View {
 
     var body: some View {
         ZStack {
-            CameraView(exerciseName: exerciseName, repCount: repCountBinding, showTutorial: $showTutorial)
+            CameraView(exerciseName: exerciseName, repCount: repCountBinding, showTutorial: $showTutorial, showCountdown: $showCountdown, showExerciseSummary: $showExerciseSummary, isPaused: $isPaused)
                 .edgesIgnoringSafeArea(.all)
                 .blur(radius: showCountdown || showExerciseSummary ? 10 : 0)
 
@@ -95,7 +94,9 @@ struct ExerciseView: View {
                                 .frame(height: 20)
                             
                             Button(action: {
-                                showTutorial = false
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    showTutorial = false
+                                }
                                 if enableCountdownTimer {
                                     startCountdown()
                                 } else {
@@ -233,7 +234,7 @@ struct ExerciseView: View {
                                             Text("Cals")
                                                 .font(.title)
                                                 .fontWeight(.bold)
-                                                .foregroundColor(.orange)
+                                                .foregroundColor(.red)
                                         }
                                     }
                                 } else {
@@ -302,12 +303,13 @@ struct ExerciseView: View {
                     ))
                     .zIndex(1)
                     .onAppear {
-                        playSound()
+                        Audio.playSound("hero_decorative-celebration-03", extension: "caf")
                     }
             }
         }
         .navigationBarHidden(true)
         .onAppear {
+            Speech.preWarmSpeechSynthesizer()
             if (!enableTutorials) {
                 if enableCountdownTimer {
                     startCountdown()
@@ -385,13 +387,6 @@ struct ExerciseView: View {
         timer = nil
     }
 
-
-    private func speakCountdownNumber(_ number: Int) {
-        let utterance = AVSpeechUtterance(string: "\(number)")
-        utterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.siri_male_en-US_compact")
-        speechSynthesizer.speak(utterance)
-    }
-
     private func timeString(from timeInterval: TimeInterval) -> String {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
@@ -438,11 +433,15 @@ struct ExerciseView: View {
     }
     
     private func startCountdown() {
-        showCountdown = true
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showCountdown = true
+        }
         countdownTime = 5
         countdownProgress = 1.0
         
-        speakCountdownNumber(countdownTime)
+        if enableVoice {
+            Speech.speak(String(countdownTime))
+        }
         
         smoothCountdownTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in // 60fps
             DispatchQueue.main.async {
@@ -464,23 +463,10 @@ struct ExerciseView: View {
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             DispatchQueue.main.async {
                 countdownTime -= 1
-                if countdownTime > 0 {
-                    speakCountdownNumber(countdownTime)
+                if countdownTime > 0  && enableVoice {
+                    Speech.speak(String(countdownTime))
                 }
             }
-        }
-    }
-
-    private func playSound() {
-        if let soundURL = Bundle.main.url(forResource: "hero_decorative-celebration-03", withExtension: "caf") {
-            do {
-                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                audioPlayer?.play()
-            } catch {
-                print("Failed to play sound: \(error.localizedDescription)")
-            }
-        } else {
-            print("Sound file not found")
         }
     }
 }
