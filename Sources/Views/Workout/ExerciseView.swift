@@ -344,6 +344,10 @@ struct ExerciseView: View {
             return "Position your body so that it is parallel to the camera. Lie on your back with knees bent and feet flat on the ground. This is a pilates roll up and sits up hybrid, so you should stretch your arms out straight in front as you roll up and sit up. Keep your core tight and body visible to the camera."
         case "Bicep Curls - Simultaneous":
             return "Position your body facing the camera with arms at your sides. Keep your upper body steady and perform controlled curls at the same time with your full arms visible."
+        case "Lateral Raises":
+            return "Position your body facing the camera with arms at your sides. Keep your upper body steady and raise your arms out to the sides until they are parallel to the ground."
+        case "Front Raises":
+            return "Position your body facing the camera with arms at your sides. Keep your upper body steady and raise your arms straight out in front of you until they are parallel to the ground."
         case "Jumping Jacks":
             return "Position your body facing the camera with feet together and arms at your sides. Ensure your full body stays in view while performing the exercise."
         default:
@@ -423,6 +427,10 @@ struct ExerciseView: View {
             caloriesPerRep = 0.15
         case "Jumping Jacks":
             caloriesPerRep = 0.20
+        case "Lateral Raises":
+            caloriesPerRep = 0.15
+        case "Front Raises":
+            caloriesPerRep = 0.15
         default:
             caloriesPerRep = 0.25
         }

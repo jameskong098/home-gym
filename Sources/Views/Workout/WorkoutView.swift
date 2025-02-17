@@ -16,7 +16,9 @@ struct WorkoutView: View {
         ]),
         ("Upper Body", [
             ("Push-Ups", "figure.wrestling"),
-            ("Bicep Curls - Simultaneous", "dumbbell.fill")
+            ("Bicep Curls - Simultaneous", "dumbbell.fill"),
+            ("Lateral Raises", "figure"),
+            ("Front Raises", "figure.martial.arts")
         ]),
         ("Core", [
             ("Pilates Sit-Ups Hybrid", "figure.core.training")

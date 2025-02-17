@@ -347,6 +347,48 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     }
                 }
             }
+        case "Lateral Raises":
+            if let leftElbow = jointPoints[.leftElbow], 
+            let rightElbow = jointPoints[.rightElbow], 
+            let leftShoulder = jointPoints[.leftShoulder], 
+            let rightShoulder = jointPoints[.rightShoulder], 
+            let leftHip = jointPoints[.leftHip], 
+            let rightHip = jointPoints[.rightHip] {
+
+                let leftArmAngle = angleBetweenPoints(leftElbow, leftShoulder, leftHip)
+                let rightArmAngle = angleBetweenPoints(rightElbow, rightShoulder, rightHip)
+
+                if leftArmAngle > 70 && rightArmAngle > 70 {
+                    isGoingDown = true
+                } else if isGoingDown && leftArmAngle < 30 && rightArmAngle < 30 {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        Speech.speak("\(repCounter)")
+                    }
+                }
+            }
+        case "Front Raises":
+            if let leftElbow = jointPoints[.leftElbow],
+            let rightElbow = jointPoints[.rightElbow],
+            let leftShoulder = jointPoints[.leftShoulder],
+            let rightShoulder = jointPoints[.rightShoulder],
+            let leftHip = jointPoints[.leftHip],
+            let rightHip = jointPoints[.rightHip] {
+
+                let leftArmAngle = angleBetweenPoints(leftElbow, leftShoulder, leftHip)
+                let rightArmAngle = angleBetweenPoints(rightElbow, rightShoulder, rightHip)
+
+                if leftArmAngle > 70 && rightArmAngle > 70 {
+                    isGoingDown = true
+                } else if isGoingDown && leftArmAngle < 30 && rightArmAngle < 30 {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        Speech.speak("\(repCounter)")
+                    }
+                }
+            }
         case "Pilates Sit-Ups Hybrid":
             if let leftElbow = jointPoints[.leftElbow],
                let rightElbow = jointPoints[.rightElbow],
