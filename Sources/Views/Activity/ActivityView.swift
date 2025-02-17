@@ -91,7 +91,7 @@ struct ActivityView: View {
     }
     
     private func playSound() {
-        if let soundURL = Bundle.main.url(forResource: "navigation_transition-left", withExtension: "wav") {
+        if let soundURL = Bundle.main.url(forResource: "navigation_transition-left", withExtension: "caf") {
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
                 audioPlayer?.play()

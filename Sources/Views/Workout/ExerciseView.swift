@@ -27,6 +27,7 @@ struct ExerciseView: View {
     @State private var smoothCountdownTimer: Timer?
     @State private var showExerciseSummary = false
     @State private var audioPlayer: AVAudioPlayer?
+    @State private var speechSynthesizer = AVSpeechSynthesizer()
 
     private var repCountBinding: Binding<Int> {
         Binding(
@@ -131,8 +132,10 @@ struct ExerciseView: View {
                         )
                         .padding(15)
                         .transition(.opacity)
+                        
+                        Spacer()
                     }
-                    .frame(width: geometry.size.width, height: geometry.size.height, alignment: .bottom)
+                    .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
                 }
             } else {
                 if showCountdown {
@@ -382,6 +385,13 @@ struct ExerciseView: View {
         timer = nil
     }
 
+
+    private func speakCountdownNumber(_ number: Int) {
+        let utterance = AVSpeechUtterance(string: "\(number)")
+        utterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.siri_male_en-US_compact")
+        speechSynthesizer.speak(utterance)
+    }
+
     private func timeString(from timeInterval: TimeInterval) -> String {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
@@ -432,6 +442,8 @@ struct ExerciseView: View {
         countdownTime = 5
         countdownProgress = 1.0
         
+        speakCountdownNumber(countdownTime)
+        
         smoothCountdownTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in // 60fps
             DispatchQueue.main.async {
                 countdownProgress -= 0.0033 // 5-second drain (0.0033 * 60fps * 5 seconds)
@@ -451,15 +463,16 @@ struct ExerciseView: View {
         
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             DispatchQueue.main.async {
+                countdownTime -= 1
                 if countdownTime > 0 {
-                    countdownTime -= 1
+                    speakCountdownNumber(countdownTime)
                 }
             }
         }
     }
 
     private func playSound() {
-        if let soundURL = Bundle.main.url(forResource: "hero_decorative-celebration-03", withExtension: "wav") {
+        if let soundURL = Bundle.main.url(forResource: "hero_decorative-celebration-03", withExtension: "caf") {
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
                 audioPlayer?.play()

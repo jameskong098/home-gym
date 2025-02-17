@@ -52,6 +52,8 @@
 - **Core Animation (CALayer)** – Displays overlays for joints and movement guidance.  
 - **Text-to-Speech (AVSpeechSynthesizer)** – Provides real-time voice feedback.  
 
+**Sound Effects** – [Material Design Sound Resources](https://m2.material.io/design/sound/sound-resources.html#) ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
+
 ## 📱 How It Works  
 
 1. **Launch the app** and grant camera access.  
