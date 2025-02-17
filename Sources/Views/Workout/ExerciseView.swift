@@ -26,6 +26,7 @@ struct ExerciseView: View {
     @State private var countdownProgress: Double = 1.0
     @State private var smoothCountdownTimer: Timer?
     @State private var showExerciseSummary = false
+    @State private var audioPlayer: AVAudioPlayer?
 
     private var repCountBinding: Binding<Int> {
         Binding(
@@ -206,8 +207,8 @@ struct ExerciseView: View {
                                 if UIDevice.current.userInterfaceIdiom == .pad {
                                     Rectangle()
                                         .fill(Color.white)
-                                        .frame(width: 2)
-                                        .frame(height: 85)
+                                        .frame(width: 1)
+                                        .frame(height: 95)
                                     
                                     VStack(alignment: .leading, spacing: 15) {
                                         HStack(spacing: 8) {
@@ -297,6 +298,9 @@ struct ExerciseView: View {
                             .combined(with: .offset(y: 50))
                     ))
                     .zIndex(1)
+                    .onAppear {
+                        playSound()
+                    }
             }
         }
         .navigationBarHidden(true)
@@ -451,6 +455,19 @@ struct ExerciseView: View {
                     countdownTime -= 1
                 }
             }
+        }
+    }
+
+    private func playSound() {
+        if let soundURL = Bundle.main.url(forResource: "hero_decorative-celebration-03", withExtension: "wav") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                audioPlayer?.play()
+            } catch {
+                print("Failed to play sound: \(error.localizedDescription)")
+            }
+        } else {
+            print("Sound file not found")
         }
     }
 }

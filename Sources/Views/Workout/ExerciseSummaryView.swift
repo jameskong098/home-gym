@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct ExerciseSummaryView: View {
     @Environment(\.dismiss) private var dismiss
@@ -12,10 +13,12 @@ struct ExerciseSummaryView: View {
     @State private var showingCancelAlert = false
     @State private var isAnimatingOut = false
     @State private var opacity = 1.0
+    @State private var audioPlayer: AVAudioPlayer?
     let exerciseName: String
     let repCount: Int
     let elapsedTime: TimeInterval
     let weight: Double?
+    private var player: AVAudioPlayer?
 
     init(selectedTab: Binding<Int>, navPath: Binding<[String]>, exerciseName: String, repCount: Int, elapsedTime: TimeInterval, caloriesBurned: Double, weight: Double? = nil) {
         self._selectedTab = selectedTab
@@ -87,6 +90,7 @@ struct ExerciseSummaryView: View {
                     .alert("Cancel Workout", isPresented: $showingCancelAlert) {
                         Button("Cancel", role: .cancel) { }
                         Button("Yes, Delete", role: .destructive) {
+                            playSound()
                             dismiss()
                         }
                     } message: {
@@ -145,7 +149,20 @@ struct ExerciseSummaryView: View {
             return "-"
         }
     }
-    
+
+    private func playSound() {
+        if let soundURL = Bundle.main.url(forResource: "navigation_transition-left", withExtension: "wav") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                audioPlayer?.play()
+            } catch {
+                print("Failed to play sound: \(error.localizedDescription)")
+            }
+        } else {
+            print("Sound file not found")
+        }
+    }
+
     struct EditView: View {
         @Binding var repCount: Int
         @Binding var elapsedTime: TimeInterval

@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct ActivityView: View {
     @State private var workouts: [WorkoutData] = []
@@ -13,6 +14,7 @@ struct ActivityView: View {
     @Namespace private var animation
     @State private var expandedSections: Set<String> = Set()
     @State private var showingFilterSheet = false
+    @State private var audioPlayer: AVAudioPlayer?
     @ObservedObject var filterModel: WorkoutFilterModel
     var showDevTools = false
 
@@ -85,6 +87,19 @@ struct ActivityView: View {
                 onWorkoutsUpdate(workouts)
                 expandedSections = Set(groupWorkoutsByDate(workouts).map { $0.1 })
             }
+        }
+    }
+    
+    private func playSound() {
+        if let soundURL = Bundle.main.url(forResource: "navigation_transition-left", withExtension: "wav") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                audioPlayer?.play()
+            } catch {
+                print("Failed to play sound: \(error.localizedDescription)")
+            }
+        } else {
+            print("Sound file not found")
         }
     }
     
@@ -229,6 +244,7 @@ struct ActivityView: View {
                 if let workout = workoutToDelete {
                     deleteWorkout(workout)
                     onActivitiesChange(workouts.count)
+                    playSound()
                 }
             }
             Button("Cancel", role: .cancel) {}
