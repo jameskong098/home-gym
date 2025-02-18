@@ -1,10 +1,10 @@
 import SwiftUI
 import TipKit
 
-@available(iOS 17.0, *)
 struct ProgressTracker: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage("name") private var name = ""
+    @AppStorage("showTips") private var showTips = true
     @State private var dailyProgress: Double = 0.0
     @State private var weeklyProgress: Double = 0.0
     @State private var monthlyProgress: Double = 0.0
@@ -16,7 +16,6 @@ struct ProgressTracker: View {
     @State private var currentMotivationalMessage: String = ""
     @State private var selectedGoalType: GoalType = .reps
     
-    @State private var currentTip: (any Tip)?
     let calendarTip = CalendarTip()
     let goalsTip = GoalsTip()
     let achievementsTip = AchievementsTip()
@@ -73,27 +72,18 @@ struct ProgressTracker: View {
                     if shouldUseHorizontalLayout {
                         HStack(spacing: 16) {
                             ZStack(alignment: .topTrailing) {
-                                CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
-                                    .background(Theme.sectionBackground)
-                                    .cornerRadius(12)
-                                    .frame(height: shouldUseHorizontalLayout ? 380 : 600)
-                                    .padding(.top, 8)
-                                    if currentTip == nil || currentTip is CalendarTip {
-                                        Button {
-                                            currentTip = (currentTip == nil || currentTip is CalendarTip) ? nil : calendarTip
-                                            if currentTip == nil {
-                                                currentTip = goalsTip
-                                            }
-                                        } label: {
-                                            Image(systemName: "info.circle")
-                                                .padding(4)
-                                                .background(.white.opacity(0.8))
-                                                .clipShape(Circle())
-                                        }
-                                        .padding(8)
+                                if #available(iOS 17.0, *) {
+                                    CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
+                                        .background(Theme.sectionBackground)
+                                        .cornerRadius(12)
+                                        .frame(height: shouldUseHorizontalLayout ? 380 : 600)
                                         .popoverTip(calendarTip)
-                                        
-                                    }
+                                } else {
+                                    CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
+                                        .background(Theme.sectionBackground)
+                                        .cornerRadius(12)
+                                        .frame(height: shouldUseHorizontalLayout ? 380 : 600)
+                                }
                             }
                             Divider()
                             DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
@@ -104,10 +94,18 @@ struct ProgressTracker: View {
                         .padding(.top, 8)
                     } else {
                         VStack(spacing: 10) {
-                            CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
-                                .background(Theme.sectionBackground)
-                                .cornerRadius(12)
-                                .frame(height: 380)
+                            if #available(iOS 17.0, *) {
+                                CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
+                                    .background(Theme.sectionBackground)
+                                    .cornerRadius(12)
+                                    .frame(height: 380)
+                                    .popoverTip(calendarTip)
+                            } else {
+                                CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
+                                    .background(Theme.sectionBackground)
+                                    .cornerRadius(12)
+                                    .frame(height: 380)
+                            }
                             DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
                                 .background(Theme.sectionBackground)
                                 .cornerRadius(12)
@@ -120,106 +118,145 @@ struct ProgressTracker: View {
                         .padding(.top, 8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    VStack(spacing: 12) {
-                        Picker("Goal Type", selection: $selectedGoalType) {
-                            ForEach(GoalType.allCases, id: \.self) { goalType in
-                                Text(goalType.rawValue.capitalized).tag(goalType)
-                            }
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.horizontal)
-                        
-                        HStack(spacing: shouldUseHorizontalLayout ? 24 : 4) {
-                            Spacer()
-                            CircularProgressBar(
-                                progress: dailyProgress,
-                                title: "Daily",
-                                color: colorForGoalType(goalType: selectedGoalType, level: .daily),
-                                currentValue: Int(dailyProgress * Double(dailyGoals[selectedGoalType] ?? 0)),
-                                goalValue: dailyGoals[selectedGoalType] ?? 0,
-                                goalType: selectedGoalType
-                            )
-                            Spacer()
-                            CircularProgressBar(
-                                progress: weeklyProgress,
-                                title: "Weekly",
-                                color: colorForGoalType(goalType: selectedGoalType, level: .weekly),
-                                currentValue: Int(weeklyProgress * Double(weeklyGoals[selectedGoalType] ?? 0)),
-                                goalValue: weeklyGoals[selectedGoalType] ?? 0,
-                                goalType: selectedGoalType
-                            )
-                            Spacer()
-                            CircularProgressBar(
-                                progress: monthlyProgress,
-                                title: "Monthly",
-                                color: colorForGoalType(goalType: selectedGoalType, level: .monthly),
-                                currentValue: Int(monthlyProgress * Double(monthlyGoals[selectedGoalType] ?? 0)),
-                                goalValue: monthlyGoals[selectedGoalType] ?? 0,
-                                goalType: selectedGoalType
-                            )
-                            Spacer()
-                        }
-                        .padding(.top, 15)
-                        Spacer()
-                        Divider()
-                        HStack(spacing: 16) {
-                            StreakView(value: workoutStreak, label: "Current Streak")
-                                .frame(maxWidth: .infinity)
-                            StreakView(value: longestStreak, label: "Longest Streak")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .padding()
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Theme.sectionBackground)
-                    .cornerRadius(12)
-                    .overlay(alignment: .topTrailing) {
-                        if currentTip == nil || currentTip is GoalsTip {
-                            Button {
-                                currentTip = (currentTip == nil || currentTip is GoalsTip) ? nil : goalsTip
-                                if currentTip == nil {
-                                    currentTip = achievementsTip
+                    if #available(iOS 17.0, *) {
+                        VStack(spacing: 12) {
+                            Picker("Goal Type", selection: $selectedGoalType) {
+                                ForEach(GoalType.allCases, id: \.self) { goalType in
+                                    Text(goalType.rawValue.capitalized).tag(goalType)
                                 }
-                            } label: {
-                                Image(systemName: "info.circle")
-                                    .padding(4)
-                                    .background(.white.opacity(0.8))
-                                    .clipShape(Circle())
                             }
-                            .padding(12)
-                            .popoverTip(goalsTip)
+                            .pickerStyle(SegmentedPickerStyle())
+                            .padding(.horizontal)
+                            
+                            HStack(spacing: shouldUseHorizontalLayout ? 24 : 4) {
+                                Spacer()
+                                CircularProgressBar(
+                                    progress: dailyProgress,
+                                    title: "Daily",
+                                    color: colorForGoalType(goalType: selectedGoalType, level: .daily),
+                                    currentValue: Int(dailyProgress * Double(dailyGoals[selectedGoalType] ?? 0)),
+                                    goalValue: dailyGoals[selectedGoalType] ?? 0,
+                                    goalType: selectedGoalType
+                                )
+                                Spacer()
+                                CircularProgressBar(
+                                    progress: weeklyProgress,
+                                    title: "Weekly",
+                                    color: colorForGoalType(goalType: selectedGoalType, level: .weekly),
+                                    currentValue: Int(weeklyProgress * Double(weeklyGoals[selectedGoalType] ?? 0)),
+                                    goalValue: weeklyGoals[selectedGoalType] ?? 0,
+                                    goalType: selectedGoalType
+                                )
+                                Spacer()
+                                CircularProgressBar(
+                                    progress: monthlyProgress,
+                                    title: "Monthly",
+                                    color: colorForGoalType(goalType: selectedGoalType, level: .monthly),
+                                    currentValue: Int(monthlyProgress * Double(monthlyGoals[selectedGoalType] ?? 0)),
+                                    goalValue: monthlyGoals[selectedGoalType] ?? 0,
+                                    goalType: selectedGoalType
+                                )
+                                Spacer()
+                            }
+                            .padding(.top, 15)
+                            Spacer()
+                            Divider()
+                            HStack(spacing: 16) {
+                                StreakView(value: workoutStreak, label: "Current Streak")
+                                    .frame(maxWidth: .infinity)
+                                StreakView(value: longestStreak, label: "Longest Streak")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .padding()
+                            .cornerRadius(12)
+                            .padding(.horizontal)
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Theme.sectionBackground)
+                        .cornerRadius(12)
+                        .popoverTip(goalsTip)
+                    } else {
+                        VStack(spacing: 12) {
+                            Picker("Goal Type", selection: $selectedGoalType) {
+                                ForEach(GoalType.allCases, id: \.self) { goalType in
+                                    Text(goalType.rawValue.capitalized).tag(goalType)
+                                }
+                            }
+                            .pickerStyle(SegmentedPickerStyle())
+                            .padding(.horizontal)
+                            
+                            HStack(spacing: shouldUseHorizontalLayout ? 24 : 4) {
+                                Spacer()
+                                CircularProgressBar(
+                                    progress: dailyProgress,
+                                    title: "Daily",
+                                    color: colorForGoalType(goalType: selectedGoalType, level: .daily),
+                                    currentValue: Int(dailyProgress * Double(dailyGoals[selectedGoalType] ?? 0)),
+                                    goalValue: dailyGoals[selectedGoalType] ?? 0,
+                                    goalType: selectedGoalType
+                                )
+                                Spacer()
+                                CircularProgressBar(
+                                    progress: weeklyProgress,
+                                    title: "Weekly",
+                                    color: colorForGoalType(goalType: selectedGoalType, level: .weekly),
+                                    currentValue: Int(weeklyProgress * Double(weeklyGoals[selectedGoalType] ?? 0)),
+                                    goalValue: weeklyGoals[selectedGoalType] ?? 0,
+                                    goalType: selectedGoalType
+                                )
+                                Spacer()
+                                CircularProgressBar(
+                                    progress: monthlyProgress,
+                                    title: "Monthly",
+                                    color: colorForGoalType(goalType: selectedGoalType, level: .monthly),
+                                    currentValue: Int(monthlyProgress * Double(monthlyGoals[selectedGoalType] ?? 0)),
+                                    goalValue: monthlyGoals[selectedGoalType] ?? 0,
+                                    goalType: selectedGoalType
+                                )
+                                Spacer()
+                            }
+                            .padding(.top, 15)
+                            Spacer()
+                            Divider()
+                            HStack(spacing: 16) {
+                                StreakView(value: workoutStreak, label: "Current Streak")
+                                    .frame(maxWidth: .infinity)
+                                StreakView(value: longestStreak, label: "Longest Streak")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .padding()
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Theme.sectionBackground)
+                        .cornerRadius(12)
                     }
                 }
                 .padding(.horizontal)
                 
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Achievements")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .padding(.horizontal)
-                        .padding(.top, shouldUseHorizontalLayout ? 8: 22)
-                    
-                    CompactAchievementsView(achievements: achievements)
-                }
-                .overlay(alignment: .topTrailing) {
-                    if currentTip == nil || currentTip is AchievementsTip {
-                        Button {
-                            currentTip = (currentTip == nil || currentTip is AchievementsTip) ? nil : achievementsTip
-                            if currentTip == nil {
-                                currentTip = calendarTip
-                            }
-                        } label: {
-                            Image(systemName: "info.circle")
-                                .padding(4)
-                                .background(.white.opacity(0.8))
-                                .clipShape(Circle())
-                        }
-                        .padding(12)
-                        .popoverTip(achievementsTip)
+                if #available(iOS 17.0, *) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Achievements")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .padding(.horizontal)
+                            .padding(.top, shouldUseHorizontalLayout ? 8: 22)
+                        
+                        CompactAchievementsView(achievements: achievements)
+                    }
+                    .popoverTip(achievementsTip)
+                } else {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Achievements")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .padding(.horizontal)
+                            .padding(.top, shouldUseHorizontalLayout ? 8: 22)
+                        
+                        CompactAchievementsView(achievements: achievements)
                     }
                 }
             }
@@ -229,12 +266,23 @@ struct ProgressTracker: View {
             calculateProgress()
             workoutDates = Set(loadWorkouts().map { calendar.startOfDay(for: $0.date) })
             currentMotivationalMessage = motivationalMessages.randomElement() ?? "Let's crush today's workout goals 💪"
-   
-            configureTips()
-            currentTip = calendarTip
         }
-        .onChange(of: selectedGoalType) { _ in
-            calculateProgress()
+        .onChange(of: showTips) { newValue in
+            if newValue {
+                if #available(iOS 17.0, *) {
+                    configureTips()
+                } else {
+                    // Fallback on earlier versions
+                }
+            } else {
+                if #available(iOS 17.0, *) {
+                    calendarTip.invalidate(reason: Tips.InvalidationReason.tipClosed)
+                    goalsTip.invalidate(reason: Tips.InvalidationReason.tipClosed)
+                    achievementsTip.invalidate(reason: Tips.InvalidationReason.tipClosed)
+                } else {
+                    // Fallback on earlier versions
+                }
+            }
         }
     }
 
@@ -294,97 +342,6 @@ struct ProgressTracker: View {
         achievements = calculateAchievements(workouts: workouts)
     }
 
-    private func calculateStreak(workouts: [WorkoutData], calendar: Calendar, today: Date) -> Int {
-        var streak = 0
-        var currentDate = today
-        
-        while workouts.contains(where: { calendar.isDate($0.date, inSameDayAs: currentDate) }) {
-            streak += 1
-            currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate)!
-        }
-        
-        return streak
-    }
-
-    private func calculateLongestStreak(workouts: [WorkoutData], calendar: Calendar) -> Int {
-        var longestStreak = 0
-        var currentStreak = 0
-        var previousDate: Date?
-        
-        for workout in workouts.sorted(by: { $0.date < $1.date }) {
-            if let previousDate = previousDate, calendar.isDate(workout.date, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: previousDate)!) {
-                currentStreak += 1
-            } else {
-                currentStreak = 1
-            }
-            longestStreak = max(longestStreak, currentStreak)
-            previousDate = workout.date
-        }
-        
-        return longestStreak
-    }
-
-    private func calculateAchievements(workouts: [WorkoutData]) -> [Achievement] {
-        let streakAchievements = [
-            Achievement(title: "5 Days", imageName: "flame.circle.fill", condition: { $0 >= 5 }),
-            Achievement(title: "10 Days", imageName: "flame.circle.fill", condition: { $0 >= 10 }),
-            Achievement(title: "30 Days", imageName: "flame.circle.fill", condition: { $0 >= 30 }),
-            Achievement(title: "90 Days", imageName: "flame.circle.fill", condition: { $0 >= 90 }),
-            Achievement(title: "180 Days", imageName: "flame.circle.fill", condition: { $0 >= 180 }),
-            Achievement(title: "1 Year", imageName: "flame.circle.fill", condition: { $0 >= 365 }),
-            Achievement(title: "2 Years", imageName: "flame.circle.fill", condition: { $0 >= 730 })
-        ]
-        
-        let repAchievements = [
-            Achievement(title: "100 Reps", imageName: "star.fill", condition: { $0 >= 100 }),
-            Achievement(title: "500 Reps", imageName: "star.fill", condition: { $0 >= 500 }),
-            Achievement(title: "1000 Reps", imageName: "star.fill", condition: { $0 >= 1000 }),
-            Achievement(title: "5000 Reps", imageName: "star.fill", condition: { $0 >= 5000 }),
-            Achievement(title: "10000 Reps", imageName: "star.fill", condition: { $0 >= 10000 }),
-            Achievement(title: "50000 Reps", imageName: "star.fill", condition: { $0 >= 50000 }),
-            Achievement(title: "100000 Reps" , imageName: "star.fill", condition: { $0 >= 100000 })
-        ]
-        
-        let durationAchievements = [
-            Achievement(title: "1 Hour", imageName: "clock.fill", condition: { $0 >= Int(3600.0) }),
-            Achievement(title: "5 Hours", imageName: "clock.fill", condition: { $0 >= Int(18000.0) }),
-            Achievement(title: "10 Hours", imageName: "clock.fill", condition: { $0 >= Int(36000.0) }),
-            Achievement(title: "50 Hours", imageName: "clock.fill", condition: { $0 >= Int(180000.0) }),
-            Achievement(title: "100 Hours", imageName: "clock.fill", condition: { $0 >= Int(360000.0) }),
-            Achievement(title: "200 Hours", imageName: "clock.fill", condition: { $0 >= Int(720000.0) }),
-            Achievement(title: "500 Hours", imageName: "clock.fill", condition: { $0 >= Int(1800000.0) })
-        ]
-        
-        let calorieAchievements = [
-            Achievement(title: "500 Calories", imageName: "flame.fill", condition: { $0 >= Int(500.0) }),
-            Achievement(title: "1000 Calories", imageName: "flame.fill", condition: { $0 >= Int(1000.0) }),
-            Achievement(title: "5000 Calories", imageName: "flame.fill", condition: { $0 >= Int(5000.0) }),
-            Achievement(title: "10000 Calories", imageName: "flame.fill", condition: { $0 >= Int(10000.0) }),
-            Achievement(title: "50000 Calories", imageName: "flame.fill", condition: { $0 >= Int(50000.0) }),
-            Achievement(title: "100000 Calories", imageName: "flame.fill", condition: { $0 >= Int(100000.0) }),
-            Achievement(title: "200000 Calories", imageName: "flame.fill", condition: { $0 >= Int(200000.0) })
-        ]
-        
-        let totalReps = workouts.reduce(0) { $0 + $1.repCount }
-        let totalDuration = workouts.reduce(0.0) { $0 + $1.elapsedTime }
-        let totalCalories = workouts.reduce(0.0) { $0 + $1.caloriesBurned }
-        let currentStreak = calculateStreak(workouts: workouts, calendar: Calendar.current, today: Date())
-        
-        return (streakAchievements + repAchievements + durationAchievements + calorieAchievements).map { achievement in
-            var earned = false
-            if achievement.title.contains("Days") || achievement.title.contains("Year") {
-                earned = achievement.condition(currentStreak)
-            } else if achievement.title.contains("Hour") {
-                earned = achievement.condition(Int(totalDuration))
-            } else if achievement.title.contains("Calories") {
-                earned = achievement.condition(Int(totalCalories))
-            } else {
-                earned = achievement.condition(totalReps)
-            }
-            return Achievement(title: achievement.title, imageName: achievement.imageName, condition: achievement.condition, earned: earned)
-        }
-    }
-
     private func loadWorkouts() -> [WorkoutData] {
         if let savedData = UserDefaults.standard.data(forKey: "workouts"),
            let decodedWorkouts = try? JSONDecoder().decode([WorkoutData].self, from: savedData) {
@@ -399,57 +356,13 @@ struct ProgressTracker: View {
         return formatter
     }
     
+    @available(iOS 17.0, *)
     private func configureTips() {
         do {
             try Tips.configure()
         } catch {
             print("Error configuring tips: \(error)")
         }
-    }
-}
-
-struct CalendarTip: Tip {
-    var id = UUID() 
-    var title: Text {
-        Text("Track Your Progress")
-    }
-    
-    var message: Text? {
-        Text("Tap a date to see your workout stats for that day.")
-    }
-    
-    var image: Image? {
-        Image(systemName: "calendar")
-    }
-}
-
-struct GoalsTip: Tip {
-    var id = UUID() 
-    var title: Text {
-        Text("Set Your Goals")
-    }
-    
-    var message: Text? {
-        Text("Choose a goal type and track your daily, weekly, and monthly progress.")
-    }
-    
-    var image: Image? {
-        Image(systemName: "target")
-    }
-}
-
-struct AchievementsTip: Tip {
-    var id = UUID() 
-    var title: Text {
-        Text("Earn Achievements")
-    }
-    
-    var message: Text? {
-        Text("Unlock achievements by reaching milestones in your fitness journey.")
-    }
-    
-    var image: Image? {
-        Image(systemName: "trophy")
     }
 }
 
@@ -493,156 +406,6 @@ private func colorForGoalType(goalType: GoalType, level: GoalLevel) -> Color {
             return Color.orange.opacity(0.8)
         case .monthly:
             return Color.orange
-        }
-    }
-}
-
-struct ProgressBar: View {
-    let progress: Double
-    let title: String
-    let color: Color
-    let currentValue: Int
-    let goalValue: Int
-    let goalType: GoalType
-    
-    private var unitLabel: String {
-        switch goalType {
-        case .reps:
-            return "Reps"
-        case .duration:
-            return "mins"
-        case .calories:
-            return "cal"
-        }
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                Spacer()
-                Text("\(currentValue)/\(goalValue) \(unitLabel)")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.secondary)
-            }
-            
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .frame(height: 14)
-                        .foregroundColor(.gray.opacity(0.2))
-                    
-                    Capsule()
-                        .frame(width: geometry.size.width * CGFloat(progress), height: 14)
-                        .foregroundColor(color)
-                        .animation(.easeInOut, value: progress)
-                }
-            }
-            .frame(height: 14)
-        }
-        .padding(.vertical, 4)
-    }
-}
-
-struct StreakView: View {
-    let value: Int
-    let label: String
-    
-    var body: some View {
-        VStack {
-            HStack(spacing: 4) {
-                Text("\(value)")
-                    .font(.title)
-                    .bold()
-                    .foregroundColor(.orange)
-                Image(systemName: label.contains("Current") ? "flame.circle.fill" : "trophy.fill")
-                    .foregroundColor(.orange)
-            }
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-    }
-}
-
-struct CircularProgressBar: View {
-    let progress: Double
-    let title: String
-    let color: Color
-    let currentValue: Int
-    let goalValue: Int
-    let goalType: GoalType
-    
-    private var gradient: AngularGradient {
-        switch goalType {
-        case .reps:
-            return AngularGradient(
-                gradient: Gradient(colors: [.green, .mint, .teal]),
-                center: .center,
-                startAngle: .degrees(0),
-                endAngle: .degrees(360)
-            )
-        case .duration:
-            return AngularGradient(
-                gradient: Gradient(colors: [.blue, .cyan, .indigo]),
-                center: .center,
-                startAngle: .degrees(0),
-                endAngle: .degrees(360)
-            )
-        case .calories:
-            return AngularGradient(
-                gradient: Gradient(colors: [.orange, .red, .pink]),
-                center: .center,
-                startAngle: .degrees(0),
-                endAngle: .degrees(360)
-            )
-        }
-    }
-    
-    private var unitLabel: String {
-        switch goalType {
-        case .reps:
-            return "Reps"
-        case .duration:
-            return "mins"
-        case .calories:
-            return "cal"
-        }
-    }
-    
-    var body: some View {
-        VStack {
-            ZStack {
-                Circle()
-                    .stroke(lineWidth: 10)
-                    .opacity(0.3)
-                    .foregroundColor(color)
-                
-                Circle()
-                    .trim(from: 0.0, to: CGFloat(min(progress, 1.0)))
-                    .stroke(gradient, style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
-                    .rotationEffect(Angle(degrees: 270.0))
-                    .animation(.linear, value: progress)
-                
-                VStack {
-                    Text("\(currentValue)/\(goalValue)")
-                        .font(.headline)
-                        .bold()
-                    Text(unitLabel)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .frame(width: 100, height: 100)
-            .padding(.bottom, 10)
-            
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.medium)
         }
     }
 }

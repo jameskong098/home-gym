@@ -106,11 +106,7 @@ struct TabMenus: View {
                         }
                     })
                         .ignoresSafeArea(edges: [.top, .leading, .trailing])
-                    if #available(iOS 17.0, *) {
                         ProgressTracker()
-                    } else {
-                        // Fallback on earlier versions
-                    }
                 }
                     .tabItem {
                         Label("Progress", systemImage: "chart.bar")
