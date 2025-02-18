@@ -9,6 +9,9 @@ struct TabMenus: View {
     @State private var showingFilterMenu = false
     @StateObject private var filterModel = WorkoutFilterModel()
     @State private var workouts: [WorkoutData] = []
+    
+    let filterTip = FilterTip()
+    let editTip = EditTip()
 
     init(selectedTab: Binding<Int>, navPath: Binding<[String]>) {
         self._selectedTab = selectedTab
@@ -71,25 +74,59 @@ struct TabMenus: View {
                HStack {
                    Spacer()
                    if selectedTab == 2 && activityCount > 0 {
-                       Button(action: {
-                           showingFilterMenu = true
-                       }) {
-                           Image(systemName: "line.3.horizontal.decrease.circle")
-                               .font(.headline)
-                               .frame(width: 50) 
+                       if #available(iOS 17.0, *) {
+                           Button(action: {
+                               showingFilterMenu = true
+                           }) {
+                               Image(systemName: "line.3.horizontal.decrease.circle")
+                                   .font(.headline)
+                                   .frame(width: 50)
+                           }
+                           .popover(isPresented: $showingFilterMenu, arrowEdge: .top) {
+                               FilterMenu(filterModel: filterModel, workouts: workouts)
+                                   .frame(idealWidth: 400, idealHeight: UIDevice.current.userInterfaceIdiom == .pad ? 800 : nil)
+                           }
+                           .popoverTip(filterTip)
+                           .onTapGesture {
+                               filterTip.invalidate(reason: .actionPerformed)
+                           }
+                       } else {
+                           Button(action: {
+                               showingFilterMenu = true
+                           }) {
+                               Image(systemName: "line.3.horizontal.decrease.circle")
+                                   .font(.headline)
+                                   .frame(width: 50)
+                           }
+                           .popover(isPresented: $showingFilterMenu, arrowEdge: .top) {
+                               FilterMenu(filterModel: filterModel, workouts: workouts)
+                                   .frame(idealWidth: 400, idealHeight: UIDevice.current.userInterfaceIdiom == .pad ? 800 : nil)
+                           }
                        }
-                       .popover(isPresented: $showingFilterMenu, arrowEdge: .top) {
-                           FilterMenu(filterModel: filterModel, workouts: workouts)
-                               .frame(idealWidth: 400, idealHeight: UIDevice.current.userInterfaceIdiom == .pad ? 800 : nil)
-                       }
-                       Button(action: {
-                            withAnimation() {
-                                editMode.toggle()
-                            }
-                       }) {
-                           Text(editMode ? "Done" : "Edit")
-                               .font(.headline)
-                               .frame(width: 50)
+                       if #available(iOS 17.0, *) {
+                           Button(action: {
+                               withAnimation() {
+                                   editMode.toggle()
+                               }
+                           }) {
+                               Text(editMode ? "Done" : "Edit")
+                                   .font(.headline)
+                                   .frame(width: 50)
+                           }
+                           .popoverTip(editTip)
+                           .onTapGesture {
+                               editTip.invalidate(reason: .actionPerformed)
+                           }
+                       } else {
+                           Button(action: {
+                               withAnimation() {
+                                   editMode.toggle()
+                               }
+                           }) {
+                               Text(editMode ? "Done" : "Edit")
+                                   .font(.headline)
+                                   .frame(width: 50)
+                           }
                        }
                    }
                },

@@ -16,6 +16,21 @@ struct CalendarTip: Tip {
     }
 }
 
+struct DayStatsTip: Tip {
+    var id = UUID()
+    var title: Text {
+        Text("View Day Stats")
+    }
+    
+    var message: Text? {
+        Text("See your aggregate workout stats for the selected day from the calendar.")
+    }
+    
+    var image: Image? {
+        Image(systemName: "chart.bar")
+    }
+}
+
 struct GoalsTip: Tip {
     var id = UUID()
     var title: Text {
@@ -43,5 +58,35 @@ struct AchievementsTip: Tip {
     
     var image: Image? {
         Image(systemName: "trophy")
+    }
+}
+
+struct FilterTip: Tip {
+    var id = UUID()
+    var title: Text {
+        Text("Filter Activities")
+    }
+    
+    var message: Text? {
+        Text("Filter by exercise type, duration, and more to find the activities you're looking for.")
+    }
+    
+    var image: Image? {
+        Image(systemName: "line.horizontal.3.decrease.circle")
+    }
+}
+
+struct EditTip: Tip {
+    var id = UUID()
+    var title: Text {
+        Text("Edit Activities")
+    }
+    
+    var message: Text? {
+        Text("Turn on edit mode to edit or delete your activities. You can also hold individual activities to access the edit/delete options.")
+    }
+    
+    var image: Image? {
+        Image(systemName: "pencil")
     }
 }

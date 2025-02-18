@@ -16,7 +16,6 @@ struct Settings: View {
     @AppStorage("heightFeet") private var heightFeet = 0
     @AppStorage("heightInches") private var heightInches = 0
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
-    @AppStorage("showTips") private var showTips = true
     @State private var isEditingPersonalInfo = false
 
     var body: some View {
@@ -42,13 +41,6 @@ struct Settings: View {
                         .padding(.horizontal)
                         .tint(Theme.toggleSwitchColor)
                         .onChange(of: enableCountdownTimer) { _ in
-                            triggerHapticFeedback()
-                        }
-                    Divider()
-                    Toggle("Show Tips", isOn: $showTips)
-                        .padding(.horizontal)
-                        .tint(Theme.toggleSwitchColor)
-                        .onChange(of: showTips) { _ in
                             triggerHapticFeedback()
                         }
                     if CameraViewController.deviceSupportsUltraWide() {

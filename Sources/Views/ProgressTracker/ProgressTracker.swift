@@ -4,7 +4,6 @@ import TipKit
 struct ProgressTracker: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage("name") private var name = ""
-    @AppStorage("showTips") private var showTips = true
     @State private var dailyProgress: Double = 0.0
     @State private var weeklyProgress: Double = 0.0
     @State private var monthlyProgress: Double = 0.0
@@ -17,6 +16,7 @@ struct ProgressTracker: View {
     @State private var selectedGoalType: GoalType = .reps
     
     let calendarTip = CalendarTip()
+    let dayStatsTip = DayStatsTip()
     let goalsTip = GoalsTip()
     let achievementsTip = AchievementsTip()
     
@@ -56,17 +56,31 @@ struct ProgressTracker: View {
         ScrollView {
             VStack(spacing: shouldUseHorizontalLayout ? 24 : 4) {
                 if !name.isEmpty {
-                    HStack(spacing: 4) {
-                        Text("Welcome \(name)! 💪")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        Spacer()
-                        Text(currentMotivationalMessage)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                    if UIDevice.current.userInterfaceIdiom == .phone && !isLandscape {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Welcome \(name)! 💪")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Spacer()
+                            Text(currentMotivationalMessage)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                    } else {
+                        HStack(spacing: 4) {
+                            Text("Welcome \(name)! 💪")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Spacer()
+                            Text(currentMotivationalMessage)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
                 }
                 VStack(spacing: 20) {
                     if shouldUseHorizontalLayout {
@@ -78,6 +92,9 @@ struct ProgressTracker: View {
                                         .cornerRadius(12)
                                         .frame(height: shouldUseHorizontalLayout ? 380 : 600)
                                         .popoverTip(calendarTip)
+                                        .onTapGesture {
+                                            calendarTip.invalidate(reason: .actionPerformed)
+                                        }
                                 } else {
                                     CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
                                         .background(Theme.sectionBackground)
@@ -86,7 +103,12 @@ struct ProgressTracker: View {
                                 }
                             }
                             Divider()
-                            DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
+                            if #available(iOS 17.0, *) {
+                                DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
+                                    .popoverTip(dayStatsTip)
+                            } else {
+                                DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
+                            }
                         }
                         .background(Theme.sectionBackground)
                         .cornerRadius(12)
@@ -100,16 +122,30 @@ struct ProgressTracker: View {
                                     .cornerRadius(12)
                                     .frame(height: 380)
                                     .popoverTip(calendarTip)
+                                    .onTapGesture {
+                                        calendarTip.invalidate(reason: .actionPerformed)
+                                    }
                             } else {
                                 CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
                                     .background(Theme.sectionBackground)
                                     .cornerRadius(12)
                                     .frame(height: 380)
                             }
-                            DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
-                                .background(Theme.sectionBackground)
-                                .cornerRadius(12)
-                                .frame(height: 380)
+                            if #available(iOS 17.0, *) {
+                                DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
+                                    .background(Theme.sectionBackground)
+                                    .cornerRadius(12)
+                                    .frame(height: 380)
+                                    .popoverTip(dayStatsTip)
+                                    .onTapGesture {
+                                        dayStatsTip.invalidate(reason: .actionPerformed)
+                                    }
+                            } else {
+                                DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
+                                    .background(Theme.sectionBackground)
+                                    .cornerRadius(12)
+                                    .frame(height: 380)
+                            }
                         }
                     }
                     Text("Goals")
@@ -176,6 +212,9 @@ struct ProgressTracker: View {
                         .background(Theme.sectionBackground)
                         .cornerRadius(12)
                         .popoverTip(goalsTip)
+                        .onTapGesture {
+                            goalsTip.invalidate(reason: .actionPerformed)
+                        }
                     } else {
                         VStack(spacing: 12) {
                             Picker("Goal Type", selection: $selectedGoalType) {
@@ -248,6 +287,9 @@ struct ProgressTracker: View {
                         CompactAchievementsView(achievements: achievements)
                     }
                     .popoverTip(achievementsTip)
+                    .onTapGesture {
+                        achievementsTip.invalidate(reason: .actionPerformed)
+                    }
                 } else {
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Achievements")
@@ -266,23 +308,6 @@ struct ProgressTracker: View {
             calculateProgress()
             workoutDates = Set(loadWorkouts().map { calendar.startOfDay(for: $0.date) })
             currentMotivationalMessage = motivationalMessages.randomElement() ?? "Let's crush today's workout goals 💪"
-        }
-        .onChange(of: showTips) { newValue in
-            if newValue {
-                if #available(iOS 17.0, *) {
-                    configureTips()
-                } else {
-                    // Fallback on earlier versions
-                }
-            } else {
-                if #available(iOS 17.0, *) {
-                    calendarTip.invalidate(reason: Tips.InvalidationReason.tipClosed)
-                    goalsTip.invalidate(reason: Tips.InvalidationReason.tipClosed)
-                    achievementsTip.invalidate(reason: Tips.InvalidationReason.tipClosed)
-                } else {
-                    // Fallback on earlier versions
-                }
-            }
         }
     }
 
@@ -354,15 +379,6 @@ struct ProgressTracker: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter
-    }
-    
-    @available(iOS 17.0, *)
-    private func configureTips() {
-        do {
-            try Tips.configure()
-        } catch {
-            print("Error configuring tips: \(error)")
-        }
     }
 }
 
