@@ -88,17 +88,12 @@ struct ProgressTracker: View {
                             ZStack(alignment: .topTrailing) {
                                 if #available(iOS 17.0, *) {
                                     CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
-                                        .background(Theme.sectionBackground)
-                                        .cornerRadius(12)
-                                        .frame(height: shouldUseHorizontalLayout ? 380 : 600)
                                         .popoverTip(calendarTip)
                                         .onTapGesture {
                                             calendarTip.invalidate(reason: .actionPerformed)
                                         }
                                 } else {
                                     CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
-                                        .background(Theme.sectionBackground)
-                                        .cornerRadius(12)
                                         .frame(height: shouldUseHorizontalLayout ? 380 : 600)
                                 }
                             }
@@ -106,6 +101,9 @@ struct ProgressTracker: View {
                             if #available(iOS 17.0, *) {
                                 DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
                                     .popoverTip(dayStatsTip)
+                                    .onTapGesture {
+                                        dayStatsTip.invalidate(reason: .actionPerformed)
+                                    }
                             } else {
                                 DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
                             }
