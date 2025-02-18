@@ -307,6 +307,9 @@ struct ProgressTracker: View {
             workoutDates = Set(loadWorkouts().map { calendar.startOfDay(for: $0.date) })
             currentMotivationalMessage = motivationalMessages.randomElement() ?? "Let's crush today's workout goals 💪"
         }
+        .onChange(of: selectedGoalType) { _ in
+            calculateProgress()
+        }
     }
 
     private func calculateProgress() {
