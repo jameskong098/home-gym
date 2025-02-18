@@ -295,6 +295,20 @@ struct Settings: View {
                         Text("Made with ❤️ and dedication")
                             .font(.body)
                     }
+                    
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Sound Effects")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Link("Material Design Sound Resources", destination: URL(string: "https://m2.material.io/design/sound/sound-resources.html#")!)
+                            .foregroundColor(Theme.toggleSwitchColor)
+                        Text("CC-BY 4.0")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
                     HStack() {
                         Link(destination: URL(string: "https://jameskong098.github.io/")!) {
                             HStack {
