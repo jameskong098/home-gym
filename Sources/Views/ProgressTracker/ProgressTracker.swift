@@ -1,5 +1,7 @@
 import SwiftUI
+import TipKit
 
+@available(iOS 17.0, *)
 struct ProgressTracker: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage("name") private var name = ""
@@ -13,6 +15,11 @@ struct ProgressTracker: View {
     @State private var selectedDate = Date()
     @State private var currentMotivationalMessage: String = ""
     @State private var selectedGoalType: GoalType = .reps
+    
+    @State private var currentTip: (any Tip)?
+    let calendarTip = CalendarTip()
+    let goalsTip = GoalsTip()
+    let achievementsTip = AchievementsTip()
     
     private let dailyGoal: Int = 100
     private let weeklyGoal: Int = 500
@@ -65,7 +72,29 @@ struct ProgressTracker: View {
                 VStack(spacing: 20) {
                     if shouldUseHorizontalLayout {
                         HStack(spacing: 16) {
-                            CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
+                            ZStack(alignment: .topTrailing) {
+                                CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
+                                    .background(Theme.sectionBackground)
+                                    .cornerRadius(12)
+                                    .frame(height: shouldUseHorizontalLayout ? 380 : 600)
+                                    .padding(.top, 8)
+                                    if currentTip == nil || currentTip is CalendarTip {
+                                        Button {
+                                            currentTip = (currentTip == nil || currentTip is CalendarTip) ? nil : calendarTip
+                                            if currentTip == nil {
+                                                currentTip = goalsTip
+                                            }
+                                        } label: {
+                                            Image(systemName: "info.circle")
+                                                .padding(4)
+                                                .background(.white.opacity(0.8))
+                                                .clipShape(Circle())
+                                        }
+                                        .padding(8)
+                                        .popoverTip(calendarTip)
+                                        
+                                    }
+                            }
                             Divider()
                             DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
                         }
@@ -147,6 +176,23 @@ struct ProgressTracker: View {
                     .padding()
                     .background(Theme.sectionBackground)
                     .cornerRadius(12)
+                    .overlay(alignment: .topTrailing) {
+                        if currentTip == nil || currentTip is GoalsTip {
+                            Button {
+                                currentTip = (currentTip == nil || currentTip is GoalsTip) ? nil : goalsTip
+                                if currentTip == nil {
+                                    currentTip = achievementsTip
+                                }
+                            } label: {
+                                Image(systemName: "info.circle")
+                                    .padding(4)
+                                    .background(.white.opacity(0.8))
+                                    .clipShape(Circle())
+                            }
+                            .padding(12)
+                            .popoverTip(goalsTip)
+                        }
+                    }
                 }
                 .padding(.horizontal)
                 
@@ -159,6 +205,23 @@ struct ProgressTracker: View {
                     
                     CompactAchievementsView(achievements: achievements)
                 }
+                .overlay(alignment: .topTrailing) {
+                    if currentTip == nil || currentTip is AchievementsTip {
+                        Button {
+                            currentTip = (currentTip == nil || currentTip is AchievementsTip) ? nil : achievementsTip
+                            if currentTip == nil {
+                                currentTip = calendarTip
+                            }
+                        } label: {
+                            Image(systemName: "info.circle")
+                                .padding(4)
+                                .background(.white.opacity(0.8))
+                                .clipShape(Circle())
+                        }
+                        .padding(12)
+                        .popoverTip(achievementsTip)
+                    }
+                }
             }
             .padding(.vertical)
         }
@@ -166,6 +229,9 @@ struct ProgressTracker: View {
             calculateProgress()
             workoutDates = Set(loadWorkouts().map { calendar.startOfDay(for: $0.date) })
             currentMotivationalMessage = motivationalMessages.randomElement() ?? "Let's crush today's workout goals 💪"
+   
+            configureTips()
+            currentTip = calendarTip
         }
         .onChange(of: selectedGoalType) { _ in
             calculateProgress()
@@ -331,6 +397,59 @@ struct ProgressTracker: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter
+    }
+    
+    private func configureTips() {
+        do {
+            try Tips.configure()
+        } catch {
+            print("Error configuring tips: \(error)")
+        }
+    }
+}
+
+struct CalendarTip: Tip {
+    var id = UUID() 
+    var title: Text {
+        Text("Track Your Progress")
+    }
+    
+    var message: Text? {
+        Text("Tap a date to see your workout stats for that day.")
+    }
+    
+    var image: Image? {
+        Image(systemName: "calendar")
+    }
+}
+
+struct GoalsTip: Tip {
+    var id = UUID() 
+    var title: Text {
+        Text("Set Your Goals")
+    }
+    
+    var message: Text? {
+        Text("Choose a goal type and track your daily, weekly, and monthly progress.")
+    }
+    
+    var image: Image? {
+        Image(systemName: "target")
+    }
+}
+
+struct AchievementsTip: Tip {
+    var id = UUID() 
+    var title: Text {
+        Text("Earn Achievements")
+    }
+    
+    var message: Text? {
+        Text("Unlock achievements by reaching milestones in your fitness journey.")
+    }
+    
+    var image: Image? {
+        Image(systemName: "trophy")
     }
 }
 
