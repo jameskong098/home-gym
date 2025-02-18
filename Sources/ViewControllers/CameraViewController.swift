@@ -135,19 +135,14 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     }
     
     nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            guard !self.isBusy, Date().timeIntervalSince(self.lastRequestTime) > (1.0 / 30.0) else { return }
-            self.isBusy = true
-            self.lastRequestTime = Date()
-        }
-
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
         var currentOrientation: UIDeviceOrientation = .portrait
+        
         DispatchQueue.main.sync {
             currentOrientation = UIDevice.current.orientation
         }
+        
         let cgOrientation = CGImagePropertyOrientation(deviceOrientation: currentOrientation)
         
         let request = VNDetectHumanBodyPoseRequest { [weak self] request, error in
@@ -164,16 +159,18 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                         return (location: point.location, confidence: point.confidence)
                     }
                     
-                    DispatchQueue.main.async { [weak self] in
-                        self?.processPoseData(safePoints)
+                    // Unwrap self before dispatching (had to add this due to Swift Playgrounds concurrency check, weirdly this only happens in playgrounds and not on Xcode playgrounds)
+                    guard let self = self else {
+                        print("Self is nil, cannot process pose data")
+                        return
                     }
-                } catch {
-                    print("Error extracting points: \(error)")
-                }
-            }
 
-            Task { @MainActor [weak self] in
-                self?.isBusy = false
+                    DispatchQueue.main.async {
+                        self.processPoseData(safePoints)
+                    }
+                    } catch {
+                        print("Error extracting points: \(error)")
+                    }
             }
         }
         
