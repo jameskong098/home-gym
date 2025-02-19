@@ -30,15 +30,16 @@ struct WorkoutView: View {
             ("Wall Squats", "figure.cross.training"),
             ("Lunges", "figure.strengthtraining.functional")
         ]),
+        ("Core", [
+            ("Pilates Sit-Ups Hybrid", "figure.core.training"),
+            ("Planks", "figure.wrestling")
+        ]),
         ("Upper Body", [
             ("Push-Ups", "figure.wrestling"),
             ("Bicep Curls - Simultaneous", "dumbbell.fill"),
             ("Lateral Raises", "figure"),
             ("Front Raises", "figure.martial.arts")
         ]),
-        ("Core", [
-            ("Pilates Sit-Ups Hybrid", "figure.core.training")
-        ])
     ]
     
     private var favoriteItems: [(name: String, icon: String)] {

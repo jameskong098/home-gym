@@ -48,11 +48,13 @@ struct WorkoutCard: View {
     
     private var workoutMetrics: some View {
         VStack(alignment: .leading, spacing: 8) {
-            MetricRow(
-                icon: "number.circle.fill",
-                label: "Reps:",
-                value: "\(workout.repCount)"
-            )
+            if workout.exerciseName != "Planks" {
+                MetricRow(
+                    icon: "number.circle.fill",
+                    label: "Reps:",
+                    value: "\(workout.repCount)"
+                )
+            }
             MetricRow(
                 icon: "clock.fill",
                 label: "Duration:",
@@ -173,11 +175,12 @@ struct SavedDataEditView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    Stepper("Reps: \(workout.repCount)", value: $workout.repCount, in: 0...1000)
-                        .onChange(of: workout.repCount) { _ in
-                            triggerHapticFeedback()
-                        }
-                    
+                    if workout.exerciseName != "Planks" {
+                        Stepper("Reps: \(workout.repCount)", value: $workout.repCount, in: 0...1000)
+                            .onChange(of: workout.repCount) { _ in
+                                triggerHapticFeedback()
+                            }
+                    }
                     HStack {
                         Text("Time:")
                         Spacer()

@@ -48,9 +48,11 @@ struct ExerciseSummaryView: View {
                     summaryItem(icon: "figure.walk", title: "Exercise", value: exerciseName)
                     Divider()
                         .background(Color.white)
-                    summaryItem(icon: "repeat", title: "Reps", value: "\(editedRepCount)")
-                    Divider()
-                        .background(Color.white)
+                    if exerciseName != "Planks" {
+                        summaryItem(icon: "repeat", title: "Reps", value: "\(editedRepCount)")
+                        Divider()
+                            .background(Color.white)
+                    }
                     summaryItem(icon: "clock", title: "Time", value: timeString(from: editedElapsedTime))
                     Divider()
                         .background(Color.white)

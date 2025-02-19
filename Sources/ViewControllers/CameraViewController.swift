@@ -486,6 +486,36 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     }
                 }
             }
+        case "Planks":
+            if let leftShoulder = jointPoints[.leftShoulder],
+            let rightShoulder = jointPoints[.rightShoulder],
+            let leftHip = jointPoints[.leftHip],
+            let rightHip = jointPoints[.rightHip] {
+                
+                let shoulderY = (leftShoulder.y + rightShoulder.y) / 2
+                let hipY = (leftHip.y + rightHip.y) / 2
+                
+                let hipDrop = hipY - shoulderY
+                
+                let warningThreshold: CGFloat = 30  
+                let failureThreshold: CGFloat = 50  
+                
+                if hipDrop > warningThreshold && hipDrop <= failureThreshold {
+                    if !isGoingDown {
+                        isGoingDown = true
+                        if enableVoice {
+                            Speech.speak("Keep your hips up")
+                        }
+                    }
+                } else if hipDrop > failureThreshold {
+                    showExerciseSummary?.wrappedValue = true
+                    if enableVoice {
+                        Speech.speak("Exercise ended. Your form dropped too low")
+                    }
+                } else {
+                    isGoingDown = false
+                }
+            }
         default:
             break
         }

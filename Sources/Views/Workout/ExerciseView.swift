@@ -153,11 +153,11 @@ struct ExerciseView: View {
                             HStack(alignment: .top, spacing: 25) {
                                 VStack(spacing: 15) {
                                     HStack(spacing: 15) {
-                                        Text("\(exerciseName):")
+                                        Text("\(exerciseName)")
                                             .font(.title)
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
-                                        Text("\(repCount)")
+                                        Text(exerciseName == "Planks" ? "" : " :\(repCount)")
                                             .font(.title)
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
@@ -330,6 +330,8 @@ struct ExerciseView: View {
 
     private var exerciseInstructions: String {
         switch exerciseName {
+        case "Planks":
+            return "Position your body facing parallel to the camera with your forearms on the ground and elbows directly under your shoulders. Keep your body in a straight line from head to heels. Hold this position for as long as possible. The timer will automatically stop when you drop out of position."
         case "High Knees":
             return "Stand facing the camera with your full body visible. Alternate lifting each knee up towards your chest in a running motion. Each time both knees have been raised counts as one rep. Keep a steady pace and maintain good posture throughout the exercise."
         case "Basic Squats":
@@ -437,7 +439,12 @@ struct ExerciseView: View {
         
         // Calculate calories based on BMR adjustment and rep count
         let bmrAdjustmentFactor = bmr / 2000 // Normalize based on average BMR
-        caloriesBurned = Double(repCount) * caloriesPerRep * bmrAdjustmentFactor
+        if exerciseName != "Planks" {
+            caloriesBurned = Double(repCount) * caloriesPerRep * bmrAdjustmentFactor
+        } else {
+            let minutesHeld = elapsedTime / 60
+            caloriesBurned = minutesHeld * 3.0 * bmrAdjustmentFactor
+        }
     }
     
     private func startCountdown() {
