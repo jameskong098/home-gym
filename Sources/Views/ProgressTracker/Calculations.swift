@@ -13,18 +13,33 @@ func calculateStreak(workouts: [WorkoutData], calendar: Calendar, today: Date) -
 }
 
 func calculateLongestStreak(workouts: [WorkoutData], calendar: Calendar) -> Int {
-    var longestStreak = 0
-    var currentStreak = 0
-    var previousDate: Date?
+    guard !workouts.isEmpty else { return 0 }
     
-    for workout in workouts.sorted(by: { $0.date < $1.date }) {
-        if let previousDate = previousDate, calendar.isDate(workout.date, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: previousDate)!) {
+    let sortedWorkouts = workouts.sorted(by: { $0.date < $1.date })
+    
+    var workoutDates: Set<Date> = []
+    for workout in sortedWorkouts {
+        let components = calendar.dateComponents([.year, .month, .day], from: workout.date)
+        if let date = calendar.date(from: components) {
+            workoutDates.insert(date)
+        }
+    }
+    
+    let sortedDates = workoutDates.sorted()
+    var longestStreak = 1
+    var currentStreak = 1
+    
+    for i in 1..<sortedDates.count {
+        let previousDate = sortedDates[i - 1]
+        let currentDate = sortedDates[i]
+        
+        if let daysBetween = calendar.dateComponents([.day], from: previousDate, to: currentDate).day,
+           daysBetween == 1 {
             currentStreak += 1
+            longestStreak = max(longestStreak, currentStreak)
         } else {
             currentStreak = 1
         }
-        longestStreak = max(longestStreak, currentStreak)
-        previousDate = workout.date
     }
     
     return longestStreak

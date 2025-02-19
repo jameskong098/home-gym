@@ -337,18 +337,26 @@ struct ActivityView: View {
             for i in 0..<workoutCount {
                 let exercise = exercises[i % exercises.count]
                 let repCount = 10 + i * 5
-                let elapsedTime = TimeInterval(repCount * 4) // Assuming each rep takes about 4 seconds
+                let elapsedTime = TimeInterval(Int.random(in: 30...300)) // Random time between 30 and 300 seconds
+                let randomHour = Int.random(in: 0..<24)
+                let randomMinute = Int.random(in: 0..<60)
+                let randomSecond = Int.random(in: 0..<60)
+                let randomDate = calendar.date(bySettingHour: randomHour, minute: randomMinute, second: randomSecond, of: date)!
                 let caloriesBurned = calculateCaloriesBurned(exerciseName: exercise, repCount: repCount, heightFeet: heightFeet, heightInches: heightInches, bodyWeight: bodyWeight, sex: sex, age: age)
-                let workout = WorkoutData(date: date, exerciseName: exercise, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
+                let workout = WorkoutData(date: randomDate, exerciseName: exercise, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
                 fixedWorkouts.append(workout)
             }
         }
 
         let currentDayWorkouts = exercises.prefix(5).map { exercise in
             let repCount = Int.random(in: 30...54)
-            let elapsedTime = TimeInterval(repCount * 4) // Assuming each rep takes about 4 seconds
+            let elapsedTime = TimeInterval(Int.random(in: 30...300)) // Random time between 30 and 300 seconds
+            let randomHour = Int.random(in: 0..<24)
+            let randomMinute = Int.random(in: 0..<60)
+            let randomSecond = Int.random(in: 0..<60)
+            let randomDate = calendar.date(bySettingHour: randomHour, minute: randomMinute, second: randomSecond, of: today)!
             let caloriesBurned = calculateCaloriesBurned(exerciseName: exercise, repCount: repCount, heightFeet: heightFeet, heightInches: heightInches, bodyWeight: bodyWeight, sex: sex, age: age)
-            return WorkoutData(date: today, exerciseName: exercise, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
+            return WorkoutData(date: randomDate, exerciseName: exercise, repCount: repCount, elapsedTime: elapsedTime, caloriesBurned: caloriesBurned)
         }
         fixedWorkouts.append(contentsOf: currentDayWorkouts)
 

@@ -84,34 +84,35 @@ struct ProgressTracker: View {
                 }
                 VStack(spacing: 20) {
                     if shouldUseHorizontalLayout {
-                        HStack(spacing: 16) {
-                            ZStack(alignment: .topTrailing) {
-                                if #available(iOS 17.0, *) {
+                        if #available(iOS 17.0, *) {
+                            HStack(spacing: 16) {
+                                ZStack(alignment: .topTrailing) {
                                     CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
-                                        .popoverTip(calendarTip)
-                                        .onTapGesture {
-                                            calendarTip.invalidate(reason: .actionPerformed)
-                                        }
-                                } else {
-                                    CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
-                                        .frame(height: shouldUseHorizontalLayout ? 380 : 600)
                                 }
+                                Divider()
+                                    DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
                             }
-                            Divider()
-                            if #available(iOS 17.0, *) {
-                                DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
-                                    .popoverTip(dayStatsTip)
-                                    .onTapGesture {
-                                        dayStatsTip.invalidate(reason: .actionPerformed)
-                                    }
-                            } else {
-                                DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
+                            .background(Theme.sectionBackground)
+                            .cornerRadius(12)
+                            .frame(height: shouldUseHorizontalLayout ? 380 : 600)
+                            .padding(.top, 8)
+                            .popoverTip(calendarTip)
+                            .onTapGesture {
+                                calendarTip.invalidate(reason: .actionPerformed)
                             }
+                        } else {
+                            HStack(spacing: 16) {
+                                ZStack(alignment: .topTrailing) {
+                                    CustomCalendarView(selectedDate: $selectedDate, workoutDates: workoutDates)
+                                }
+                                Divider()
+                                    DayStatsView(selectedDate: selectedDate, workouts: loadWorkouts())
+                            }
+                            .background(Theme.sectionBackground)
+                            .cornerRadius(12)
+                            .frame(height: shouldUseHorizontalLayout ? 380 : 600)
+                            .padding(.top, 8)
                         }
-                        .background(Theme.sectionBackground)
-                        .cornerRadius(12)
-                        .frame(height: shouldUseHorizontalLayout ? 380 : 600)
-                        .padding(.top, 8)
                     } else {
                         VStack(spacing: 10) {
                             if #available(iOS 17.0, *) {
