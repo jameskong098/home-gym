@@ -28,7 +28,8 @@ struct WorkoutView: View {
         ("Lower Body", [
             ("Basic Squats", "figure.cross.training"),
             ("Wall Squats", "figure.cross.training"),
-            ("Lunges", "figure.strengthtraining.functional")
+            ("Lunges", "figure.strengthtraining.functional"),
+            ("Standing Side Leg Raises", "figure.walk")
         ]),
         ("Core", [
             ("Pilates Sit-Ups Hybrid", "figure.core.training"),
@@ -129,6 +130,7 @@ struct ExerciseButton: View {
     @Binding var navPath: [String]
     let isFavorite: Bool
     let onFavoriteToggle: (String) -> Void
+    let favoriteTip = FavoriteTip()
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -177,13 +179,28 @@ struct ExerciseButton: View {
                 .cornerRadius(20)
             }
             
-            Button(action: {
-                onFavoriteToggle(name)
-            }) {
-                Image(systemName: isFavorite ? "star.fill" : "star")
-                    .foregroundColor(isFavorite ? .yellow : .gray)
-                    .font(.system(size: 22))
-                    .padding(12)
+            if #available(iOS 17.0, *) {
+                Button(action: {
+                    onFavoriteToggle(name)
+                }) {
+                    Image(systemName: isFavorite ? "star.fill" : "star")
+                        .foregroundColor(isFavorite ? .yellow : .gray)
+                        .font(.system(size: 22))
+                        .padding(12)
+                }
+                .popoverTip(favoriteTip)
+                .onTapGesture {
+                    favoriteTip.invalidate(reason: .actionPerformed)
+                }
+            } else {
+                Button(action: {
+                    onFavoriteToggle(name)
+                }) {
+                    Image(systemName: isFavorite ? "star.fill" : "star")
+                        .foregroundColor(isFavorite ? .yellow : .gray)
+                        .font(.system(size: 22))
+                        .padding(12)
+                }
             }
         }
     }

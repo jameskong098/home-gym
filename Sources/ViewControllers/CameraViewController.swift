@@ -516,6 +516,27 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     isGoingDown = false
                 }
             }
+        case "Standing Side Leg Raises":
+            if let leftHip = jointPoints[.leftHip],
+               let rightHip = jointPoints[.rightHip],
+               let leftAnkle = jointPoints[.leftAnkle],
+               let rightAnkle = jointPoints[.rightAnkle] {
+                
+                let hipWidth = hypot(leftHip.x - rightHip.x, leftHip.y - rightHip.y)
+                let ankleSpread = hypot(leftAnkle.x - rightAnkle.x, leftAnkle.y - rightAnkle.y)
+                
+                let legsSpread = ankleSpread > hipWidth * 4.0 
+                
+                if legsSpread {
+                    isGoingDown = true
+                } else if isGoingDown && ankleSpread < hipWidth * 1.2 {
+                    repCounter += 1
+                    isGoingDown = false
+                    if enableVoice {
+                        Speech.speak("\(repCounter)")
+                    }
+                }
+            }
         default:
             break
         }

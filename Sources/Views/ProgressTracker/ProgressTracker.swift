@@ -283,10 +283,10 @@ struct ProgressTracker: View {
                             .padding(.top, shouldUseHorizontalLayout ? 8: 22)
                         
                         CompactAchievementsView(achievements: achievements)
-                            .popoverTip(achievementsTip)
-                            .onTapGesture {
-                                achievementsTip.invalidate(reason: .actionPerformed)
-                            }
+                    }
+                    .popoverTip(achievementsTip)
+                    .onTapGesture {
+                        achievementsTip.invalidate(reason: .actionPerformed)
                     }
                 } else {
                     VStack(alignment: .leading, spacing: 16) {

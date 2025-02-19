@@ -152,12 +152,12 @@ struct ExerciseView: View {
                         if !showExerciseSummary {
                             HStack(alignment: .top, spacing: 25) {
                                 VStack(spacing: 15) {
-                                    HStack(spacing: 15) {
-                                        Text("\(exerciseName)")
+                                    HStack() {
+                                        Text(exerciseName == "Planks" ? "Planks" : "\(exerciseName):")
                                             .font(.title)
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
-                                        Text(exerciseName == "Planks" ? "" : " :\(repCount)")
+                                        Text(exerciseName == "Planks" ? "" : " \(repCount)")
                                             .font(.title)
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
@@ -332,6 +332,8 @@ struct ExerciseView: View {
         switch exerciseName {
         case "Planks":
             return "Position your body facing parallel to the camera with your forearms on the ground and elbows directly under your shoulders. Keep your body in a straight line from head to heels. Hold this position for as long as possible. The timer will automatically stop when you drop out of position."
+        case "Standing Side Leg Raises":
+            return "Position your body facing the camera. Keep your legs straight and raise one leg out to the side as high as comfortable while maintaining balance. Alternate legs with each rep. Keep your full body visible to the camera."
         case "High Knees":
             return "Stand facing the camera with your full body visible. Alternate lifting each knee up towards your chest in a running motion. Each time both knees have been raised counts as one rep. Keep a steady pace and maintain good posture throughout the exercise."
         case "Basic Squats":
@@ -413,29 +415,32 @@ struct ExerciseView: View {
         
         let caloriesPerRep: Double
         switch exerciseName {
-        case "High Knees":
-            caloriesPerRep = 0.25
-        case "Basic Squats":
-            caloriesPerRep = 0.32
-        case "Lunges":
-            caloriesPerRep = 0.30
-        case "Wall Squats":
-            caloriesPerRep = 0.28
-        case "Push-Ups":
-            caloriesPerRep = 0.35
-        case "Pilates Sit-Ups Hybrid":
-            caloriesPerRep = 0.20
-        case "Bicep Curls - Simultaneous":
-            caloriesPerRep = 0.15
-        case "Jumping Jacks":
-            caloriesPerRep = 0.20
-        case "Lateral Raises":
-            caloriesPerRep = 0.15
-        case "Front Raises":
-            caloriesPerRep = 0.15
-        default:
-            caloriesPerRep = 0.25
+            case "High Knees":
+                caloriesPerRep = 0.30
+            case "Basic Squats":
+                caloriesPerRep = 0.36
+            case "Lunges":
+                caloriesPerRep = 0.35 
+            case "Wall Squats":
+                caloriesPerRep = 0.28
+            case "Standing Side Leg Raises":
+                caloriesPerRep = 0.18
+            case "Push-Ups":
+                caloriesPerRep = 0.40
+            case "Pilates Sit-Ups Hybrid":
+                caloriesPerRep = 0.25
+            case "Bicep Curls - Simultaneous":
+                caloriesPerRep = 0.12
+            case "Jumping Jacks":
+                caloriesPerRep = 0.25
+            case "Lateral Raises":
+                caloriesPerRep = 0.12
+            case "Front Raises":
+                caloriesPerRep = 0.12
+            default:
+                caloriesPerRep = 0.25
         }
+
         
         // Calculate calories based on BMR adjustment and rep count
         let bmrAdjustmentFactor = bmr / 2000 // Normalize based on average BMR
