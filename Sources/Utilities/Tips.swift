@@ -49,7 +49,7 @@ struct GoalsTip: Tip {
     }
     
     var message: Text? {
-        Text("Choose a goal type and track your daily, weekly, and monthly progress.")
+        Text("Choose a goal type and track your daily, weekly, and monthly progress. You can also set custom goals within settings.")
     }
     
     var image: Image? {
