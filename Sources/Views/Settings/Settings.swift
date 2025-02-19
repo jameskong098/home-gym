@@ -17,6 +17,7 @@ struct Settings: View {
     @AppStorage("heightInches") private var heightInches = 0
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
     @State private var isEditingPersonalInfo = false
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         ScrollView {
@@ -54,13 +55,7 @@ struct Settings: View {
                     }
                 }
                 .padding()
-                .background(Color(UIColor { traitCollection in
-                    if (traitCollection.userInterfaceStyle == .dark) {
-                        return Theme.settingsSectionBackgroundColorDark
-                    } else {
-                        return Theme.settingsSectionBackgroundColorLight
-                    }
-                }))
+                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
 
                 HStack {
@@ -80,13 +75,7 @@ struct Settings: View {
                         }
                 }
                 .padding()
-                .background(Color(UIColor { traitCollection in
-                    if (traitCollection.userInterfaceStyle == .dark) {
-                        return Theme.settingsSectionBackgroundColorDark
-                    } else {
-                        return Theme.settingsSectionBackgroundColorLight
-                    }
-                }))
+                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
 
                 HStack {
@@ -120,13 +109,7 @@ struct Settings: View {
                         }
                 }
                 .padding()
-                .background(Color(UIColor { traitCollection in
-                    if (traitCollection.userInterfaceStyle == .dark) {
-                        return Theme.settingsSectionBackgroundColorDark
-                    } else {
-                        return Theme.settingsSectionBackgroundColorLight
-                    }
-                }))
+                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
                 
                 HStack {
@@ -233,13 +216,7 @@ struct Settings: View {
                     }
                 }
                 .padding()
-                .background(Color(UIColor { traitCollection in
-                    if (traitCollection.userInterfaceStyle == .dark) {
-                        return Theme.settingsSectionBackgroundColorDark
-                    } else {
-                        return Theme.settingsSectionBackgroundColorLight
-                    }
-                }))
+                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
 
                 HStack {
@@ -336,13 +313,7 @@ struct Settings: View {
                     }
                 }
                 .padding()
-                .background(Color(UIColor { traitCollection in
-                    if (traitCollection.userInterfaceStyle == .dark) {
-                        return Theme.settingsSectionBackgroundColorDark
-                    } else {
-                        return Theme.settingsSectionBackgroundColorLight
-                    }
-                }))
+                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
                 Spacer()
             }

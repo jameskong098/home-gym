@@ -20,30 +20,30 @@ struct WorkoutView: View {
         }
     }
     
-    private let exercises: [(section: String, items: [(name: String, icon: String)])] = [
+    private let exercises: [(section: String, items: [ExerciseItem])] = [
         ("Cardio", [
-            ("Jumping Jacks", "figure.mixed.cardio"),
-            ("High Knees", "figure.highintensity.intervaltraining")
+            ExerciseItem(name: "Jumping Jacks", icon: "figure.mixed.cardio"),
+            ExerciseItem(name: "High Knees", icon: "figure.highintensity.intervaltraining")
         ]),
         ("Lower Body", [
-            ("Basic Squats", "figure.cross.training"),
-            ("Wall Squats", "figure.cross.training"),
-            ("Lunges", "figure.strengthtraining.functional"),
-            ("Standing Side Leg Raises", "figure.walk")
+            ExerciseItem(name: "Basic Squats", icon: "figure.cross.training"),
+            ExerciseItem(name: "Wall Squats", icon: "figure.cross.training"),
+            ExerciseItem(name: "Lunges", icon: "figure.strengthtraining.functional"),
+            ExerciseItem(name: "Standing Side Leg Raises", icon: "figure.walk")
         ]),
         ("Core", [
-            ("Pilates Sit-Ups Hybrid", "figure.core.training"),
-            ("Planks", "figure.wrestling")
+            ExerciseItem(name: "Pilates Sit-Ups Hybrid", icon: "figure.core.training"),
+            ExerciseItem(name: "Planks", icon: "figure.wrestling")
         ]),
         ("Upper Body", [
-            ("Push-Ups", "figure.wrestling"),
-            ("Bicep Curls - Simultaneous", "dumbbell.fill"),
-            ("Lateral Raises", "figure"),
-            ("Front Raises", "figure.martial.arts")
+            ExerciseItem(name: "Push-Ups", icon: "figure.wrestling"),
+            ExerciseItem(name: "Bicep Curls - Simultaneous", icon: "dumbbell.fill"),
+            ExerciseItem(name: "Lateral Raises", icon: "figure"),
+            ExerciseItem(name: "Front Raises", icon: "figure.martial.arts")
         ]),
     ]
     
-    private var favoriteItems: [(name: String, icon: String)] {
+    private var favoriteItems: [ExerciseItem] {
         exercises.flatMap { $0.items }
             .filter { favoriteExercises.contains($0.name) }
     }
@@ -52,6 +52,9 @@ struct WorkoutView: View {
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
     ]
+    
+    @State private var favoriteItemsOpacity: Double = 1.0
+    @State private var favoriteItemsScale: CGFloat = 1.0
     
     var body: some View {
         ScrollView {
@@ -64,7 +67,7 @@ struct WorkoutView: View {
                             .padding(.horizontal)
                         
                         LazyVGrid(columns: columns, spacing: 16) {
-                            ForEach(favoriteItems, id: \.name) { exercise in
+                            ForEach(favoriteItems) { exercise in
                                 ExerciseButton(
                                     name: exercise.name,
                                     icon: exercise.icon,
@@ -73,8 +76,11 @@ struct WorkoutView: View {
                                     isFavorite: favoriteExercises.contains(exercise.name),
                                     onFavoriteToggle: toggleFavorite
                                 )
+                                .transition(.scale.combined(with: .opacity))
                             }
                         }
+                        .opacity(favoriteItemsOpacity)
+                        .scaleEffect(favoriteItemsScale)
                     }
                 }
                 
@@ -86,7 +92,7 @@ struct WorkoutView: View {
                             .padding(.horizontal)
                         
                         LazyVGrid(columns: columns, spacing: 16) {
-                            ForEach(section.items, id: \.name) { exercise in
+                            ForEach(section.items) { exercise in
                                 ExerciseButton(
                                     name: exercise.name,
                                     icon: exercise.icon,
@@ -101,23 +107,26 @@ struct WorkoutView: View {
                 }
             }
             .padding()
+            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: favoriteItems)
         }
     }
     
     private func toggleFavorite(_ name: String) {
-        if let decoded = try? JSONDecoder().decode([String].self, from: favoriteExercisesData) {
-            var currentFavorites = decoded
-            if currentFavorites.contains(name) {
-                currentFavorites.removeAll { $0 == name }
+        withAnimation {
+            if let decoded = try? JSONDecoder().decode([String].self, from: favoriteExercisesData) {
+                var currentFavorites = decoded
+                if currentFavorites.contains(name) {
+                    currentFavorites.removeAll { $0 == name }
+                } else {
+                    currentFavorites.append(name)
+                }
+                if let encoded = try? JSONEncoder().encode(currentFavorites) {
+                    favoriteExercisesData = encoded
+                }
             } else {
-                currentFavorites.append(name)
-            }
-            if let encoded = try? JSONEncoder().encode(currentFavorites) {
-                favoriteExercisesData = encoded
-            }
-        } else {
-            if let encoded = try? JSONEncoder().encode([name]) {
-                favoriteExercisesData = encoded
+                if let encoded = try? JSONEncoder().encode([name]) {
+                    favoriteExercisesData = encoded
+                }
             }
         }
     }
@@ -132,50 +141,28 @@ struct ExerciseButton: View {
     let onFavoriteToggle: (String) -> Void
     let favoriteTip = FavoriteTip()
     
+    @Environment(\.colorScheme) var colorScheme
+    
     var body: some View {
         ZStack(alignment: .topTrailing) {
             NavigationLink(destination: ExerciseView(selectedTab: $selectedTab, navPath: $navPath, exerciseName: name)) {
                 VStack(spacing: 12) {
                     Image(systemName: icon)
                         .font(.title)
-                        .foregroundColor(Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.exerciseListItemIconColorDark
-                            } else {
-                                return Theme.exerciseListItemIconColorLight
-                            }
-                        }))
+                        .foregroundColor(Color(colorScheme == .dark ? Theme.exerciseListItemIconColorDark : Theme.exerciseListItemIconColorLight))
                         .frame(width: 40, height: 40)
-                        .background(Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.exerciseListItemBackgroundColorDark
-                            } else {
-                                return Theme.exerciseListItemBackgroundColorLight
-                            }
-                        }))
+                        .background(Color(colorScheme == .dark ? Theme.exerciseListItemBackgroundColorDark : Theme.exerciseListItemBackgroundColorLight))
                         .clipShape(Circle())
                     
                     Text(name)
                         .font(.headline)
-                        .foregroundColor(Color(UIColor { traitCollection in
-                            if traitCollection.userInterfaceStyle == .dark {
-                                return Theme.exerciseListItemTextColorDark
-                            } else {
-                                return Theme.exerciseListItemTextColorLight
-                            }
-                        }))
+                        .foregroundColor(Color(colorScheme == .dark ? Theme.exerciseListItemTextColorDark : Theme.exerciseListItemTextColorLight))
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 120)
                 .padding()
-                .background(Color(UIColor { traitCollection in
-                    if traitCollection.userInterfaceStyle == .dark {
-                        return Theme.exerciseListBackgroundColorDark
-                    } else {
-                        return Theme.exerciseListBackgroundColorLight
-                    }
-                }))
+                .background(Color(colorScheme == .dark ? Theme.exerciseListBackgroundColorDark : Theme.exerciseListBackgroundColorLight))
                 .cornerRadius(20)
             }
             
@@ -203,5 +190,17 @@ struct ExerciseButton: View {
                 }
             }
         }
+    }
+}
+
+struct ExerciseItem: Equatable, Identifiable {
+    let id: String
+    let name: String
+    let icon: String
+    
+    init(name: String, icon: String) {
+        self.id = name
+        self.name = name
+        self.icon = icon
     }
 }
