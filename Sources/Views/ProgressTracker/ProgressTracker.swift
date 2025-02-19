@@ -27,33 +27,46 @@ struct ProgressTracker: View {
     @State private var currentMotivationalMessage: String = ""
     @State private var selectedGoalType: GoalType = .reps
     
+    @AppStorage("dailyRepsGoal") private var dailyRepsGoal = 100
+    @AppStorage("dailyDurationGoal") private var dailyDurationGoal = 30
+    @AppStorage("dailyCaloriesGoal") private var dailyCaloriesGoal = 300
+    @AppStorage("weeklyRepsGoal") private var weeklyRepsGoal = 500
+    @AppStorage("weeklyDurationGoal") private var weeklyDurationGoal = 180
+    @AppStorage("weeklyCaloriesGoal") private var weeklyCaloriesGoal = 2100
+    @AppStorage("monthlyRepsGoal") private var monthlyRepsGoal = 2000
+    @AppStorage("monthlyDurationGoal") private var monthlyDurationGoal = 720
+    @AppStorage("monthlyCaloriesGoal") private var monthlyCaloriesGoal = 9000
+
     let calendarTip = CalendarTip()
     let dayStatsTip = DayStatsTip()
     let goalsTip = GoalsTip()
     let achievementsTip = AchievementsTip()
     
-    private let dailyGoal: Int = 100
-    private let weeklyGoal: Int = 500
-    private let monthlyGoal: Int = 2000
     private let calendar = Calendar.current
     
-    private let dailyGoals: [GoalType: Int] = [
-        .reps: 100,
-        .duration: 30, // 30 minutes
-        .calories: 300
-    ]
+    private var dailyGoals: [GoalType: Int] {
+        [
+            .reps: dailyRepsGoal,
+            .duration: dailyDurationGoal,
+            .calories: dailyCaloriesGoal
+        ]
+    }
     
-    private let weeklyGoals: [GoalType: Int] = [
-        .reps: 500,
-        .duration: 180, // 3 hours
-        .calories: 2100
-    ]
+    private var weeklyGoals: [GoalType: Int] {
+        [
+            .reps: weeklyRepsGoal,
+            .duration: weeklyDurationGoal,
+            .calories: weeklyCaloriesGoal
+        ]
+    }
     
-    private let monthlyGoals: [GoalType: Int] = [
-        .reps: 2000,
-        .duration: 720, // 12 hours
-        .calories: 9000
-    ]
+    private var monthlyGoals: [GoalType: Int] {
+        [
+            .reps: monthlyRepsGoal,
+            .duration: monthlyDurationGoal,
+            .calories: monthlyCaloriesGoal
+        ]
+    }
     
     private var isLandscape: Bool {
         UIDevice.current.orientation.isLandscape

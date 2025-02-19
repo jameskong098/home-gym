@@ -28,7 +28,18 @@ struct Settings: View {
     @AppStorage("heightFeet") private var heightFeet = 0
     @AppStorage("heightInches") private var heightInches = 0
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
+    @AppStorage("dailyRepsGoal") private var dailyRepsGoal = 100
+    @AppStorage("dailyDurationGoal") private var dailyDurationGoal = 30
+    @AppStorage("dailyCaloriesGoal") private var dailyCaloriesGoal = 300
+    @AppStorage("weeklyRepsGoal") private var weeklyRepsGoal = 500
+    @AppStorage("weeklyDurationGoal") private var weeklyDurationGoal = 180
+    @AppStorage("weeklyCaloriesGoal") private var weeklyCaloriesGoal = 2100
+    @AppStorage("monthlyRepsGoal") private var monthlyRepsGoal = 2000
+    @AppStorage("monthlyDurationGoal") private var monthlyDurationGoal = 720
+    @AppStorage("monthlyCaloriesGoal") private var monthlyCaloriesGoal = 9000
     @State private var isEditingPersonalInfo = false
+    @State private var isEditingGoals = false
+    @State private var showingResetGoalsAlert = false
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
@@ -65,20 +76,7 @@ struct Settings: View {
                                 triggerHapticFeedback()
                             }
                     }
-                }
-                .padding()
-                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
-                .cornerRadius(25)
-
-                HStack {
-                    Image(systemName: "speaker.wave.3.fill")
-                        .foregroundColor(Theme.toggleSwitchColor)
-                    Text("Audio")
-                        .font(.headline)
-                }
-                .padding(.top)
-
-                VStack(alignment: .center, spacing: 10) {
+                    Divider()
                     Toggle("Enable Voice", isOn: $enableVoice)
                         .padding(.horizontal)
                         .tint(Theme.toggleSwitchColor)
@@ -91,7 +89,7 @@ struct Settings: View {
                 .cornerRadius(25)
 
                 HStack {
-                    Image(systemName: "figure.walk")
+                    Image(systemName: "figure")
                         .foregroundColor(Theme.toggleSwitchColor)
                     Text("Body Tracking")
                         .font(.headline)
@@ -230,6 +228,72 @@ struct Settings: View {
                 .padding()
                 .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
+                
+                HStack {
+                    Image(systemName: "target")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("Custom Goals")
+                        .font(.headline)
+                    Spacer()
+                    if !isEditingGoals {
+                        Button(action: {
+                            showingResetGoalsAlert = true
+                        }) {
+                            Text("Reset")
+                                .foregroundColor(.red)
+                        }
+                        .padding(.trailing, 8)
+                    }
+                    Button(action: {
+                        isEditingGoals.toggle()
+                        if !isEditingGoals {
+                            triggerHapticFeedback()
+                        }
+                    }) {
+                        Text(isEditingGoals ? "Done" : "Edit")
+                            .foregroundColor(Theme.toggleSwitchColor)
+                    }
+                }
+                .padding(.top)
+                .alert(
+                    "Reset Goals",
+                    isPresented: $showingResetGoalsAlert
+                ) {
+                    Button("Reset to Default", role: .destructive) {
+                        resetGoalsToDefault()
+                        triggerHapticFeedback()
+                    }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("Are you sure you want to reset all goals to their default values?")
+                }
+
+                VStack(alignment: .center, spacing: 16) {
+                    GoalSection(title: "Daily Goals",
+                              repsGoal: $dailyRepsGoal,
+                              durationGoal: $dailyDurationGoal,
+                              caloriesGoal: $dailyCaloriesGoal,
+                              isEditing: isEditingGoals)
+                    
+                    Divider()
+                    
+                    GoalSection(title: "Weekly Goals",
+                              repsGoal: $weeklyRepsGoal,
+                              durationGoal: $weeklyDurationGoal,
+                              caloriesGoal: $weeklyCaloriesGoal,
+                              isEditing: isEditingGoals)
+                    
+                    Divider()
+                    
+                    GoalSection(title: "Monthly Goals",
+                              repsGoal: $monthlyRepsGoal,
+                              durationGoal: $monthlyDurationGoal,
+                              caloriesGoal: $monthlyCaloriesGoal,
+                              isEditing: isEditingGoals)
+                }
+                .padding()
+                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
+                .cornerRadius(25)
 
                 HStack {
                     Image(systemName: "paintpalette.fill")
@@ -327,7 +391,6 @@ struct Settings: View {
                 .padding()
                 .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
-                Spacer()
             }
             .padding()
         }
@@ -336,5 +399,76 @@ struct Settings: View {
     private func triggerHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
+    }
+
+    private func resetGoalsToDefault() {
+        dailyRepsGoal = 100
+        dailyDurationGoal = 30
+        dailyCaloriesGoal = 300
+        
+        weeklyRepsGoal = 500
+        weeklyDurationGoal = 180
+        weeklyCaloriesGoal = 2100
+        
+        monthlyRepsGoal = 2000
+        monthlyDurationGoal = 720
+        monthlyCaloriesGoal = 9000
+    }
+}
+
+struct GoalSection: View {
+    let title: String
+    @Binding var repsGoal: Int
+    @Binding var durationGoal: Int
+    @Binding var caloriesGoal: Int
+    let isEditing: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.headline)
+            
+            HStack {
+                Text("Reps")
+                Spacer()
+                if isEditing {
+                    TextField("Reps", value: $repsGoal, formatter: NumberFormatter())
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(width: 100)
+                } else {
+                    Text("\(repsGoal)")
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            HStack {
+                Text("Duration (minutes)")
+                Spacer()
+                if isEditing {
+                    TextField("Minutes", value: $durationGoal, formatter: NumberFormatter())
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(width: 100)
+                } else {
+                    Text("\(durationGoal)")
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            HStack {
+                Text("Calories")
+                Spacer()
+                if isEditing {
+                    TextField("Calories", value: $caloriesGoal, formatter: NumberFormatter())
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(width: 100)
+                } else {
+                    Text("\(caloriesGoal)")
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
     }
 }
