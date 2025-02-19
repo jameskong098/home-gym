@@ -1,3 +1,14 @@
+/*
+  DayStatsView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view displays daily workout statistics and exercise breakdowns,
+  showing total reps, duration, calories, and detailed exercise metrics.
+*/
+
 import SwiftUI
 
 struct DayStatsView: View {

@@ -1,3 +1,14 @@
+/*
+  StreakView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view displays workout streak information with dynamic icons,
+  showing current or longest streak counts with visual indicators.
+*/
+
 import SwiftUI
 
 struct StreakView: View {

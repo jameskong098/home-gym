@@ -1,3 +1,16 @@
+/*
+  WalkthroughView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view implements the initial onboarding experience with animated pages,
+  collecting user information and preferences through an interactive walkthrough
+  with progress indicators and responsive layouts. It also contains the main content view workflow,
+  where different tabs will be served.
+*/
+
 import SwiftUI
 
 struct MainContentView: View {

@@ -1,3 +1,14 @@
+/*
+  Audio.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This utility provides audio playback functionality for the app,
+  handling sound effects and feedback using AVFoundation framework.
+*/
+
 import SwiftUI
 import AVFoundation
 

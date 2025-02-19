@@ -1,3 +1,14 @@
+/*
+  Calculations.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This utility provides streak and achievement calculation functions,
+  handling workout statistics and milestone tracking logic.
+*/
+
 import SwiftUI
 
 func calculateStreak(workouts: [WorkoutData], calendar: Calendar, today: Date) -> Int {

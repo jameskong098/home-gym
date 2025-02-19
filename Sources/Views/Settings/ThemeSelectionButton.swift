@@ -1,3 +1,15 @@
+/*
+  ThemeSelectionButton.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view implements a custom segmented control for theme selection,
+  allowing users to switch between system, dark, and light appearances
+  with smooth animations and haptic feedback.
+*/
+
 import SwiftUI
 
 struct ThemeSelectionButton: View {

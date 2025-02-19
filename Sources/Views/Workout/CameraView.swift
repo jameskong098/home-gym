@@ -1,5 +1,15 @@
+/*
+  CameraView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view bridges SwiftUI with UIKit camera controller for live video capture,
+  enabling real-time exercise tracking and rep counting using Vision framework.
+*/
+
 import SwiftUI
-import ARKit
 import Vision
 import AVFoundation
 

@@ -1,3 +1,15 @@
+/*
+  ExerciseView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view handles the main workout interface with camera feed, pose tracking,
+  rep counting, timers, and exercise instructions with interactive tutorials
+  and countdown features.
+*/
+
 import SwiftUI
 import Vision
 import AVFoundation

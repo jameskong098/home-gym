@@ -1,3 +1,14 @@
+/*
+  App.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This is the main app entry point that manages initial setup and navigation. It sets up configuration
+  for TipKit and determines whether to show the walkthrough or main content view based on user completion.
+*/
+
 import SwiftUI
 import TipKit
 

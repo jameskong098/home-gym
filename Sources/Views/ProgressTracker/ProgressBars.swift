@@ -1,3 +1,14 @@
+/*
+  ProgressBars.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This file contains custom progress bar views for tracking workout goals,
+  featuring linear and circular progress indicators with gradient animations.
+*/
+
 import SwiftUI
 
 struct ProgressBar: View {

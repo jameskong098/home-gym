@@ -1,3 +1,14 @@
+/*
+  Theme.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This utility defines the app's color scheme and theme constants,
+  providing consistent styling for both light and dark modes.
+*/
+
 import SwiftUI
 
 struct Theme {

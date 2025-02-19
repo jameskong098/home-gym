@@ -1,3 +1,14 @@
+/*
+  WorkoutData.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This model represents a completed workout session, storing exercise details
+  like name, rep count, duration, calories burned and optional weight used.
+*/
+
 import Foundation
 
 struct WorkoutData: Identifiable, Codable {

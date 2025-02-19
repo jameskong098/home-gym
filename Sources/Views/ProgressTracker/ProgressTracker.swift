@@ -1,3 +1,15 @@
+/*
+  ProgressTracker.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view implements the main progress tracking interface,
+  displaying workout goals, achievements, and statistics with 
+  adaptive layouts for different device orientations.
+*/
+
 import SwiftUI
 import TipKit
 

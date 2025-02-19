@@ -1,3 +1,15 @@
+/*
+  ExerciseSummaryView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view displays workout completion summary with exercise metrics,
+  allowing users to review, edit, and save workout data with animations
+  and haptic feedback.
+*/
+
 import SwiftUI
 import AVFoundation
 

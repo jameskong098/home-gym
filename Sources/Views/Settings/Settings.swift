@@ -1,3 +1,15 @@
+/*
+  Settings.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view provides app configuration and customization options,
+  including workout settings, audio preferences, body tracking options,
+  personal information management, and theme selection.
+*/
+
 import SwiftUI
 
 struct Settings: View {

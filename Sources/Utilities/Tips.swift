@@ -1,3 +1,14 @@
+/*
+  Tips.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This utility provides in-app tips and guidance using TipKit,
+  helping users discover and learn app features.
+*/
+
 import SwiftUI
 import TipKit
 

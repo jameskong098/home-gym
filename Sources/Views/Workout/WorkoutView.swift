@@ -1,3 +1,15 @@
+/*
+  WorkoutView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view presents the exercise selection interface with categorized workouts,
+  favorite exercise management, and navigation to individual exercise views
+  using an adaptive grid layout with animated transitions.
+*/
+
 import SwiftUI
 
 struct WorkoutView: View {

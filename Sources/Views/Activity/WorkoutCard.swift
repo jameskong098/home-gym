@@ -1,3 +1,14 @@
+/*
+  WorkoutCard.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view displays a detailed card for each workout session,
+  showing exercise metrics and providing edit/delete functionality.
+*/
+
 import SwiftUI
 
 struct WorkoutCard: View {

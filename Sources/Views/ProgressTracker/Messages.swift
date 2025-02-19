@@ -1,3 +1,14 @@
+/*
+  Messages.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This file contains motivational messages displayed to users during workouts,
+  providing encouragement and inspiration with emojis for visual engagement.
+*/
+
 import SwiftUI
 
 let motivationalMessages = [

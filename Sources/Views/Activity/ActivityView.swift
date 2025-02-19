@@ -1,3 +1,14 @@
+/*
+  ActivityView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view displays workout history and activity tracking,
+  allowing users to view, edit, and manage their workout data.
+*/
+
 import SwiftUI
 import AVFoundation
 
@@ -330,7 +341,7 @@ struct ActivityView: View {
         let sex = "Male"
         let age = 30
 
-        for dayOffset in -21...0 {
+        for dayOffset in -90...0 {
             let date = calendar.date(byAdding: .day, value: dayOffset, to: today)!
             let workoutCount = [0, 1, 2, 3].randomElement()!
             

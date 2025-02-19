@@ -1,3 +1,14 @@
+/*
+  CameraViewController.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view controller handles camera capture, body pose detection,
+  exercise tracking and rep counting using Vision framework.
+*/
+
 import SwiftUI
 import Vision
 import AVFoundation

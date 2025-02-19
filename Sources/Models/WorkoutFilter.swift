@@ -1,3 +1,15 @@
+/*
+  WorkoutFilter.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This model provides filtering functionality for workout data,
+  allowing users to filter workouts by exercise name, rep range,
+  date range, and duration.
+*/
+
 import SwiftUI
 
 class WorkoutFilterModel: ObservableObject {

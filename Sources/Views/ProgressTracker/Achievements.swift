@@ -1,3 +1,14 @@
+/*
+  Achievements.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view provides achievement tracking and display functionality,
+  showing badges for streaks, reps, duration, and calorie milestones.
+*/
+
 import SwiftUI
 
 struct CompactAchievementsView: View {

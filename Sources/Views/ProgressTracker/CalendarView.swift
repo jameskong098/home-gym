@@ -1,3 +1,14 @@
+/*
+  CalendarView.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view implements a custom calendar interface for tracking workouts,
+  highlighting dates with completed exercises and allowing date selection.
+*/
+
 import SwiftUI
 
 struct CustomCalendarView: View {

@@ -1,3 +1,15 @@
+/*
+  TabMenus.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view implements the main tab-based navigation system,
+  managing transitions between Progress, Workout, Activity, and Settings views
+  with customizable appearance and adaptive layouts.
+*/
+
 import SwiftUI
 
 struct TabMenus: View {

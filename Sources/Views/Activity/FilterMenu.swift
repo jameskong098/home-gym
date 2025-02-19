@@ -1,3 +1,14 @@
+/*
+  FilterMenu.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This view provides workout filtering functionality with range sliders,
+  allowing users to filter workouts by exercise type, reps, date, and duration.
+*/
+
 import SwiftUI
 
 struct FilterMenu: View {
