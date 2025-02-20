@@ -67,6 +67,7 @@ struct ActivityView: View {
                     if filteredWorkouts.isEmpty {
                         emptyStateView
                     } else {
+                        WorkoutTrendsView(workouts: filteredWorkouts)
                         workoutsList
                     }
                 }

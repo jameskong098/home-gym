@@ -41,10 +41,9 @@ struct WalkthroughView: View {
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
     @State private var currentPage = 0
     @State private var slideOffset: CGFloat = 0
-    @State private var walkthroughCompleted = false
 
     var body: some View {
-        if walkthroughCompleted {
+        if hasCompletedWalkthrough {
             MainContentView()
         } else {
             ZStack {
@@ -81,7 +80,6 @@ struct WalkthroughView: View {
                             SummaryPage(name: name, onComplete: {
                                 withAnimation(.spring()) {
                                     hasCompletedWalkthrough = true
-                                    walkthroughCompleted = true
                                 }
                             })
                             .frame(width: geometry.size.width)
