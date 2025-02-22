@@ -50,8 +50,31 @@ struct WalkthroughView: View {
                 Color("Background")
                     .ignoresSafeArea()
                 
-                VStack {
+                VStack {        
+                    Spacer()
                     GeometryReader { geometry in
+                        if currentPage > 0 {
+                            HStack {
+                                Button(action: {
+                                    withAnimation(.spring()) {
+                                        slideOffset += geometry.size.width
+                                        currentPage -= 1
+                                    }
+                                }) {
+                                    HStack {
+                                        Image(systemName: "chevron.left")
+                                        Text("Back")
+                                    }
+                                    .foregroundColor(.blue)
+                                    .padding()
+                                }
+                                Spacer()
+                            }
+                            .zIndex(1)
+                        }
+                        
+                        Spacer()
+
                         HStack(spacing: 0) {
                             WelcomePage(onNext: {
                                 withAnimation(.spring()) {
@@ -107,7 +130,10 @@ struct WalkthroughView: View {
                         }
                     }
                     .padding(.top, 40)
+                    
+                    Spacer()
                 }
+                .padding()
             }
         }
     }

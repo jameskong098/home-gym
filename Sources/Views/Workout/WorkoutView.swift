@@ -151,7 +151,6 @@ struct ExerciseButton: View {
     @Binding var navPath: [String]
     let isFavorite: Bool
     let onFavoriteToggle: (String) -> Void
-    let favoriteTip = FavoriteTip()
     
     @Environment(\.colorScheme) var colorScheme
     
@@ -177,29 +176,14 @@ struct ExerciseButton: View {
                 .background(Color(colorScheme == .dark ? Theme.exerciseListBackgroundColorDark : Theme.exerciseListBackgroundColorLight))
                 .cornerRadius(20)
             }
-            
-            if #available(iOS 17.0, *) {
-                Button(action: {
-                    onFavoriteToggle(name)
-                }) {
-                    Image(systemName: isFavorite ? "star.fill" : "star")
-                        .foregroundColor(isFavorite ? .yellow : .gray)
-                        .font(.system(size: 22))
-                        .padding(12)
-                }
-                .popoverTip(favoriteTip)
-                .onTapGesture {
-                    favoriteTip.invalidate(reason: .actionPerformed)
-                }
-            } else {
-                Button(action: {
-                    onFavoriteToggle(name)
-                }) {
-                    Image(systemName: isFavorite ? "star.fill" : "star")
-                        .foregroundColor(isFavorite ? .yellow : .gray)
-                        .font(.system(size: 22))
-                        .padding(12)
-                }
+           
+            Button(action: {
+                onFavoriteToggle(name)
+            }) {
+                Image(systemName: isFavorite ? "star.fill" : "star")
+                    .foregroundColor(isFavorite ? .yellow : .gray)
+                    .font(.system(size: 22))
+                    .padding(12)
             }
         }
     }

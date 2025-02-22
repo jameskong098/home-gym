@@ -72,21 +72,6 @@ struct AchievementsTip: Tip {
     }
 }
 
-struct FavoriteTip: Tip {
-    var id = UUID()
-    var title: Text {
-        Text("Favorite Activities")
-    }
-    
-    var message: Text? {
-        Text("Tap the star icon to favorite an activity and access it quickly from the favorites tab")
-    }
-    
-    var image: Image? {
-        Image(systemName: "star")
-    }
-}
-
 struct FilterTip: Tip {
     var id = UUID()
     var title: Text {
