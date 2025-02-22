@@ -1,3 +1,14 @@
+/*
+  DataGenerator.swift
+  Home Gym
+
+  Created by James Deming Kong
+  Part of Swift Student Challenge 2025
+
+  This utility generates randomized sample workout data for the app,
+  including various exercises, repetitions, and calories burned calculations.
+*/
+
 import Foundation
 
 struct DataGenerator {

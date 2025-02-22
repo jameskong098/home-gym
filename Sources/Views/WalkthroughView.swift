@@ -32,6 +32,7 @@ struct MainContentView: View {
 }
 
 struct WalkthroughView: View {
+    @Environment(\.colorScheme) var colorScheme
     @AppStorage("hasCompletedWalkthrough") private var hasCompletedWalkthrough = false
     @AppStorage("name") private var name = ""
     @AppStorage("age") private var age = 0
@@ -47,7 +48,7 @@ struct WalkthroughView: View {
             MainContentView()
         } else {
             ZStack {
-                Color("Background")
+                Color(colorScheme == .dark ? Theme.headerColorDark : Theme.mainContentBackgroundColorLight)
                     .ignoresSafeArea()
                 
                 VStack {        
@@ -110,13 +111,7 @@ struct WalkthroughView: View {
                         .offset(x: slideOffset)
                     }
                     .background(
-                        Color(UIColor { traitCollection in
-                            if (traitCollection.userInterfaceStyle == .dark) {
-                                return Theme.footerBackgroundColorDark
-                            } else {
-                                return Theme.footerBackgroundColorLight
-                            }
-                        })
+                        colorScheme == .dark ? Color.black : Color.white
                     )
                     .cornerRadius(20)
                     .frame(maxWidth: 660, maxHeight: 650)
@@ -146,10 +141,13 @@ struct WelcomePage: View {
         GeometryReader { geometry in
             let isPhone = UIDevice.current.userInterfaceIdiom == .phone
             
-            VStack(spacing: 30) {
-                Image(systemName: "figure.strengthtraining.traditional.circle")
-                    .font(.system(size: isPhone ? 100 : 150))
-                    .foregroundColor(.blue)
+            VStack(spacing: 20) {
+                if let uiImage = UIImage(named: "AppIcon_NoBG") {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: isPhone ? 170 : 200, height: isPhone ? 170 : 200)
+                }
                 
                 Text("Welcome to Home Gym!")
                     .font(.largeTitle)
@@ -275,6 +273,8 @@ struct BodyMetricsPage: View {
                     .multilineTextAlignment(.center)
                 
                 VStack(alignment: .leading, spacing: 20) {
+                    Text("Sex")
+                            .fontWeight(.medium)
                     Picker("Biological Sex", selection: $sex) {
                         Text("Male").tag("Male")
                         Text("Female").tag("Female")
