@@ -17,6 +17,7 @@ struct WorkoutTrendsView: View {
     let workouts: [WorkoutData]
     @State private var selectedMetric = TrendMetric.reps
     @State private var timeRange = TimeRange.week
+    @State private var selectedDataPoint: ChartData?
     
     enum TrendMetric: String, CaseIterable {
         case reps = "Reps"
@@ -45,7 +46,7 @@ struct WorkoutTrendsView: View {
             case .week:
                 return calendar.date(byAdding: .day, value: -7, to: currentDate) ?? currentDate
             case .month:
-                return calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate)) ?? currentDate
+                return calendar.date(byAdding: .month, value: -1, to: currentDate) ?? currentDate
             case .year:
                 return calendar.date(byAdding: .year, value: -1, to: currentDate) ?? currentDate
             }
@@ -54,7 +55,7 @@ struct WorkoutTrendsView: View {
         var strideBy: Calendar.Component {
             switch self {
             case .week: return .day
-            case .month: return .weekOfYear
+            case .month: return .day
             case .year: return .month
             }
         }
@@ -82,38 +83,60 @@ struct WorkoutTrendsView: View {
         let calendar = Calendar.current
         let filteredWorkouts = workouts.filter { $0.date >= timeRange.startDate }
         
-        let grouped = Dictionary(grouping: filteredWorkouts) { workout in
-            calendar.startOfDay(for: workout.date)
+        var dates: [Date] = []
+        var date = timeRange.startDate
+        let endDate = Date()
+        
+        while date <= endDate {
+            dates.append(calendar.startOfDay(for: date))
+            switch timeRange {
+            case .week, .month:
+                date = calendar.date(byAdding: .day, value: 1, to: date) ?? date
+            case .year:
+                if let nextDate = calendar.date(byAdding: .month, value: 1, to: date) {
+                    date = calendar.date(from: calendar.dateComponents([.year, .month], from: nextDate)) ?? nextDate
+                } else {
+                    date = calendar.date(byAdding: .day, value: 1, to: date) ?? date
+                }
+            }
         }
         
-        var chartData = grouped.map { date, workouts in
+        let grouped = Dictionary(grouping: filteredWorkouts) { workout in
+            switch timeRange {
+            case .week, .month:
+                return calendar.startOfDay(for: workout.date)
+            case .year:
+                let components = calendar.dateComponents([.year, .month], from: workout.date)
+                return calendar.date(from: components) ?? workout.date
+            }
+        }
+        
+        var chartData = dates.map { date -> ChartData in
+            let periodWorkouts = grouped[date] ?? []
             var value: Double
             let label: String
             
             switch selectedMetric {
             case .reps:
-                value = Double(workouts.reduce(0) { $0 + $1.repCount })
+                value = Double(periodWorkouts.reduce(0) { $0 + $1.repCount })
                 label = "\(Int(value)) reps"
             case .calories:
-                value = workouts.reduce(0) { $0 + $1.caloriesBurned }
+                value = periodWorkouts.reduce(0) { $0 + $1.caloriesBurned }
                 label = String(format: "%.0f cal", value)
             case .duration:
-                let totalSeconds = workouts.reduce(0) { $0 + $1.elapsedTime }
-                value = totalSeconds
-                label = formatDuration(totalSeconds)
-            }
-            
-            // Ensure the chart is displayed even with zero values (for when there are not enough workouts)
-            if value == 0 {
-                value = 0.1
+                value = periodWorkouts.reduce(0) { $0 + $1.elapsedTime }
+                label = formatDuration(value)
             }
             
             return ChartData(date: date, value: value, label: label)
-        }.sorted { $0.date < $1.date }
+        }
         
-        // Add a default data point if chartData is empty
-        if chartData.isEmpty {
-            chartData.append(ChartData(date: Date(), value: 0.1, label: ""))
+        let nonZeroCount = chartData.filter { $0.value > 0 }.count
+        
+        if (nonZeroCount > 1) {
+            chartData = chartData.filter { $0.value > 0 }
+        } else if (nonZeroCount == 0) {
+            return [ChartData(date: Date(), value: 0.1, label: "")]
         }
         
         return chartData
@@ -181,65 +204,111 @@ struct WorkoutTrendsView: View {
             }
             .pickerStyle(.segmented)
             
-            Chart(filteredChartData) { item in
-                LineMark(
-                    x: .value("Date", item.date),
-                    y: .value("Value", item.value)
-                )
-                .interpolationMethod(.linear) 
-                
-                AreaMark(
-                    x: .value("Date", item.date),
-                    y: .value("Value", item.value)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [.blue.opacity(0.3), .blue.opacity(0.1)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-            }
-            .chartXAxis {
-                AxisMarks(values: .stride(by: timeRange.strideBy)) { _ in
-                    AxisGridLine()
-                    AxisTick()
-                    AxisValueLabel(format: .dateTime.month().day())
-                }
-            }
-            .chartYAxis {
-                AxisMarks { value in
-                    AxisGridLine()
-                    AxisTick()
-                    AxisValueLabel {
-                        if let doubleValue = value.as(Double.self) {
-                            switch selectedMetric {
-                            case .reps:
-                                Text("\(Int(doubleValue))")
-                            case .calories:
-                                Text("\(Int(doubleValue))")
-                            case .duration:
-                                Text(formatDuration(doubleValue))
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Chart(filteredChartData) { item in
+                        LineMark(
+                            x: .value("Date", item.date),
+                            y: .value("Value", item.value)
+                        )
+                        .interpolationMethod(.linear)
+                        
+                        AreaMark(
+                            x: .value("Date", item.date),
+                            y: .value("Value", item.value)
+                        )
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue.opacity(0.3), .blue.opacity(0.1)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        
+                        PointMark(
+                            x: .value("Date", item.date),
+                            y: .value("Value", item.value)
+                        )
+                        .symbol(Circle().strokeBorder(lineWidth: 2))
+                        .foregroundStyle(.blue)
+                    }
+                    .chartXAxis {
+                        AxisMarks(preset: .aligned, values: .stride(by: timeRange.strideBy)) { value in
+                            AxisGridLine()
+                            AxisTick()
+                            if let date = value.as(Date.self) {
+                                if timeRange == .month {
+                                    let day = Calendar.current.component(.day, from: date)
+                                    if day % 2 == 0 { 
+                                        AxisValueLabel(format: .dateTime.month().day())
+                                    }
+                                } else {
+                                    AxisValueLabel(format: .dateTime.month().day())
+                                }
                             }
                         }
                     }
-                }
-            }
-            .overlay {
-                if filteredChartData.count <= 1 {
-                    VStack(spacing: 4) {
-                        Text("Need more workout data to show trends")
-                            .font(.title2)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                        Text("Complete more workouts to see your progress")
-                            .font(.title3)
-                            .foregroundColor(.secondary.opacity(0.8))
-                            .multilineTextAlignment(.center)
+                    .chartYAxis {
+                        AxisMarks { value in
+                            AxisGridLine()
+                            AxisTick()
+                            AxisValueLabel {
+                                if let doubleValue = value.as(Double.self) {
+                                    switch selectedMetric {
+                                    case .reps:
+                                        Text("\(Int(doubleValue))")
+                                    case .calories:
+                                        Text("\(Int(doubleValue))")
+                                    case .duration:
+                                        Text(formatDuration(doubleValue))
+                                    }
+                                }
+                            }
+                        }
                     }
-                    .padding()
-                    .background(Color(UIColor.systemBackground).opacity(0.9))
-                    .cornerRadius(8)
+                    .chartOverlay { proxy in
+                        GeometryReader { geo in
+                            Rectangle()
+                                .fill(.clear)
+                                .contentShape(Rectangle())
+                                .onTapGesture { location in
+                                    for item in filteredChartData {
+                                        let xPosition = proxy.position(forX: item.date) ?? 0
+                                        let xDistance = abs(xPosition - location.x)
+                                        
+                                        if xDistance < 30 { 
+                                            selectedDataPoint = item
+                                            return
+                                        }
+                                    }
+                                    selectedDataPoint = nil 
+                                }
+                        }
+                    }
+                    .overlay(alignment: .top) {
+                        if let selectedDataPoint = selectedDataPoint {
+                            DataPointInfoView(dataPoint: selectedDataPoint, metric: selectedMetric)
+                                .offset(y: -50) 
+                                .transition(.move(edge: .top))
+                        }
+                    }
+                    .overlay {
+                        if filteredChartData.count <= 1 {
+                            VStack(spacing: 4) {
+                                Text("Need more workout data to show trends")
+                                    .font(.title2)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                Text("Complete more workouts to see your progress")
+                                    .font(.title3)
+                                    .foregroundColor(.secondary.opacity(0.8))
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding()
+                            .background(Color(UIColor.systemBackground).opacity(0.9))
+                            .cornerRadius(8)
+                        }
+                    }
                 }
             }
             .animation(.easeInOut, value: selectedMetric)
@@ -396,5 +465,29 @@ private func formatDuration(_ seconds: Double) -> String {
         return "\(hours)h \(minutes)m"
     } else {
         return "\(minutes)m"
+    }
+}
+
+struct DataPointInfoView: View {
+    let dataPoint: WorkoutTrendsView.ChartData
+    let metric: WorkoutTrendsView.TrendMetric
+
+    var body: some View {
+        VStack {
+            Text("\(dataPoint.label)")
+                .font(.headline)
+            Text("\(dataPoint.date, formatter: dateFormatter)")
+                .font(.subheadline)
+        }
+        .padding()
+        .background(.white)
+        .cornerRadius(8)
+        .shadow(radius: 4)
+    }
+
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter
     }
 }
