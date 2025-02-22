@@ -24,6 +24,9 @@ struct Theme {
     static let mainContentBackgroundColorLight = UIColor(white: 0.95, alpha: 1.0)
     static let mainContentBackgroundColorDark = UIColor.black
     
+    static let sectionTileBackgroundColorLight = UIColor(white: 0.95, alpha: 1.0)
+    static let sectionTileBackgroundColorDark = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 0.7)
+    
     static let calendarHighlightOutlineLight = Color.black
     static let calendarHighlightOutlineDark = Color.white
     

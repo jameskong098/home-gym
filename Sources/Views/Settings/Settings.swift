@@ -40,6 +40,7 @@ struct Settings: View {
     @State private var isEditingPersonalInfo = false
     @State private var isEditingGoals = false
     @State private var showingResetGoalsAlert = false
+    @AppStorage("showDevTools") private var showDevTools = false
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
@@ -307,6 +308,30 @@ struct Settings: View {
                     .padding(.horizontal)
                 
                 Text("Selecting system will use your device's system settings.")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+                
+                HStack {
+                    Image(systemName: "hammer.fill")
+                        .foregroundColor(Theme.toggleSwitchColor)
+                    Text("Developer Tools")
+                        .font(.headline)
+                }
+                .padding(.top)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle("Show Test Data Generator Tools", isOn: $showDevTools)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: showDevTools) { _ in
+                            triggerHapticFeedback()
+                        }
+                }
+                .padding()
+                .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
+                .cornerRadius(25)
+                Text("Enable this option to allow generating fake data for testing/demo purposes. You will find the buttons within the Activity view once this setting is enabled.")
                     .font(.footnote)
                     .foregroundColor(.gray)
                     .padding(.horizontal)

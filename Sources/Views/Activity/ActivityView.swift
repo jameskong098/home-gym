@@ -26,7 +26,7 @@ struct ActivityView: View {
     @State private var expandedSections: Set<String> = Set()
     @State private var showingFilterSheet = false
     @ObservedObject var filterModel: WorkoutFilterModel
-    var showDevTools = false
+    @AppStorage("showDevTools") private var showDevTools = false
 
     init(editMode: Binding<Bool>, onActivitiesChange: @escaping (Int) -> Void, onWorkoutsUpdate: @escaping ([WorkoutData]) -> Void, filterModel: WorkoutFilterModel) {
         self._editMode = editMode

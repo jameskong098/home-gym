@@ -16,7 +16,7 @@ import Charts
 struct WorkoutTrendsView: View {
     let workouts: [WorkoutData]
     @State private var selectedMetric = TrendMetric.reps
-    @State private var timeRange = TimeRange.month
+    @State private var timeRange = TimeRange.week
     
     enum TrendMetric: String, CaseIterable {
         case reps = "Reps"
@@ -186,7 +186,7 @@ struct WorkoutTrendsView: View {
                     x: .value("Date", item.date),
                     y: .value("Value", item.value)
                 )
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.linear) 
                 
                 AreaMark(
                     x: .value("Date", item.date),
@@ -283,49 +283,90 @@ struct WorkoutTrendsView: View {
     }
     
     var statsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Summary")
-                .font(.headline)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    StatCard(title: "Average", value: {
-                        switch selectedMetric {
-                        case .reps: return String(format: "%.0f reps", statsData.avgReps)
-                        case .calories: return String(format: "%.0f cal", statsData.avgCalories)
-                        case .duration: return formatDuration(statsData.avgDuration)
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Summary")
+                    .font(.headline)
+                
+                let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+                
+                if isPhone {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack() {
+                            StatCard(title: "Average", value: {
+                                switch selectedMetric {
+                                case .reps: return String(format: "%.0f reps", statsData.avgReps)
+                                case .calories: return String(format: "%.0f cal", statsData.avgCalories)
+                                case .duration: return formatDuration(statsData.avgDuration)
+                                }
+                            }())
+                            Spacer()
+                            StatCard(title: "Total", value: {
+                                switch selectedMetric {
+                                case .reps: return "\(statsData.totalReps) reps"
+                                case .calories: return String(format: "%.0f cal", statsData.totalCalories)
+                                case .duration: return formatDuration(statsData.totalDuration)
+                                }
+                            }())
                         }
-                    }())
-                    
-                    StatCard(title: "Total", value: {
-                        switch selectedMetric {
-                        case .reps: return "\(statsData.totalReps) reps"
-                        case .calories: return String(format: "%.0f cal", statsData.totalCalories)
-                        case .duration: return formatDuration(statsData.totalDuration)
+                        HStack() {
+                            StatCard(title: "Best Day", value: {
+                                let dateFormatter = DateFormatter()
+                                dateFormatter.dateFormat = "MMM d"
+                                let date = dateFormatter.string(from: statsData.bestDay.date)
+                                
+                                switch selectedMetric {
+                                case .reps: return "\(date): \(Int(statsData.bestDay.value)) reps"
+                                case .calories: return "\(date): \(Int(statsData.bestDay.value)) cal"
+                                case .duration: return "\(date): \(formatDuration(statsData.bestDay.value))"
+                                }
+                            }())
+                            Spacer()
+                            StatCard(title: "Favorite Exercise", value: statsData.favoriteExercise)
                         }
-                    }())
-                    
-                    StatCard(title: "Best Day", value: {
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "MMM d"
-                        let date = dateFormatter.string(from: statsData.bestDay.date)
-                        
-                        switch selectedMetric {
-                        case .reps: return "\(date): \(Int(statsData.bestDay.value)) reps"
-                        case .calories: return "\(date): \(Int(statsData.bestDay.value)) cal"
-                        case .duration: return "\(date): \(formatDuration(statsData.bestDay.value))"
-                        }
-                    }())
-                    
-                    StatCard(title: "Favorite Exercise", value: statsData.favoriteExercise)
+                    }
+                } else {
+                    HStack() {
+                        StatCard(title: "Average", value: {
+                            switch selectedMetric {
+                            case .reps: return String(format: "%.0f reps", statsData.avgReps)
+                            case .calories: return String(format: "%.0f cal", statsData.avgCalories)
+                            case .duration: return formatDuration(statsData.avgDuration)
+                            }
+                        }())
+                        Spacer()
+                        StatCard(title: "Total", value: {
+                            switch selectedMetric {
+                            case .reps: return "\(statsData.totalReps) reps"
+                            case .calories: return String(format: "%.0f cal", statsData.totalCalories)
+                            case .duration: return formatDuration(statsData.totalDuration)
+                            }
+                        }())
+                        Spacer()
+                        StatCard(title: "Best Day", value: {
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "MMM d"
+                            let date = dateFormatter.string(from: statsData.bestDay.date)
+                            
+                            switch selectedMetric {
+                            case .reps: return "\(date): \(Int(statsData.bestDay.value)) reps"
+                            case .calories: return "\(date): \(Int(statsData.bestDay.value)) cal"
+                            case .duration: return "\(date): \(formatDuration(statsData.bestDay.value))"
+                            }
+                        }())
+                        Spacer()
+                        StatCard(title: "Favorite Exercise", value: statsData.favoriteExercise)
+                    }
                 }
             }
+            .padding(.top)
         }
-        .padding(.top)
+        .frame(height: UIDevice.current.userInterfaceIdiom == .phone ? 200 : 130)
     }
 }
 
 struct StatCard: View {
+    @Environment(\.colorScheme) private var colorScheme
     let title: String
     let value: String
     
@@ -339,9 +380,9 @@ struct StatCard: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .frame(width: 150, alignment: .leading)
+        .frame(width: 130, alignment: .leading)
         .padding()
-        .background(Color(UIColor.tertiarySystemBackground))
+        .background(Color(colorScheme == .dark ? Theme.sectionTileBackgroundColorDark : Theme.sectionTileBackgroundColorLight))
         .cornerRadius(10)
         .transition(.opacity.combined(with: .scale))
     }
