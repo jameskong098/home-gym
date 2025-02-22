@@ -86,8 +86,8 @@ struct WorkoutTrendsView: View {
             calendar.startOfDay(for: workout.date)
         }
         
-        return grouped.map { date, workouts in
-            let value: Double
+        var chartData = grouped.map { date, workouts in
+            var value: Double
             let label: String
             
             switch selectedMetric {
@@ -103,8 +103,20 @@ struct WorkoutTrendsView: View {
                 label = formatDuration(totalSeconds)
             }
             
+            // Ensure the chart is displayed even with zero values (for when there are not enough workouts)
+            if value == 0 {
+                value = 0.1
+            }
+            
             return ChartData(date: date, value: value, label: label)
         }.sorted { $0.date < $1.date }
+        
+        // Add a default data point if chartData is empty
+        if chartData.isEmpty {
+            chartData.append(ChartData(date: Date(), value: 0.1, label: ""))
+        }
+        
+        return chartData
     }
     
     private var statsData: StatsData {
@@ -169,90 +181,101 @@ struct WorkoutTrendsView: View {
             }
             .pickerStyle(.segmented)
             
-            if filteredChartData.isEmpty {
-                Text("Not enough data to show trends")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
-            } else {
-                Chart(filteredChartData) { item in
-                    LineMark(
-                        x: .value("Date", item.date),
-                        y: .value("Value", item.value)
-                    )
-                    .interpolationMethod(.catmullRom)
-                    
-                    AreaMark(
-                        x: .value("Date", item.date),
-                        y: .value("Value", item.value)
-                    )
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.blue.opacity(0.3), .blue.opacity(0.1)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                }
-                .chartXAxis {
-                    AxisMarks(values: .stride(by: timeRange.strideBy)) { _ in
-                        AxisGridLine()
-                        AxisTick()
-                        AxisValueLabel(format: .dateTime.month().day())
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks { value in
-                        AxisGridLine()
-                        AxisTick()
-                        AxisValueLabel {
-                            if let doubleValue = value.as(Double.self) {
-                                switch selectedMetric {
-                                case .reps:
-                                    Text("\(Int(doubleValue))")
-                                case .calories:
-                                    Text("\(Int(doubleValue))")
-                                case .duration:
-                                    Text(formatDuration(doubleValue))
-                                }
-                            }
-                        }
-                    }
-                }
-                .animation(.easeInOut, value: selectedMetric) 
-                .frame(height: 200)
+            Chart(filteredChartData) { item in
+                LineMark(
+                    x: .value("Date", item.date),
+                    y: .value("Value", item.value)
+                )
+                .interpolationMethod(.catmullRom)
                 
-                HStack(spacing: 12) {
-                    ForEach(TimeRange.allCases, id: \.self) { range in
-                        Button(action: {
-                            withAnimation {
-                                timeRange = range
-                            }
-                        }) {
-                            Text(range.rawValue)
-                                .font(.subheadline.bold())
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(
-                                    timeRange == range ?
-                                        Color.blue :
-                                        Color.clear
-                                )
-                                .foregroundColor(
-                                    timeRange == range ?
-                                        .white :
-                                        .blue
-                                )
-                                .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.top, 8)
-                
-                statsSection
-                    .animation(.easeInOut, value: selectedMetric)
+                AreaMark(
+                    x: .value("Date", item.date),
+                    y: .value("Value", item.value)
+                )
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.blue.opacity(0.3), .blue.opacity(0.1)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
             }
+            .chartXAxis {
+                AxisMarks(values: .stride(by: timeRange.strideBy)) { _ in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel(format: .dateTime.month().day())
+                }
+            }
+            .chartYAxis {
+                AxisMarks { value in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel {
+                        if let doubleValue = value.as(Double.self) {
+                            switch selectedMetric {
+                            case .reps:
+                                Text("\(Int(doubleValue))")
+                            case .calories:
+                                Text("\(Int(doubleValue))")
+                            case .duration:
+                                Text(formatDuration(doubleValue))
+                            }
+                        }
+                    }
+                }
+            }
+            .overlay {
+                if filteredChartData.count <= 1 {
+                    VStack(spacing: 4) {
+                        Text("Need more workout data to show trends")
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                        Text("Complete more workouts to see your progress")
+                            .font(.title3)
+                            .foregroundColor(.secondary.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    .background(Color(UIColor.systemBackground).opacity(0.9))
+                    .cornerRadius(8)
+                }
+            }
+            .animation(.easeInOut, value: selectedMetric)
+            .frame(height: 200)
+            
+            HStack(spacing: 12) {
+                ForEach(TimeRange.allCases, id: \.self) { range in
+                    Button(action: {
+                        withAnimation {
+                            timeRange = range
+                        }
+                    }) {
+                        Text(range.rawValue)
+                            .font(.subheadline.bold())
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                timeRange == range ?
+                                    Color.blue :
+                                    Color.clear
+                            )
+                            .foregroundColor(
+                                timeRange == range ?
+                                    .white :
+                                    .blue
+                            )
+                            .cornerRadius(8)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.top, 8)
+            
+            statsSection
+                .animation(.easeInOut, value: selectedMetric)
+            
         }
         .padding()
         .background(Color(UIColor.secondarySystemGroupedBackground))
