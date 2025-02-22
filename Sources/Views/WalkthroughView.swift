@@ -155,22 +155,22 @@ struct WelcomePage: View {
                     .lineLimit(1)
                     .minimumScaleFactor(isPhone ? 0.7 : 1)
                 
-                Text("Your AI Home Gym Trainer")
+                Text("Your Smart Personal Fitness Tracker")
                     .font(.title2)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
                     .minimumScaleFactor(isPhone ? 0.7 : 1)
                 
                 VStack(alignment: .leading, spacing: 20) {
-                    FeatureRow(icon: "person.fill",
-                               text: "AI Coach provides personalized insights and analysis",
-                               isPhone: isPhone)
-                    FeatureRow(icon: "eye.square.fill",
-                               text: "Automatically track your exercises using machine learning vision",
-                               isPhone: isPhone)
-                    FeatureRow(icon: "chart.bar.fill",
-                               text: "Monitor and analyze your workout progress",
-                               isPhone: isPhone)
+                    FeatureRow(icon: "figure",
+                            text: "Real-time exercise tracking with body pose detection",
+                            isPhone: isPhone)
+                    FeatureRow(icon: "chart.xyaxis.line",
+                            text: "Track progress with detailed activity logs and trends",
+                            isPhone: isPhone)
+                    FeatureRow(icon: "trophy.circle.fill",
+                            text: "Set fitness goals and earn achievement badges",
+                            isPhone: isPhone)
                 }
                 .padding(.top, 30)
                 
