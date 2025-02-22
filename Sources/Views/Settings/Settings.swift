@@ -403,6 +403,16 @@ struct Settings: View {
                             .foregroundColor(.secondary)
                     }
 
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("App Lunge Figure Icon")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Link("Warrior Pose Right Vector Icon Design Vectors by Vecteezy", destination: URL(string: "https://www.vecteezy.com/vector-art/20194203-warrior-pose-right-vector-icon-design")!)
+                            .foregroundColor(Theme.toggleSwitchColor)
+                    }
+
                     HStack() {
                         Link(destination: URL(string: "https://jameskong098.github.io/")!) {
                             HStack {

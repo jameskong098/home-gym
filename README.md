@@ -55,7 +55,8 @@ Developed by James Deming Kong for Apple's **2025 Swift Student Challenge**
   - 📚 Enable/Disable Tutorials
   - ⏱️ Enable/Disable Countdown Timer
   - 📹 Use Ultra Wide Camera (on supported devices)
-  - 🔊 Enable/Disable Voice Guidance
+  - 🔢 Enable/Disable Voice Count
+  - 🗣️ Enable/Disable Motivational Voice
 
 - 👤 **Personal Information**
   - Name
@@ -157,15 +158,19 @@ Developed by James Deming Kong for Apple's **2025 Swift Student Challenge**
 
 ## 🔧 Technologies Used
 
-- **Swift & SwiftUI** – For building the app UI and interactions
-- **Vision Framework** – For real-time body pose tracking
+- **SwiftUI** – Handles building the app UI and interactions
+- **UIKit** - Handles wrapping views and triggering haptics
+- **Vision** – Handles real-time body pose tracking
 - **AVCaptureSession** – Handles camera input for motion tracking
 - **AVFoundation** - Handles audio playback for sound effects
-- **Core Animation (CALayer)** – Displays overlays for joints and movement guidance
-- **Text-to-Speech (AVSpeechSynthesizer)** – Provides real-time voice feedback
+- **CALayer** – Displays overlays for joints and movement guidance
+- **AVSpeechSynthesizer** – Provides real-time voice feedback
+- **Charts** - For visual analytics and statistics
 - **TipKit** - Provides tip info to explain features
 
 **Sound Effects** – [Material Design Sound Resources](https://m2.material.io/design/sound/sound-resources.html#) ([CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
+
+**App Lunge Figure Icon** – [Warrior Pose Right Vector Icon Design Vectors by Vecteezy](https://www.vecteezy.com/vector-art/20194203-warrior-pose-right-vector-icon-design)
 
 ## 🚀 Future Enhancements
 
