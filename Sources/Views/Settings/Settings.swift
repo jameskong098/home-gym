@@ -40,7 +40,7 @@ struct Settings: View {
     @State private var isEditingGoals = false
     @State private var showingResetGoalsAlert = false
     @AppStorage("showDevTools") private var showDevTools = false
-    @AppStorage("Automatically Generate Demo Data") private var automaticallyGenerateDemoData = true
+   @AppStorage("automaticallyGenerateDemoData") private var automaticallyGenerateDemoData = true
     @AppStorage("enableVoiceCount") private var enableVoiceCount = true
     @AppStorage("enableMotivationalVoice") private var enableMotivationalVoice = true
     @Environment(\.colorScheme) var colorScheme
@@ -330,17 +330,24 @@ struct Settings: View {
                 .padding(.top)
 
                 VStack(alignment: .leading, spacing: 10) {
-                    Toggle("Show Test Data Generator Tools", isOn: $showDevTools)
+                    Toggle("Show data generator tools", isOn: $showDevTools)
                         .padding(.horizontal)
                         .tint(Theme.toggleSwitchColor)
                         .onChange(of: showDevTools) { _ in
+                            triggerHapticFeedback()
+                        }
+                    Divider()
+                    Toggle("Auto-generate sample data on load", isOn: $automaticallyGenerateDemoData)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: automaticallyGenerateDemoData) { _ in
                             triggerHapticFeedback()
                         }
                 }
                 .padding()
                 .background(Color(colorScheme == .dark ? Theme.settingsSectionBackgroundColorDark : Theme.settingsSectionBackgroundColorLight))
                 .cornerRadius(25)
-                Text("Enable this option to allow generating fake data for testing/demo purposes. You will find the buttons within the Activity view once this setting is enabled.")
+                Text("These tools are for demo/development purposes only. In production, they would be removed.")
                     .font(.footnote)
                     .foregroundColor(.gray)
                     .padding(.horizontal)

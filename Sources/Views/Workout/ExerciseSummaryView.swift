@@ -23,9 +23,9 @@ struct ExerciseSummaryView: View {
     @State private var editedWeight: Double?
     @State private var caloriesBurned: Double
     @State private var showingCancelAlert = false
-    @State private var isAnimatingOut = false
     @State private var opacity = 1.0
     @State private var audioPlayer: AVAudioPlayer?
+    @State private var showingSaveConfirmation = false
     let exerciseName: String
     let repCount: Int
     let elapsedTime: TimeInterval
@@ -48,7 +48,7 @@ struct ExerciseSummaryView: View {
     var body: some View {
         ZStack {
             Color.black.opacity(0.4)
-            .edgesIgnoringSafeArea(.all)
+                .edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 25) {
                 Text("Summary")
@@ -115,22 +115,30 @@ struct ExerciseSummaryView: View {
                     
                     actionButton(title: "Save", icon: "checkmark", color: .green) {
                         saveWorkout()
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            isAnimatingOut = true
-                            opacity = 0
-                        }
-     
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                            selectedTab = 2
-                            navPath.append("Activity")
-                        }
                     }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 30)
             }
-            .opacity(opacity)
-            .scaleEffect(isAnimatingOut ? 0.9 : 1.0)
+            .opacity(showingSaveConfirmation ? 0 : opacity)
+            .animation(.easeInOut(duration: 0.3), value: showingSaveConfirmation)
+            
+            if showingSaveConfirmation {
+                VStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.green)
+                    Text("Workout Saved")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
+                .padding(25)
+                .background(Color.black.opacity(0.8))
+                .cornerRadius(15)
+                .transition(.scale.combined(with: .opacity))
+                .zIndex(1)
+            }
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
@@ -301,6 +309,25 @@ struct ExerciseSummaryView: View {
         if let encoded = try? JSONEncoder().encode(savedWorkouts) {
             UserDefaults.standard.set(encoded, forKey: "workouts")
         }
+        
+        if let soundURL = Bundle.main.url(forResource: "hero_simple-celebration-03", withExtension: "caf") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                audioPlayer?.play()
+            } catch {
+                print("Failed to play sound: \(error.localizedDescription)")
+            }
+        }
+        
+        withAnimation {
+            showingSaveConfirmation = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            selectedTab = 2
+            navPath.append("Activity")
+        }
+        
     }
 
     private func loadWorkouts() -> [WorkoutData] {
