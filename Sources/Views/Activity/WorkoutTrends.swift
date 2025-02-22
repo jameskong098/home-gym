@@ -288,7 +288,7 @@ struct WorkoutTrendsView: View {
                     .overlay(alignment: .top) {
                         if let selectedDataPoint = selectedDataPoint {
                             DataPointInfoView(dataPoint: selectedDataPoint, metric: selectedMetric)
-                                .offset(y: -50) 
+                                .offset(y: -15) 
                                 .transition(.move(edge: .top))
                         }
                     }
@@ -469,6 +469,7 @@ private func formatDuration(_ seconds: Double) -> String {
 }
 
 struct DataPointInfoView: View {
+    @Environment(\.colorScheme) private var colorScheme
     let dataPoint: WorkoutTrendsView.ChartData
     let metric: WorkoutTrendsView.TrendMetric
 
@@ -476,11 +477,15 @@ struct DataPointInfoView: View {
         VStack {
             Text("\(dataPoint.label)")
                 .font(.headline)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
             Text("\(dataPoint.date, formatter: dateFormatter)")
                 .font(.subheadline)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
         }
         .padding()
-        .background(.white)
+        .background(Color(colorScheme == .dark ? 
+            Theme.sectionTileBackgroundColorDark : 
+            Theme.sectionTileBackgroundColorLight))
         .cornerRadius(8)
         .shadow(radius: 4)
     }
