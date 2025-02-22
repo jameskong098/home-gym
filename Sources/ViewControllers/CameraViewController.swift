@@ -19,7 +19,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private var overlayLayer: CALayer!
     @AppStorage("enableTutorials") private var enableTutorials = true
-    @AppStorage("enableVoice") private var enableVoice: Bool = true
+    @AppStorage("enableVoiceCount") private var enableVoiceCount: Bool = true
     @AppStorage("useWideAngleCamera") private var useWideAngleCamera = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
@@ -295,7 +295,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && leftKneeAngle > 160 && rightKneeAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -316,7 +316,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && leftKneeAngle > 160 && rightKneeAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -335,7 +335,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && !leftKneeHigherThanHip && !rightKneeHigherThanHip {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -350,7 +350,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -371,7 +371,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && leftArmAngle < 30 && rightArmAngle < 30 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -392,7 +392,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && leftArmAngle < 30 && rightArmAngle < 30 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -421,7 +421,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     else if isGoingDown && shouldersBelowKnees {
                         repCounter += 1
                         isGoingDown = false
-                        if enableVoice {
+                        if enableVoiceCount {
                             Speech.speak("\(repCounter)")
                         }
                     }
@@ -443,7 +443,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && leftKneeAngle > 160 && rightKneeAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -464,7 +464,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && leftElbowAngle > 160 && rightElbowAngle > 160 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -492,7 +492,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && !armsUp && !legsOpen {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }
@@ -514,14 +514,12 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 if hipDrop > warningThreshold && hipDrop <= failureThreshold {
                     if !isGoingDown {
                         isGoingDown = true
-                        if enableVoice {
-                            Speech.speak("Keep your hips up")
-                        }
+                        Speech.speak("Keep your hips up")
                     }
                 } else if hipDrop > failureThreshold {
                     showExerciseSummary?.wrappedValue = true
-                    if enableVoice {
-                        Speech.speak("Exercise ended. Your form dropped too low")
+                    if enableVoiceCount {
+                        Speech.speak("\(repCounter)")
                     }
                 } else {
                     isGoingDown = false
@@ -543,7 +541,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                 } else if isGoingDown && ankleSpread < hipWidth * 1.2 {
                     repCounter += 1
                     isGoingDown = false
-                    if enableVoice {
+                    if enableVoiceCount {
                         Speech.speak("\(repCounter)")
                     }
                 }

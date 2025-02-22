@@ -29,7 +29,8 @@ struct ExerciseView: View {
     @AppStorage("heightFeet") private var heightFeet = 0
     @AppStorage("heightInches") private var heightInches = 0
     @AppStorage("bodyWeight") private var bodyWeight = 0.0
-    @AppStorage("enableVoice") private var enableVoice = true
+    @AppStorage("enableVoiceCount") private var enableVoiceCount = true
+    @AppStorage("enableMotivationalVoice") private var enableMotivationalVoice = true
     @Binding var selectedTab: Int
     @Binding var navPath: [String]
     let exerciseName: String
@@ -402,9 +403,22 @@ struct ExerciseView: View {
     }
     
     private func startTimer() {
+        let initialDelay = Double.random(in: 10...30)
+        var lastMotivationTime: TimeInterval = 0
+        
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             DispatchQueue.main.async {
                 elapsedTime += 1
+                
+                if elapsedTime - lastMotivationTime >= initialDelay && enableMotivationalVoice {
+                    if let message = workoutMotivationMessages.randomElement() {
+                        Speech.speak(message)
+                    }
+
+                    lastMotivationTime = elapsedTime
+                    let nextDelay = Double.random(in: 10...30)
+                    lastMotivationTime += nextDelay
+                }
             }
         }
     }
@@ -478,7 +492,7 @@ struct ExerciseView: View {
         countdownTime = 5
         countdownProgress = 1.0
         
-        if enableVoice {
+        if enableVoiceCount {
             Speech.speak(String(countdownTime))
         }
         
@@ -502,7 +516,7 @@ struct ExerciseView: View {
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             DispatchQueue.main.async {
                 countdownTime -= 1
-                if countdownTime > 0  && enableVoice {
+                if countdownTime > 0  && enableVoiceCount {
                     Speech.speak(String(countdownTime))
                 }
             }

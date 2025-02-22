@@ -17,7 +17,6 @@ struct Settings: View {
     @AppStorage("enableCountdownTimer") private var enableCountdownTimer = true
     @AppStorage("useWideAngleCamera") private var useWideAngleCamera = true
     @AppStorage("enableSoundCues") private var enableSoundCues = true
-    @AppStorage("enableVoice") private var enableVoice = true
     @AppStorage("showBodyTrackingPoints") private var showBodyTrackingPoints = true
     @AppStorage("showBodyTrackingLabels") private var showBodyTrackingLabels = false
     @AppStorage("showBodyTrackingLines") private var showBodyTrackingLines = true
@@ -41,6 +40,9 @@ struct Settings: View {
     @State private var isEditingGoals = false
     @State private var showingResetGoalsAlert = false
     @AppStorage("showDevTools") private var showDevTools = false
+    @AppStorage("Automatically Generate Demo Data") private var automaticallyGenerateDemoData = true
+    @AppStorage("enableVoiceCount") private var enableVoiceCount = true
+    @AppStorage("enableMotivationalVoice") private var enableMotivationalVoice = true
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
@@ -78,10 +80,17 @@ struct Settings: View {
                             }
                     }
                     Divider()
-                    Toggle("Enable Voice", isOn: $enableVoice)
+                    Toggle("Enable Voice Count", isOn: $enableVoiceCount)
                         .padding(.horizontal)
                         .tint(Theme.toggleSwitchColor)
-                        .onChange(of: enableVoice) { _ in
+                        .onChange(of: enableVoiceCount) { _ in
+                            triggerHapticFeedback()
+                        }
+                    Divider()
+                    Toggle("Enable Motivational Voice", isOn: $enableMotivationalVoice)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: enableMotivationalVoice) { _ in
                             triggerHapticFeedback()
                         }
                 }
