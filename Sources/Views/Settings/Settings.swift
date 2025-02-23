@@ -63,13 +63,6 @@ struct Settings: View {
                         .onChange(of: enableTutorials) { _ in
                             triggerHapticFeedback()
                         }
-                    Divider()
-                    Toggle("Enable Countdown Timer", isOn: $enableCountdownTimer)
-                        .padding(.horizontal)
-                        .tint(Theme.toggleSwitchColor)
-                        .onChange(of: enableCountdownTimer) { _ in
-                            triggerHapticFeedback()
-                        }
                     if CameraViewController.deviceSupportsUltraWide() {
                         Divider()
                         Toggle("Use Ultra Wide Camera", isOn: $useWideAngleCamera)
@@ -79,6 +72,13 @@ struct Settings: View {
                                 triggerHapticFeedback()
                             }
                     }
+                    Divider()
+                    Toggle("Enable Countdown Timer", isOn: $enableCountdownTimer)
+                        .padding(.horizontal)
+                        .tint(Theme.toggleSwitchColor)
+                        .onChange(of: enableCountdownTimer) { _ in
+                            triggerHapticFeedback()
+                        }
                     Divider()
                     Toggle("Enable Voice Count", isOn: $enableVoiceCount)
                         .padding(.horizontal)
