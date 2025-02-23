@@ -518,9 +518,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
                     }
                 } else if hipDrop > failureThreshold {
                     showExerciseSummary?.wrappedValue = true
-                    if enableVoiceCount {
-                        Speech.speak("\(repCounter)")
-                    }
+                    Speech.speak("Exercise has ended. Your hips dropped too low.")
                 } else {
                     isGoingDown = false
                 }
