@@ -356,7 +356,11 @@ struct ProgressTracker: View {
         }
         
         let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
-        let weeklyWorkouts = workouts.filter { $0.date >= startOfWeek && $0.date <= today }
+        let endOfWeek = calendar.date(byAdding: .day, value: 7, to: startOfWeek)!
+        let weeklyWorkouts = workouts.filter { workout in
+            let workoutDate = calendar.startOfDay(for: workout.date)
+            return workoutDate >= startOfWeek && workoutDate < endOfWeek
+        }
         let weeklyValue = weeklyWorkouts.reduce(0.0) { total, workout in
             switch selectedGoalType {
             case .reps:
@@ -369,7 +373,15 @@ struct ProgressTracker: View {
         }
         
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
-        let monthlyWorkouts = workouts.filter { $0.date >= startOfMonth && $0.date <= today }
+        guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: startOfMonth),
+              let endOfMonth = calendar.date(byAdding: .day, value: -1, to: nextMonth) else {
+            return
+        }
+        
+        let monthlyWorkouts = workouts.filter { workout in
+            let workoutDate = calendar.startOfDay(for: workout.date)
+            return workoutDate >= startOfMonth && workoutDate <= endOfMonth
+        }
         let monthlyValue = monthlyWorkouts.reduce(0.0) { total, workout in
             switch selectedGoalType {
             case .reps:
