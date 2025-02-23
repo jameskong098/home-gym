@@ -39,13 +39,15 @@ struct MainContentViewWrapper: View {
         MainContentView()
             .onAppear {
                 if automaticallyGenerateDemoData {
-                    showDemoAlert = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // Delay by 1 second since Swift Playgrounds behavior is different for some reason than Xcode App Playgrounds/Sideloaded Previews
+                        showDemoAlert = true
+                    }
                 } 
             }
             .alert("Sample Data Added", isPresented: $showDemoAlert) {
                 Button("OK") { }
             } message: {
-                Text("Randomized sample data has been added to your activity history for demo purposes. If you would like to generate new data, you can go to the \"Developer Tools\" section within the settings view. You can also turn off randomized sample data generation in the same section.")
+                Text("Randomized sample data has been added to your activity history for demo purposes. If you would like to generate new data, you can go to the \"Developer Tools\" section within the settings view. You can also turn off randomized sample data generation within the same section.")
             }
     }
 }
@@ -239,14 +241,14 @@ struct BasicInfoPage: View {
                     VStack(alignment: .leading) {
                         Text("What's your first name?")
                             .fontWeight(.medium)
-                        TextField("Enter your name", text: $name)
+                        TextField("Ex. Jimmy", text: $name)
                             .textFieldStyle(.roundedBorder)
                     }
                     
                     VStack(alignment: .leading) {
                         Text("How old are you?")
                             .fontWeight(.medium)
-                        TextField("Age", value: $age, format: .number)
+                        TextField("Ex. 23", value: $age, format: .number)
                             .textFieldStyle(.roundedBorder)
                             .keyboardType(.numberPad)
                     }
@@ -312,11 +314,11 @@ struct BodyMetricsPage: View {
                         Text("Height")
                             .fontWeight(.medium)
                         HStack {
-                            TextField("Feet", value: $heightFeet, format: .number)
+                            TextField("6", value: $heightFeet, format: .number)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 80)
                             Text("ft")
-                            TextField("Inches", value: $heightInches, format: .number)
+                            TextField("0", value: $heightInches, format: .number)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 80)
                             Text("in")
@@ -327,7 +329,7 @@ struct BodyMetricsPage: View {
                         Text("Weight")
                             .fontWeight(.medium)
                         HStack {
-                            TextField("Weight", value: $bodyWeight, format: .number)
+                            TextField("189", value: $bodyWeight, format: .number)
                                 .textFieldStyle(.roundedBorder)
                             Text("lbs")
                         }
