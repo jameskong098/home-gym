@@ -40,7 +40,7 @@ struct Settings: View {
     @State private var isEditingGoals = false
     @State private var showingResetGoalsAlert = false
     @AppStorage("showDevTools") private var showDevTools = false
-   @AppStorage("automaticallyGenerateDemoData") private var automaticallyGenerateDemoData = true
+    @AppStorage("automaticallyGenerateDemoData") private var automaticallyGenerateDemoData = true
     @AppStorage("enableVoiceCount") private var enableVoiceCount = true
     @AppStorage("enableMotivationalVoice") private var enableMotivationalVoice = true
     @Environment(\.colorScheme) var colorScheme

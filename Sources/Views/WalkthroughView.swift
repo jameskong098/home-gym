@@ -31,106 +31,133 @@ struct MainContentView: View {
     }
 }
 
+struct MainContentViewWrapper: View {
+    @AppStorage("automaticallyGenerateDemoData") private var automaticallyGenerateDemoData = true
+    @State private var showDemoAlert = false
+
+    var body: some View {
+        MainContentView()
+            .onAppear {
+                if automaticallyGenerateDemoData {
+                    showDemoAlert = true
+                } 
+            }
+            .alert("Sample Data Added", isPresented: $showDemoAlert) {
+                Button("OK") { }
+            } message: {
+                Text("Randomized sample data has been added to your activity history for demo purposes. If you would like to generate new data, you can go to the \"Developer Tools\" section within the settings view. You can also turn off randomized sample data generation in the same section.")
+            }
+    }
+}
+
 struct WalkthroughView: View {
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("hasCompletedWalkthrough") private var hasCompletedWalkthrough = false
     @AppStorage("name") private var name = ""
-    @AppStorage("age") private var age = 0
+    @AppStorage("age") private var age: Int?
     @AppStorage("sex") private var sex = ""
-    @AppStorage("heightFeet") private var heightFeet = 0
-    @AppStorage("heightInches") private var heightInches = 0
-    @AppStorage("bodyWeight") private var bodyWeight = 0.0
+    @AppStorage("heightFeet") private var heightFeet: Int?
+    @AppStorage("heightInches") private var heightInches: Int?
+    @AppStorage("bodyWeight") private var bodyWeight: Double?
     @State private var currentPage = 0
     @State private var slideOffset: CGFloat = 0
+    @State private var isTransitioning = false
 
     var body: some View {
-        if hasCompletedWalkthrough {
-            MainContentView()
-        } else {
-            ZStack {
-                Color(colorScheme == .dark ? Theme.headerColorDark : Theme.mainContentBackgroundColorLight)
-                    .ignoresSafeArea()
-                
-                VStack {        
-                    Spacer()
-                    GeometryReader { geometry in
-                        if currentPage > 0 {
-                            HStack {
-                                Button(action: {
-                                    withAnimation(.spring()) {
-                                        slideOffset += geometry.size.width
-                                        currentPage -= 1
+        ZStack {
+            if hasCompletedWalkthrough {
+                MainContentViewWrapper()
+                    .transition(.opacity.combined(with: .scale))
+            }
+            
+            if !hasCompletedWalkthrough || isTransitioning {
+                ZStack {
+                    Color(colorScheme == .dark ? Theme.headerColorDark : Theme.mainContentBackgroundColorLight)
+                        .ignoresSafeArea()
+                    
+                    VStack {        
+                        Spacer()
+                        GeometryReader { geometry in
+                            if currentPage > 0 {
+                                HStack {
+                                    Button(action: {
+                                        withAnimation(.spring()) {
+                                            slideOffset += geometry.size.width
+                                            currentPage -= 1
+                                        }
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "chevron.left")
+                                            Text("Back")
+                                        }
+                                        .foregroundColor(.blue)
+                                        .padding()
                                     }
-                                }) {
-                                    HStack {
-                                        Image(systemName: "chevron.left")
-                                        Text("Back")
-                                    }
-                                    .foregroundColor(.blue)
-                                    .padding()
+                                    Spacer()
                                 }
-                                Spacer()
+                                .zIndex(1)
                             }
-                            .zIndex(1)
+                            
+                            Spacer()
+
+                            HStack(spacing: 0) {
+                                WelcomePage(onNext: {
+                                    withAnimation(.spring()) {
+                                        slideOffset = -geometry.size.width
+                                        currentPage = 1
+                                    }
+                                })
+                                .frame(width: geometry.size.width)
+                                
+                                BasicInfoPage(name: $name, age: $age, onNext: {
+                                    withAnimation(.spring()) {
+                                        slideOffset = -geometry.size.width * 2
+                                        currentPage = 2
+                                    }
+                                })
+                                .frame(width: geometry.size.width)
+                                
+                                BodyMetricsPage(sex: $sex, heightFeet: $heightFeet, heightInches: $heightInches, bodyWeight: $bodyWeight, onNext: {
+                                    withAnimation(.spring()) {
+                                        slideOffset = -geometry.size.width * 3
+                                        currentPage = 3
+                                    }
+                                })
+                                .frame(width: geometry.size.width)
+                                
+                                SummaryPage(name: name, onComplete: {
+                                    withAnimation(.spring()) {
+                                        hasCompletedWalkthrough = true
+                                    }
+                                })
+                                .frame(width: geometry.size.width)
+                            }
+                            .offset(x: slideOffset)
                         }
+                        .background(
+                            colorScheme == .dark ? Color.black : Color.white
+                        )
+                        .cornerRadius(20)
+                        .frame(maxWidth: 660, maxHeight: 650)
+                        HStack(spacing: 12) {
+                            ForEach(0..<4) { index in
+                                Circle()
+                                    .fill(currentPage >= index ? Color.blue : Color.gray.opacity(0.3))
+                                    .frame(width: 11, height: 11)
+                                    .scaleEffect(currentPage == index ? 1.2 : 1.0)
+                                    .animation(.spring(), value: currentPage)
+                            }
+                        }
+                        .padding(.top, 40)
                         
                         Spacer()
-
-                        HStack(spacing: 0) {
-                            WelcomePage(onNext: {
-                                withAnimation(.spring()) {
-                                    slideOffset = -geometry.size.width
-                                    currentPage = 1
-                                }
-                            })
-                            .frame(width: geometry.size.width)
-                            
-                            BasicInfoPage(name: $name, age: $age, onNext: {
-                                withAnimation(.spring()) {
-                                    slideOffset = -geometry.size.width * 2
-                                    currentPage = 2
-                                }
-                            })
-                            .frame(width: geometry.size.width)
-                            
-                            BodyMetricsPage(sex: $sex, heightFeet: $heightFeet, heightInches: $heightInches, bodyWeight: $bodyWeight, onNext: {
-                                withAnimation(.spring()) {
-                                    slideOffset = -geometry.size.width * 3
-                                    currentPage = 3
-                                }
-                            })
-                            .frame(width: geometry.size.width)
-                            
-                            SummaryPage(name: name, onComplete: {
-                                withAnimation(.spring()) {
-                                    hasCompletedWalkthrough = true
-                                }
-                            })
-                            .frame(width: geometry.size.width)
-                        }
-                        .offset(x: slideOffset)
                     }
-                    .background(
-                        colorScheme == .dark ? Color.black : Color.white
-                    )
-                    .cornerRadius(20)
-                    .frame(maxWidth: 660, maxHeight: 650)
-                    HStack(spacing: 12) {
-                        ForEach(0..<4) { index in
-                            Circle()
-                                .fill(currentPage >= index ? Color.blue : Color.gray.opacity(0.3))
-                                .frame(width: 11, height: 11)
-                                .scaleEffect(currentPage == index ? 1.2 : 1.0)
-                                .animation(.spring(), value: currentPage)
-                        }
-                    }
-                    .padding(.top, 40)
-                    
-                    Spacer()
+                    .padding()
                 }
-                .padding()
+                .transition(.opacity.combined(with: .scale))
             }
         }
+        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: hasCompletedWalkthrough)
     }
 }
 
@@ -193,7 +220,7 @@ struct WelcomePage: View {
 
 struct BasicInfoPage: View {
     @Binding var name: String
-    @Binding var age: Int
+    @Binding var age: Int?
     @State private var showAlert = false
     let onNext: () -> Void
     
@@ -219,7 +246,7 @@ struct BasicInfoPage: View {
                     VStack(alignment: .leading) {
                         Text("How old are you?")
                             .fontWeight(.medium)
-                        TextField("Age", value: $age, formatter: NumberFormatter())
+                        TextField("Age", value: $age, format: .number)
                             .textFieldStyle(.roundedBorder)
                             .keyboardType(.numberPad)
                     }
@@ -227,7 +254,7 @@ struct BasicInfoPage: View {
                 .padding(.top, 30)
                 
                 Button(action: {
-                    if name.isEmpty || age <= 0 {
+                    if name.isEmpty || age == nil || age! <= 0 {
                         showAlert = true
                     } else {
                         onNext()
@@ -255,9 +282,9 @@ struct BasicInfoPage: View {
 
 struct BodyMetricsPage: View {
     @Binding var sex: String
-    @Binding var heightFeet: Int
-    @Binding var heightInches: Int
-    @Binding var bodyWeight: Double
+    @Binding var heightFeet: Int?
+    @Binding var heightInches: Int?
+    @Binding var bodyWeight: Double?
     @State private var showAlert = false
     let onNext: () -> Void
     
@@ -285,11 +312,11 @@ struct BodyMetricsPage: View {
                         Text("Height")
                             .fontWeight(.medium)
                         HStack {
-                            TextField("Feet", value: $heightFeet, formatter: NumberFormatter())
+                            TextField("Feet", value: $heightFeet, format: .number)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 80)
                             Text("ft")
-                            TextField("Inches", value: $heightInches, formatter: NumberFormatter())
+                            TextField("Inches", value: $heightInches, format: .number)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 80)
                             Text("in")
@@ -300,7 +327,7 @@ struct BodyMetricsPage: View {
                         Text("Weight")
                             .fontWeight(.medium)
                         HStack {
-                            TextField("Weight", value: $bodyWeight, formatter: NumberFormatter())
+                            TextField("Weight", value: $bodyWeight, format: .number)
                                 .textFieldStyle(.roundedBorder)
                             Text("lbs")
                         }
@@ -309,7 +336,7 @@ struct BodyMetricsPage: View {
                 .padding(.top, 30)
                 
                 Button(action: {
-                    if sex.isEmpty || heightFeet <= 0 || heightInches < 0 || bodyWeight <= 0 {
+                    if sex.isEmpty || heightFeet == nil || heightInches == nil || bodyWeight == nil {
                         showAlert = true
                     } else {
                         onNext()
@@ -338,6 +365,7 @@ struct BodyMetricsPage: View {
 struct SummaryPage: View {
     let name: String
     let onComplete: () -> Void
+    @State private var isAnimating = false
     
     var body: some View {
         ScrollView {
@@ -354,7 +382,12 @@ struct SummaryPage: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                 
-                Button(action: onComplete) {
+                Button(action: {
+                    withAnimation {
+                        isAnimating = true
+                        onComplete()
+                    }
+                }) {
                     Text("Start Your Journey")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -363,10 +396,12 @@ struct SummaryPage: View {
                         .background(Color.blue)
                         .cornerRadius(10)
                 }
+                .scaleEffect(isAnimating ? 0.9 : 1.0)
                 .padding(.top, 40)
             }
             .padding(40)
             .frame(maxWidth: 660, maxHeight: 650)
+            .opacity(isAnimating ? 0 : 1)
         }
         .ignoresSafeArea(.keyboard)
     }

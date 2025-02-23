@@ -16,29 +16,18 @@ import TipKit
 struct HomeGymApp: App {
     @AppStorage("hasCompletedWalkthrough") private var hasCompletedWalkthrough = false
     @AppStorage("automaticallyGenerateDemoData") private var automaticallyGenerateDemoData = true
-    @State private var showAlert = false
 
     init() {
         configureTips()
         if automaticallyGenerateDemoData {
             generateDemoData()
-            if hasCompletedWalkthrough {
-                _showAlert = State(initialValue: true)
-            }
         }
     }
 
     var body: some Scene {
         WindowGroup {
             if hasCompletedWalkthrough {
-                MainContentView()
-                    .alert(isPresented: $showAlert) {
-                        Alert(
-                            title: Text("Sample Data Added"),
-                            message: Text("Randomized sample data has been added to your activity history for demo purposes. If you would like to generate new data, you can go to the \"Developer Tools\" section within the settings view. You can also turn off randomized sample data generation in the same section."),
-                            dismissButton: .default(Text("OK"))
-                        )
-                    }
+                MainContentViewWrapper()
             } else {
                 WalkthroughView()
             }
