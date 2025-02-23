@@ -100,12 +100,12 @@ func calculateAchievements(workouts: [WorkoutData]) -> [Achievement] {
     let totalReps = workouts.reduce(0) { $0 + $1.repCount }
     let totalDuration = workouts.reduce(0.0) { $0 + $1.elapsedTime }
     let totalCalories = workouts.reduce(0.0) { $0 + $1.caloriesBurned }
-    let currentStreak = calculateStreak(workouts: workouts, calendar: Calendar.current, today: Date())
+    let longestStreak = calculateLongestStreak(workouts: workouts, calendar: Calendar.current)
     
     return (streakAchievements + repAchievements + durationAchievements + calorieAchievements).map { achievement in
         var earned = false
         if achievement.title.contains("Days") || achievement.title.contains("Year") {
-            earned = achievement.condition(currentStreak)
+            earned = achievement.condition(longestStreak)
         } else if achievement.title.contains("Hour") {
             earned = achievement.condition(Int(totalDuration))
         } else if achievement.title.contains("Calories") {
