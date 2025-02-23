@@ -8,7 +8,7 @@ Developed by James Deming Kong for Apple's **2025 Swift Student Challenge**
 ![Home Gym App Screen 3](Resources/Mockup_03.png)
 
 ## 🎥 Demo Video
-[![Home Gym App Demo](https://img.youtube.com/vi/rw4rHrYH1G0/0.jpg)](https://www.youtube.com/watch?v=rw4rHrYH1G0)
+[YouTube Link](https://www.youtube.com/watch?v=rw4rHrYH1G0)
 
 ## 📌 Overview
 **Home Gym** is a **smart personal fitness tracker app** designed to make working out at home more engaging and effective. By leveraging advanced body tracking technology and computer vision, **Home Gym** allows you to monitor your exercises in real-time, ensuring proper form and providing feedback on your progress. The app features comprehensive workout logging and analytics, allowing users to track their fitness journey through detailed exercise metrics, progress visualization, and performance trends. Supporting a variety of exercises, the app includes features like automatic rep counting, personalized goal setting, workout history management, and achievement rewards to keep you motivated.
