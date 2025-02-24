@@ -1,6 +1,8 @@
 # 🏋️ Home Gym - iOS/iPadOS Fitness App
 Developed by James Deming Kong for Apple's **2025 Swift Student Challenge**
 
+> Interested in the Swift Student Challenge? Learn more [here](https://developer.apple.com/swift-student-challenge/).
+
 **Jan 2025** - **Feb 2025**
 
 ![Home Gym App Screen 1](Resources/Mockup_01.png)
