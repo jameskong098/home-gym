@@ -23,10 +23,26 @@ Developed by James Deming Kong for Apple's **2025 Swift Student Challenge**
 - Automatic rep counting
 - Voice guidance and form feedback
 
-### 🏃 Multiple Supported Exercises
-- Bodyweight: Push-Ups, Squats, Lunges, Planks
-- Cardio: Jumping Jacks, High Knees
-- Strength: Bicep Curls, Lateral Raises, Front Raises
+### 🏃 Multiple Supported Exercises (`12`)
+- **Cardio** 
+    - Jumping Jacks 
+    - High Knees
+
+- **Lower Body:** 
+    - Basic Squats 
+    - Wall Squats 
+    - Lunges 
+    - Standing Side Leg Raises
+
+- **Core:** 
+    - Pilates Sit-Ups Hybrid 
+    - Planks
+    
+- **Upper Body:** 
+    - Push-Ups 
+    - Bicep Curls - Simultaneous 
+    - Lateral Raises 
+    - Front Raises
 
 ### 📊 Detailed Progress Tracking
 - Interactive calendar view
