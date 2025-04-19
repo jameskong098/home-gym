@@ -12,7 +12,9 @@ Developed by James Deming Kong
 ![Home Gym App Screen 3](Resources/Mockup_03.png)
 
 ## 🎥 Demo Video
-[YouTube Link](https://www.youtube.com/watch?v=rw4rHrYH1G0)
+[Guided Demo](https://www.youtube.com/watch?v=dsgAGXltOJE)
+
+[Full Uncut App Walkthrough](https://www.youtube.com/watch?v=rw4rHrYH1G0)
 
 ## 📄 Essay Portion of Submission
 [Written Responses](Written%20Responses.pdf)
