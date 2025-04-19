@@ -11,7 +11,7 @@ Developed by James Deming Kong
 ![Home Gym App Screen 2](Resources/Mockup_02.png)
 ![Home Gym App Screen 3](Resources/Mockup_03.png)
 
-## 🎥 Demo Video
+## 🎥 Demo Videos
 [Guided Demo](https://www.youtube.com/watch?v=dsgAGXltOJE)
 
 [Full Uncut App Walkthrough](https://www.youtube.com/watch?v=rw4rHrYH1G0)
